@@ -27,6 +27,7 @@ import { DailyResult } from './DailyResult';
 import { SprintResult } from '../../Sprint';
 import { LEAGUE_TO_SPRINT } from '../../playMenu';
 import { decisiveMoment, noSalesLine } from '../resultsWords';
+import { LINK_COPIED, NOT_COPIED, copyText } from '../../share';
 
 /** Every stall's cash at the end of each day, so you can see where the game was won. */
 function CashChart({ s, viewer, named }: { s: GameState; viewer: number; named?: boolean }) {
@@ -386,12 +387,15 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
   const headline = win || named || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
   const sprint = !!s.config.sprint;
   const mode = sprint ? ' · Sprint' : s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, ${stageLabel(league)}` : online ? ' · Online' : '';
+  // REP-140 B-18: with no share sheet (a computer), the link is copied and the page says so, or says it could not be.
+  const [shareSaid, setShareSaid] = useState<string | null>(null);
   const share = async () => {
     const text = `Fruit Market: ${words.mine} with $${s.players[named ? champSeat : owner].cash} after ${s.config.days} days.`;
-    try {
-      if (navigator.share) await navigator.share({ text, url: location.origin });
-      else await navigator.clipboard.writeText(`${text} ${location.origin}`);
-    } catch { /* cancelled or not allowed */ }
+    if (navigator.share) {
+      try { await navigator.share({ text, url: location.origin }); } catch { /* the share sheet was closed: nothing to say */ }
+      return;
+    }
+    setShareSaid(await copyText(`${text} ${location.origin}`) ? LINK_COPIED : NOT_COPIED);
   };
   // A tap on the page (not on a button) hurries the stamps.
   const hurry = (e: MouseEvent) => { if (!landed && !(e.target as Element).closest?.('button')) A.hurryUp(); };
@@ -478,11 +482,12 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           {rematchNote ? <p class="rematch-note"><b>{rematchNote}</b></p> : what && <p class="jp-what">{what}</p>}
           <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
           <div class="jp-two">
-            <button class="jp-sec" onClick={share}>Share</button>
+            <button class="jp-sec" data-a="share" onClick={share}>Share</button>
             {league !== undefined && cleared && onRetry && <button class="jp-sec" data-a="stage-retry" onClick={onRetry} aria-label={retry}>Retry</button>}
             {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
             {react}
           </div>
+          {shareSaid && <p class="jp-said" role="status" data-a="share-said">{shareSaid}</p>}
         </div>
       </div>
     </section>

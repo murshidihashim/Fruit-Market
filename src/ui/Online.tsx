@@ -14,6 +14,7 @@ import {
   type RoomView,
 } from '../net/protocol';
 import { fx } from './fx';
+import { NOT_COPIED, copyText } from './share';
 import { Game } from './Game';
 import { loadName, saveName } from './store';
 import { StallSign, TradingCard } from './cards';
@@ -402,7 +403,8 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const [wardrobe, setWardrobe] = useState(false);
   const host = !!me?.host;
   const link = inviteLink(v.code);
-  const [copied, setCopied] = useState(false);
+  // REP-140 B-18: the copy button says when the link was copied, and when it could not be.
+  const [copied, setCopied] = useState<boolean | null>(null);
   const allReady = v.seats.length >= 2 && v.seats.every((x) => x.ready && x.connected);
   // PLAN-107 (ON-05): a seat whose person closed the tab is freed after the grace period (the room sends when); until
   // then a line counts down to it, and the start button names who the room is waiting for.
@@ -420,10 +422,10 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const canShare = typeof navigator !== 'undefined' && 'share' in navigator;
 
   const copy = async () => {
-    try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch {
-      const el = document.getElementById('invite-link') as HTMLInputElement | null;
-      el?.select();
-    }
+    const ok = await copyText(link);
+    setCopied(ok);
+    if (ok) setTimeout(() => setCopied(null), 1800);
+    else (document.getElementById('invite-link') as HTMLInputElement | null)?.select();
   };
   const share = async () => {
     try { await navigator.share({ title: 'Fruit Market', text: `Join my Fruit Market game. Room ${v.code}`, url: link }); } catch { void copy(); }
@@ -459,7 +461,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         </div>
         <div class="sb-share">
           {canShare && <button type="button" class="go" onClick={share}>Share link</button>}
-          <button type="button" class={canShare ? '' : 'go'} onClick={copy}>{copied ? 'Copied' : 'Copy link'}</button>
+          <button type="button" class={canShare ? '' : 'go'} onClick={copy}>{copied ? 'Copied' : copied === false ? NOT_COPIED : 'Copy link'}</button>
         </div>
         <input id="invite-link" class="sb-sr" readOnly tabIndex={-1} value={link} aria-label="Invite link" onFocus={(e) => (e.target as HTMLInputElement).select()} />
       </section>

@@ -113,6 +113,8 @@
 .sbk .jp-playas { align-self: flex-start; min-height: 44px; margin-top: 4px; padding: 0 10px; box-shadow: inset 0 0 0 2px var(--k-ink); font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .sbk .jp-acts { gap: 8px; border-top: 2px solid var(--k-ink); }
 .sbk .jp-what { text-align: center; font-weight: 700; }
+/* REP-140 B-18: under Share, what happened when there was no share sheet ("Link copied" or "Could not copy") */
+.sbk .jp-said { margin-top: 2px; text-align: center; font: 700 0.8125rem/1.3 var(--f-label); }
 .sbk .jp-acts .rematch-note { text-align: center; }
 /* the Daily board's share button (DailyResult.tsx sets 40px on the element): a 44px tap target on the results */
 .sbk .daily-result .sbk-btn.gh { min-height: 44px !important; }

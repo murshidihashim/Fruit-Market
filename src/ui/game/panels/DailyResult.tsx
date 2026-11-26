@@ -8,11 +8,13 @@ import { boardName, shortDate } from '../../dailyCard';
 import { track } from '../../../net/telemetry';
 import { worn } from '../../looks';
 import { unlockAchievement } from '../../progress';
+import { NOT_COPIED, copyText } from '../../share';
 import { FramedFace, shownAvatar } from '../../stampCard';
 
 export function DailyResult({ s }: { s: GameState }) {
   const [res, setRes] = useState<BoardResult | null>(null);
-  const [copied, setCopied] = useState(false);
+  // REP-140 B-18: what the button says after a tap with no share sheet: copied, or could not be copied.
+  const [copied, setCopied] = useState<boolean | null>(null);
   useEffect(() => {
     let alive = true;
     // Opened again (no moves to send), the board is read with this phone's owner hash so your own line is still known.
@@ -25,10 +27,11 @@ export function DailyResult({ s }: { s: GameState }) {
   const share = async () => {
     const text = `${shareText(s, res?.rank)}\nPlay: https://fruit-market.murshidi-hashim.workers.dev`;
     track('daily_share');
-    try {
-      if (navigator.share) await navigator.share({ text });
-      else { await navigator.clipboard.writeText(text); setCopied(true); }
-    } catch { /* cancelled */ }
+    if (navigator.share) {
+      try { await navigator.share({ text }); } catch { /* the share sheet was closed: nothing to say */ }
+      return;
+    }
+    setCopied(await copyText(text));
   };
   const me = s.players.findIndex((p) => p.kind === 'human');
   const mine = <FramedFace who={shownAvatar(s.players, me)} size={20} look={worn()} />;
@@ -44,7 +47,7 @@ export function DailyResult({ s }: { s: GameState }) {
             {res.rank && res.rank > 5 && me >= 0 && <li class="me"><b>{res.rank}.</b>{mine}<span>You</span><b>${s.players[me].cash}</b></li>}
           </ol>
         )}
-      <button class="sbk-btn gh" style="min-height: 40px" onClick={share}>{copied ? 'Copied. Paste it in a chat.' : 'Share your result'}</button>
+      <button class="sbk-btn gh" style="min-height: 40px" onClick={share}>{copied ? 'Copied. Paste it in a chat.' : copied === false ? NOT_COPIED : 'Share your result'}</button>
     </div>
   );
 }
