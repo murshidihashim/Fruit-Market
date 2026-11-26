@@ -237,6 +237,9 @@
   outline: 3px solid var(--focus); outline-offset: 2px;
 }
 #app .game.tkt :is(button, [tabindex]):is(.tk-menu, .tk-box, .tk-lane-head, .tb-stall):focus-visible { outline-offset: -3px; }
+/* today's event fills the top bar's height on a short phone: its ring lies on its own clear edge (2 px above and below
+   the mustard), so it stays inside the bar */
+#app .game.tkt :is(button, [tabindex]):is(.tk-event):focus-visible { outline-offset: 0; }
 /* a lane's head is filled with the lane's colour: its ring is the colour of its own words, which stand out on it */
 #app .game.tkt :is(button, [tabindex]):is(.tk-lane-head):focus-visible { outline-color: currentColor; }
 /* the price dial's black − and + sit at the edge of the rows' scrolling box: a mustard ring inside them */

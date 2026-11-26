@@ -410,7 +410,7 @@
    under the customers. */
 @media (max-height: 639px) and (min-height: 480px) and (max-width: 899px) {
   #app .game.gx.tkt { height: 100%; overflow: clip; }
-  #app .tkt > .street-wrap { padding-top: 5px; padding-bottom: 4px; }
+  #app .tkt > .street-wrap { padding-top: 5px; padding-bottom: 5px; }
   #app .tkt .tomorrow { margin-bottom: 5px; }
   #app .tkt > .seats.tb-stalls { padding-top: 4px; padding-bottom: 3px; }
   #app .tkt .tb-stall:not(.compact) { height: 52px; }
