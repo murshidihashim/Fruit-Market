@@ -188,13 +188,13 @@ describe('one speed for scripts and stylesheets', () => {
   });
 
   it('the labels over a stall are pauses to read, so reduced motion keeps them (they used to shrink to a twentieth)', () => {
+    // a favour played: favour-secret.test.ts 'the label is a pause to read, so reduced motion keeps it'; an upgrade
+    // built: day-sheets.test.ts 'with reduced motion the label over the stall is held for a pause to read'
     const src = read('src/ui/game/animator.tsx');
-    expect(src).toContain('A.hold(A.BEAT.label.read)');
     // PLAN-123: Skip no longer holds a "+1 favour card" label per skipped customer before the takings; each favour card
     // is shown on its stall at once as Skip settles the rush.
     expect(src).not.toContain('+1 favour card');
     expect(src).toContain('A.hold(A.BEAT.label.bonus)');
-    expect(src).not.toMatch(/A\.wait\(A\.BEAT\.label/);
   });
 
   it('the stylesheets read the speed and the lengths under those names only', () => {
