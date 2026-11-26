@@ -4,13 +4,13 @@
 // round its focus point, and the same numbers, names and text as the full card. Drawing only. Styles: cards.css.
 import type { ComponentChildren } from 'preact';
 import {
-  FAVOURS, FRUIT, PREF_INFO, lookOf, prefOf,
+  FAVOURS, FRUIT, PREF_INFO, acceptsStage, lookOf, prefOf,
   type FarmerCard, type FavourDef, type FavourId, type FruitId, type OrderCard as OrderDef,
 } from '../engine/data';
 import { Coin } from './art';
 import { LANES } from './boardModel';
 import {
-  ART_SIZE, CardArt, FAVOUR_WHEN, OKAY_LESS, PayBadge, SOFT_LESS, byLane, customerNumber, eventCardText, laneClass, lorryNotes, lorryRow, prefClass, prefWords,
+  ART_SIZE, CardArt, FAVOUR_WHEN, PayBadge, byLane, customerNumber, eventCardText, laneClass, lorryNotes, lorryRow, prefClass, prefWords,
   type CardLine,
 } from './cards';
 import {
@@ -18,6 +18,7 @@ import {
 } from './deckArt';
 import type { NewsChip } from './eventChips';
 import { FruitSvg } from './fruitIcons';
+import { OKAY_LESS, SOFT_LESS } from './stageWords';
 
 const two = (n: number) => String(n).padStart(2, '0');
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ');
@@ -137,8 +138,8 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
   const num = guest || order ? undefined : customerNumber(who);
   const pref = prefOf(who);
   const [w, h] = ART_SIZE[guest ? 'event' : 'customer'];
-  const okay = order || pref !== 'premium';
-  const soft = !order && pref === 'bargain';
+  const okay = order || acceptsStage(pref, 'okay');
+  const soft = !order && acceptsStage(pref, 'notso');
   return (
     <article class={cx('wc', 'wc-cust', !order && prefClass(pref), guest && 'guest')}>
       <header class="wc-kind">

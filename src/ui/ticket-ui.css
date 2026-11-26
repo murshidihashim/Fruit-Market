@@ -29,7 +29,6 @@
 }
 #app .modal .input:focus { outline: 3px solid var(--x-mustard); outline-offset: 0; }
 #app .modal .popup-info { border: 0; border-radius: 0; background: var(--x-wood); }
-#app .modal .popup-opt small { font: 600 0.75rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; }
 
 /* the title row of a home pop-up, with a square close button */
 #app .popup-hd { padding-bottom: 10px; border-bottom: 3px solid var(--x-ink); }
@@ -40,45 +39,6 @@
 
 /* Play full screen? */
 #app .fs-ask { max-width: 360px; }
-
-/* ---------- New game ---------- */
-#app .setup-body .panel { padding: 12px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
-#app .setup-body .panel h3 {
-  display: block; margin: 0 0 8px; padding: 0; border: 0; background: none; font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--x-ink);
-}
-#app .setup-body .panel h3::before, #app .setup-body .panel h3::after { display: none; }
-#app .setup-body .panel h3.next { margin-top: 14px; }
-#app .setup-body .seg button, #app .setup-body .seat-tile {
-  border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
-  font: 800 0.8125rem/1.1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase;
-}
-#app .setup-body .seg button small { display: block; margin-top: 3px; font: 600 0.75rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--x-slate); }
-#app .setup-body .seg button.on { box-shadow: none; background: var(--x-ink); color: var(--x-mustard); }
-#app .setup-body .seg button.on small { color: var(--x-paper); }
-#app .setup-body .seat-tile .st-n { color: var(--x-slate); font-size: 0.75rem; }
-/* PLAN-116 (REP-133 B-15, B-07): a long name or level takes two lines rather than being cut off; Easy in a darker
-   green (5.7:1 on the paper; the bright green was 3.5:1). */
-#app .setup-body .seat-tile .st-k { font: 400 0.9375rem/1.1 var(--f-display); white-space: normal; overflow-wrap: anywhere; text-align: center; }
-#app .setup-body .seat-tile.lv-easy .st-k { color: var(--c-0a7443); }
-@media (max-width: 379px) {
-  #app .setup-body .seat-tile { padding: 6px 2px; letter-spacing: 0.02em; }
-  #app .setup-body .seat-tile .st-k { font-size: 0.8125rem; }
-  #app .setup-body .seat-tile .st-l { max-width: 100%; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
-}
-#app .setup-body .seat-tile .st-l { font-weight: 700; letter-spacing: 0.04em; color: var(--x-slate); }
-#app .setup-body .seat-tile.on { background: var(--x-mustard); }
-#app .setup-body .seat-tile.add { box-shadow: inset 0 0 0 2px var(--x-slate); color: var(--x-slate); background: transparent; }
-#app .setup-body .seat-sheet { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-wood); }
-#app .setup-body .seat-done, #app .setup-body .seat-remove { border-radius: 0; font-family: var(--f-label); font-weight: 800; }
-#app .setup-body .shop-total { font-weight: 700; }
-#app .popup .sticky-start { padding-top: 12px; background: linear-gradient(transparent, var(--x-paper) 35%); }
-
-/* the shopkeeper carousel: its arrows, hint and dots */
-#app .cp-arrow { border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper); color: var(--x-ink); font: 400 1.5rem/1 var(--f-label); }
-#app .cp-hint { color: var(--x-ink); }
-#app .cp-dots i { height: 8px; border-radius: 0; background: var(--x-wood-d); }
-#app .cp-dots i.on { background: var(--x-ink); }
 
 /* ---------- The Bell notice ---------- */
 #app .bell-notice { background: color-mix(in srgb, var(--x-ink) 62%, transparent); }
@@ -106,11 +66,6 @@
 /* the morning card's own reset (ticket.css) drops the auto margins that keep the sheet's content in the middle */
 #app .tkt .event-sheet > :first-child { margin-top: auto; }
 #app .tkt .event-sheet > :last-child { margin-bottom: auto; }
-
-/* ---------- a customer's ticket, large: the freshness key under it ---------- */
-#app .tkt .tip-card-pop .tip-notes { display: flex; flex-direction: column; gap: 6px; }
-#app .tkt .tip-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin: 0; padding: 0; list-style: none; }
-#app .tkt .tip-legend li { display: inline-flex; align-items: center; gap: 5px; font: 700 0.8125rem/1 var(--f-label); color: var(--x-ink); }
 
 /* ---------- nightfall (PLAN-076): dusk falls over the market, then the night sits in the middle of the screen ---------- */
 #app .game.gx.tkt { transition: background-color calc(var(--mk, 1) * var(--t-sky)) ease; }
@@ -151,7 +106,7 @@
   font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-ink);
 }
 /* PLAN-116 (REP-133 B-08): labels on these pages are 12 px or more */
-#app .tk-page .stats small, #app .tk-page .slide-part { font-size: 0.75rem; }
+#app .tk-page .stats small { font-size: 0.75rem; }
 #app .tk-page .panel h3::before, #app .tk-page .panel h3::after { display: none; }
 #app .tk-page .muted, #app .tk-page small, #app .tk-page .stats small { color: var(--x-slate); }
 #app .tk-page .btn {
@@ -172,11 +127,9 @@
 #app .tk-page .toggle span b, #app .modal .toggle span b { font: 400 1rem/1.15 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
 /* How to play: the slide is a square ticket; the dots are squares; Back and Next are square buttons */
 #app .howto.tk-page .slide h2 { font: 400 1.5rem/1.05 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
-#app .howto.tk-page .slide-part { font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.1em; color: var(--x-ink); }
 #app .tk-page .dots span { width: 10px; height: 10px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
 #app .tk-page .dots span.on { width: 22px; background: var(--x-ink); }
-#app .howto.tk-page .day-strip li, #app .howto.tk-page .demo-ex { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); }
-#app .howto.tk-page .beat-n { border: 0; border-radius: 0; background: var(--x-ink); color: var(--x-mustard); font: 800 0.75rem/1 var(--f-label); }
+#app .howto.tk-page .day-strip li { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); }
 
 /* the pass-the-phone screen: the next person's name on a ticket, and one black button */
 #app .handoff { gap: 0; padding: 24px 16px; background: var(--x-ink); }
@@ -203,7 +156,6 @@
 #app .seat-row .seat-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
 #app .seat-row .sbk-seat-title { flex: 0 1 auto; min-width: 0; }
 #app .seat-row .dot { flex: none; }
-#app .seat-row .ready-tag { flex: none; white-space: nowrap; }
 #app .pick-away { margin: 6px 0 0; }
 /* S13 (PLAN-110): the Wardrobe's colour row at 320 px: the colours go under their name, which reads whole ("Not chosen") */
 @media (max-width: 339px) {
@@ -221,7 +173,7 @@
 }
 /* (a lorry's row for this table is ink on paper, and a number of nothing is faint on purpose: no outline on either) */
 #app :is(.ln-watermelon, .ln-apple):is(.cd-ly-n, .wc-lt-n):is(.nil, .on) { text-shadow: none; }
-#app .home.hm .hm-chip, #app .host-tag, #app .ready-tag.yes, #app .sbk .sbk-note.good, #app .sbk .sbk-rk.done .sbk-n { background: var(--c-0a7443); }
+#app .home.hm .hm-chip, #app .sbk .sbk-note.good, #app .sbk .sbk-rk.done .sbk-n { background: var(--c-0a7443); }
 
 
 /* ---------- B-08 (PLAN-130, REP-140): keyboard focus in the game ----------

@@ -1,12 +1,14 @@
 // Workflow records: one source of truth, generated views, and checks (PLAN-002).
 //   node scripts/records.mjs            rebuild DECISIONS.md, CHANGELOG.md, the STATE pending block, then PDFs
 //   node scripts/records.mjs --no-pdf   the same without PDFs
-//   node scripts/records.mjs --check    fail if the records are invalid, history was edited, or a view is stale
+//   node scripts/records.mjs --check    fail if the records are invalid, history was edited, or a view is stale;
+//                                       warn (without failing) when a "candidate" release's tag already exists here
 //   node scripts/records.mjs --release-check   before a live deploy: is there a release entry and a free tag?
 // Sources live in docs/workflow/records/*.json; reports in docs/workflow/reports/REP-###.md.
 // Output depends only on the sources (no clock), so running it twice changes nothing.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { candidateTagWarnings, localTagExists } from './records-tags.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const REC = 'docs/workflow/records';
@@ -202,6 +204,8 @@ if (args.includes('--check')) {
   }
   if (problems.length) fail('RECORDS CHECK FAILED:', problems);
   console.log(`RECORDS OK: ${cur.dec.decisions.length} decisions, ${cur.plans.length} packages, ${cur.rel.releases.length} releases${baseOk ? `; history checked against ${base}` : `; history not compared (${base} unavailable)`}.`);
+  const warnings = candidateTagWarnings(cur.rel.releases, (tag) => localTagExists(ROOT, tag));
+  if (warnings.length) console.warn(`RECORDS WARNING (not a failure):\n${warnings.map((w) => `  - ${w}`).join('\n')}`);
 } else if (args.includes('--release-check')) {
   const version = JSON.parse(read('package.json')).version;
   const r = cur.rel.releases.find((x) => x.version === version);

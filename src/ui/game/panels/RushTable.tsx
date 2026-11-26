@@ -26,7 +26,7 @@ import { FruitSvg } from '../../fruitIcons';
 import { fx } from '../../fx';
 import { shownAvatar } from '../../looks';
 import { tagOf, type LookSet } from '../../../net/looks';
-import { PriceBar, PriceSheetView, bellOpensOnStart, postsOf, startingPrices } from '../../panel';
+import { PriceBar, PriceSheetView, postsOf, startingPrices } from '../../panel';
 import { favourShown, lineShown, paidShown, piecesLanded, piecesLifted, useRushCard } from '../../rushShown';
 import { LANES } from '../../boardModel';
 import { Awning } from '../../table';
@@ -132,7 +132,8 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
   const [vals, setVals] = useState<Record<string, number>>(() => (s.phase === 'bid' ? startingPrices(s, viewer) : {}));
   // Prices are suggested once every stall is open (the planner then knows how many pieces each rival put out).
   useLayoutEffect(() => { if (s.phase === 'bid') setVals(startingPrices(s, viewer)); }, [s.phase, s.day, viewer]);
-  const [notice, setNotice] = useState(() => bellOpensOnStart(s));
+  // "The Bell" notice never opens by itself (owner, PLAN-064; it opened on Day 1 before): only from the i button.
+  const [notice, setNotice] = useState(false);
   const pricing = step === 'price';
   // The sheet slides away as the bell is rung, and is taken off the table once it has.
   const [sheetUp, setSheetUp] = useState(pricing);

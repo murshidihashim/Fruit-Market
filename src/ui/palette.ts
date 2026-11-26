@@ -1,6 +1,6 @@
-// The one colour palette. Every colour used by the interface and the sprites is named here (PLAN-027).
-// "Guide" roles come from docs/ART-STYLE.md. The c_xxxxxx entries are older colours kept exactly as they were;
-// PLAN-033 merges them into the guide roles. palette.css is generated from this file (npm run palette).
+// The one colour palette. Every colour used by the interface and the sprites is named here (PLAN-027), every colour
+// named in docs/ART-STYLE.md among them (tests/palette.test.ts). The c_xxxxxx entries are older colours kept exactly
+// as they were. palette.css is generated from this file (npm run palette).
 
 export const C = {
   night0: '#141a31',
@@ -312,27 +312,4 @@ export const C = {
   stallRoyal: '#9a7fe0',
   stallPlum: '#bb77bb',
   stallTeal: '#46b8ac',
-} as const;
-
-/** The roles named in docs/ART-STYLE.md. */
-export const GUIDE_ROLES = {
-  "ink": "#2b2438",
-  "mat": "#fbf3e1",
-  "street": "#cfe7d8",
-  "road": "#e2cc9c",
-  "paper": "#fffdf7",
-  "laneBlueberry": "#dfe3fa",
-  "laneWatermelon": "#fbdcdd",
-  "laneApple": "#f9e0d6",
-  "laneMango": "#fbecc4",
-  "terracotta": "#c8553d",
-  "gold": "#f2c14e",
-  "teal": "#3e8f8c",
-  "fresh": "#9cca86",
-  "okay": "#e6c86f",
-  "tired": "#db8a6c",
-  "green": "#b8cf9a",
-  "night0": "#141a31",
-  "night": "#1b2240",
-  "surface": "#252e50"
 } as const;

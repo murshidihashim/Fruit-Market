@@ -24,8 +24,6 @@ import { bidsTurned, firstToken, holdBack, holdFirstToken, rowAppears, type Orde
 import { beforeBuying, noteSeen, releaseToken, tokenHeld } from '../firstShown';
 import { awaitsHandOver, keepTap, playLocal, undoPoint, waitsForPerson, type KeptTap, type UndoPoint } from './turn';
 import type { ShowState } from './rush';
-import { endFirstSale, firstSaleGame, firstSaleSeen, guideSetsUp, guidedStep, soloSeat, spotlight } from '../tutorial';
-import { hasFinishedGame } from '../FirstTime';
 
 
 export function useGameController(initial: GameState, onChange: (s: GameState) => void, online?: OnlineClient) {
@@ -102,16 +100,6 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
    *  crates back (null when neither is known). */
   const ownCrate = (st: GameState, p: number): Crate | null =>
     st.crates?.[p] ?? (sentCrate.current && sentCrate.current.day === st.day && sentCrate.current.seat === p ? sentCrate.current.crate : null);
-  // PLAN-113: the guided first sale (tutorial.ts decides, FirstTime.tsx draws it). Asked once, as the game opens: a
-  // first-time player's solo game on Day 1. While it sets up the person's stall (`guiding`), its moves are played here.
-  const [guided, setGuided] = useState(() => firstSaleGame(initial, !!online, !hasFinishedGame() && !firstSaleSeen()));
-  const guideRef = useRef(guided);
-  guideRef.current = guided;
-  const guideDrives = (st: GameState) => guideRef.current && guideSetsUp(st, soloSeat(st));
-  const guiding = guided && guideSetsUp(s, soloSeat(s));
-  /** The guided first sale is over: played to the bell, or skipped (the table is the person's from here). */
-  const endGuide = (skipped: boolean) => { endFirstSale(skipped); guideRef.current = false; setGuided(false); };
-
   const humans = useMemo(() => s.players.map((p, i) => (p.kind === 'human' ? i : -1)).filter((i) => i >= 0), [s.players.length]);
   const multi = humans.length > 1;
   const active = activePlayer(s);
@@ -314,7 +302,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       setBusy(false);
       // The hurry ends where the player decides something again. Online it also lasts through the states still waiting
       // to be shown. It only ever changes how fast this screen draws: never the game, and nothing is sent.
-      if (!queue.current.length && waitsForPerson(sRef.current, online ? seat : null) && !guideDrives(sRef.current)) A.resetHurry();
+      if (!queue.current.length && waitsForPerson(sRef.current, online ? seat : null)) A.resetHurry();
       setTick((t) => t + 1);
       // Taps made while the piece was on its way: the next piece to buy, then Done (PLAN-085).
       const cur = sRef.current;
@@ -469,33 +457,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
 
   /** A tap on the table (not on a button): hurry what is playing, and the rivals' turns, until this player decides again. */
   const hurry = () => {
-    if (busyRef.current || !waitsForPerson(sRef.current, online ? seat : null) || guideDrives(sRef.current)) A.hurryUp();
+    if (busyRef.current || !waitsForPerson(sRef.current, online ? seat : null)) A.hurryUp();
   };
-
-  // PLAN-113: the guided first sale's moves for the person's stall, after any animation, each after a pause (a tap ends
-  // it): a longer one on the morning card, to read it, and a rival's pause before each buying and stocking turn.
-  useEffect(() => {
-    if (!guided || online || busyRef.current) return;
-    const cur = sRef.current;
-    const me = soloSeat(cur);
-    // Over without its question: the game is past it (the person's crate is empty, or a game reopened later), or no
-    // customer in the row would pay for what is in the person's crate (they price it on the table as always).
-    const mine = cur.phase === 'bid' && activePlayer(cur) === me;
-    if (!firstSaleGame(cur, false, true) || (cur.phase === 'bid' && cur.bids[me] !== null) || (mine && !spotlight(publicView(cur, me), me))) {
-      endGuide(false);
-      return;
-    }
-    if (!guideSetsUp(cur, me)) return;
-    let live = true;
-    const wait = cur.phase === 'morning' ? A.hold(A.FEEL.read * 2) : A.pause(A.isFast() ? A.BEAT.rival.pauseFast : A.BEAT.rival.pause);
-    void wait.then(() => {
-      if (!live || busyRef.current || !guideRef.current) return;
-      const next = guidedStep(sRef.current, me);
-      if (next) void apply(next);
-    });
-    return () => { live = false; };
-  }, [s, tick, guided]);
-
 
   useEffect(() => {
     if (s.phase === 'over') (winners(s).includes(viewer) ? fx.win : fx.lose)();
@@ -616,8 +579,6 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
     humans, active, actor, activeHuman, viewer, needHandoff, handoffDue, myBidTurn, waitingFor, humansMissingBids, eveningWaits, votedMe,
     humansNotVoted, offline, nowTick, say, act, proceed, undo, endBuy, pickMarket, playCard, reallyPlay, ownCrate, ownDay, handTo,
-    /** PLAN-113: the guided first sale is on in this game, and is setting up the person's stall now. */
-    guided, guiding, endGuide,
     /** PLAN-123: the stall whose purchases are being shown, and whether the beat is this phone's own purchase. */
     mover, ownBeat,
     /** The bell has rung on this table today (the Favoured Trade question follows it). */

@@ -28,7 +28,7 @@ export function trackOnce(key: string, name: string, detail?: string | number) {
   try { sent = JSON.parse(localStorage.getItem('fm.sent') ?? '[]') as string[]; } catch { /* start fresh */ }
   if (sent.includes(key)) return;
   sent.push(key);
-  try { localStorage.setItem('fm.sent', JSON.stringify(sent.slice(-200))); } catch { /* ignore */ }
+  try { localStorage.setItem('fm.sent', JSON.stringify(sent.slice(-200))); } catch { /* storage full or blocked: the event may be counted again on a later visit */ }
   track(name, detail);
 }
 
@@ -72,6 +72,7 @@ export function flush() {
   const blob = new Blob([body], { type: 'text/plain' });
   try {
     if (typeof navigator !== 'undefined' && navigator.sendBeacon?.(url, blob)) return;
+    // The counts are best effort: a send that fails (offline, blocked) is dropped.
     void fetch(url, { method: 'POST', body: blob, keepalive: true }).catch(() => {});
   } catch { /* offline: drop it */ }
 }

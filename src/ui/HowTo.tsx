@@ -1,9 +1,9 @@
 // How to play (PLAN-129): seven pages, one screen each, built round the game's own pictures (the shopkeeper and
 // customer cards, the Wholesale Market board, fruit pieces, freshness letters, the lorry, event, favour, standing
-// order and upgrade cards), so players recognise them at the table. The order is the owner's: how to play, fruit and
-// freshness, customer, favour, lorry, event, Market Day, try a sale. The wording follows RULES.md (rules 20) and the
-// glossary (DEC-087): plain, one fact to a sentence. The numbers come from the game data, so the page cannot drift
-// from the rules.
+// order and upgrade cards), so players recognise them at the table. The pages (PAGES, at the end): how to play, fruit
+// and freshness, lorry and event, customer, favour, Market Day, try a sale. The wording follows RULES.md (rules 20)
+// and the glossary (DEC-087): plain, one fact to a sentence. The numbers come from the game data (the freshness price
+// rule through stageWords.ts), so the page cannot drift from the rules.
 import type { ComponentChildren } from 'preact';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import {
@@ -25,7 +25,7 @@ import { MARKET_DAY_LIST, TIE_ORDER } from './rulesText';
 import { PriceTag, StallPreview } from './stampCard';
 import { seatColour } from './table';
 import { STAGE_LETTER, Ticket, TicketBack } from './ticket';
-import { STAGE_WORD } from './stageWords';
+import { STAGE_WORD, stageLess, type Ripe } from './stageWords';
 import './howto.css';
 
 // ---------- small pieces drawn as the table draws them ----------
@@ -155,7 +155,7 @@ const USUAL_PRICE: Record<FruitId, number> = { blueberry: 5, watermelon: 7, appl
 
 /** A fruit's card in a pop-up: what it is like, what it costs at the Wholesale Market at each freshness, how long it
  *  keeps, and what customers usually pay. */
-function FruitCard({ f }: { f: FruitId }) {
+export function FruitCard({ f }: { f: FruitId }) {
   const d = FRUIT[f];
   const stages: Stage[] = [...(deliveredGreen(f) ? ['unripe' as Stage] : []), 'fresh', 'okay', 'notso'];
   const fresh = d.ripe.filter((x) => x === 'fresh').length;
@@ -171,7 +171,7 @@ function FruitCard({ f }: { f: FruitId }) {
             <tr>
               <th scope="row"><Lamp stage={st} /> {STAGE_WORD[st]}</th>
               <td>${d.cost[st]}</td>
-              <td>{st === 'unripe' ? "Can't sell yet" : st === 'fresh' ? `About $${USUAL_PRICE[f]}` : `$${st === 'okay' ? 1 : 2} less`}</td>
+              <td>{st === 'unripe' ? "Can't sell yet" : st === 'fresh' ? `About $${USUAL_PRICE[f]}` : `$${stageLess(st, f)} less`}</td>
             </tr>
           ))}
         </tbody>
@@ -206,7 +206,7 @@ export function FruitLane({ f, at, n = 1, onOpen }: { f: FruitId; at?: number; n
 }
 
 const PREFS: Pref[] = ['premium', 'everyday', 'bargain'];
-const SOLD_STAGES: Stage[] = ['fresh', 'okay', 'notso'];
+const SOLD_STAGES: Ripe[] = ['fresh', 'okay', 'notso'];
 const firstBox = (f: FruitId) => FRUIT[f].ripe.length - 1 + (deliveredGreen(f) ? FRUIT[f].unripeSlots : 0);
 /** The delivery on the board: a real lorry card's row at three stalls. */
 const BOARD_LORRY = FARMER_CARDS.find((c) => c.name === 'Mixed Basket') ?? FARMER_CARDS[0];
@@ -235,8 +235,9 @@ function Freshness() {
   );
 }
 
-/** Who buys what: each customer type against each freshness (the (i) on the Customer page). */
-function WhoBuys() {
+/** Who buys what: each customer type against each freshness (the (i) on the Customer page). What Okay and Soft pay
+ *  less is the same for every fruit, so it is read from one (stageWords.ts). */
+export function WhoBuys() {
   return (
     <article class="ht-infocard">
       <header><span>Customers</span><b>Who buys what</b></header>
@@ -246,8 +247,8 @@ function WhoBuys() {
           {PREFS.map((p) => (
             <tr class={`pref-${p}`}>
               <th scope="row"><b>{PREF_INFO[p].title}</b></th>
-              {SOLD_STAGES.map((s, i) => (acceptsStage(p, s)
-                ? <td class="yes">{i === 0 ? 'Top price' : `$${i} less`}</td>
+              {SOLD_STAGES.map((s) => (acceptsStage(p, s)
+                ? <td class="yes">{s === 'fresh' ? 'Top price' : `$${stageLess(s, 'apple')} less`}</td>
                 : <td class="no">Won't buy</td>))}
             </tr>
           ))}
@@ -258,7 +259,7 @@ function WhoBuys() {
   );
 }
 
-// ---------- 3 customer ----------
+// ---------- 4 customer ----------
 
 /** The example table: three stalls, so a regular and two walk-ins today and tomorrow (RULES.md, The queue). */
 const TODAY_REG = { who: 'Aisyah', wants: [{ fruit: 'watermelon' as FruitId, qty: 3, max: 7 }] };
@@ -382,7 +383,7 @@ function Customers() {
   );
 }
 
-// ---------- 4 favour ----------
+// ---------- 5 favour ----------
 
 const FAVOUR_IDS = Object.keys(FAVOURS) as FavourId[];
 
@@ -404,7 +405,7 @@ function Favours() {
   );
 }
 
-// ---------- lorry and event ----------
+// ---------- 3 lorry and event ----------
 
 /** All the cards of a deck in a row to swipe; a tap opens one whole. */
 function CardSwipe({ label, children }: { label: string; children: ComponentChildren[] }) {
@@ -428,7 +429,7 @@ function LorryEvent() {
   );
 }
 
-// ---------- 7 Market Day ----------
+// ---------- 6 Market Day ----------
 
 const ORDER = ORDER_CARDS[0];
 const ORDER_N = orderQty(3);
@@ -461,7 +462,7 @@ function MarketDay() {
   );
 }
 
-// ---------- 8 try a sale ----------
+// ---------- 7 try a sale ----------
 
 interface SaleStall { id: string; stages: Stage[]; price: number }
 /**
@@ -479,15 +480,23 @@ const STALL_COLOURS = [3, 1, 5];
 
 /** The pieces this customer takes, in order: cheapest first, then fresher; only freshness they buy, at a price they pay. */
 export function saleOrder(pref: Pref, stalls = SALE): { stall: string; k: number; price: number; stage: Stage }[] {
-  const lessFor = (s: Stage) => (s === 'okay' ? 1 : s === 'notso' ? 2 : 0);
   return stalls
     .flatMap((st) => st.stages.map((stage, k) => ({ stall: st.id, k, price: st.price, stage })))
-    .filter((p) => acceptsStage(pref, p.stage) && p.price <= SALE_BUYER.max - lessFor(p.stage))
+    .filter((p) => p.stage !== 'unripe' && acceptsStage(pref, p.stage) && p.price <= SALE_BUYER.max - stageLess(p.stage, SALE_BUYER.fruit))
     .sort((a, b) => a.price - b.price || FRESHER.indexOf(a.stage) - FRESHER.indexOf(b.stage))
     .slice(0, SALE_BUYER.qty);
 }
 
-function TrySale() {
+/** What the reveal says, for Fresh or Okay (Everyday) and Fresh only (Premium). The words are the page's own; tests
+ *  (tests/stage-words.test.ts) check every stall, number and "not taken" in them against saleOrder, so a rule change
+ *  cannot leave them behind. */
+export const SALE_SAYS: Record<'everyday' | 'premium', string> = {
+  premium: 'B\'s Okay blueberry is not taken. A sells 2 at $4, then C sells 1 at $5.',
+  everyday: 'B is cheapest: it sells 1 at $3, then A sells 2 at $4. The order is full, so C sells nothing.',
+};
+
+/** The Try a sale page (exported so tests can draw it). */
+export function TrySale() {
   const [freshOnly, setFreshOnly] = useState(false);
   const [guess, setGuess] = useState<string | null>(null);
   const [shown, setShown] = useState(-1); // -1: not revealed; n: pieces moved so far
@@ -512,16 +521,14 @@ function TrySale() {
     return st.stages.some((s) => acceptsStage(pref, s)) ? 'Order full' : 'Fresh only: not taken';
   };
   const ask = shown < 0 ? (guess ? 'Now reveal the sale.' : 'Who sells first? Tap a stall.') : !done ? 'Selling…'
-    : `${guess ? (guess === first ? 'Right! ' : 'Not quite. ') : ''}${freshOnly
-      ? 'B\'s Okay blueberry is not taken. A sells 2 at $4, then C sells 1 at $5.'
-      : 'B is cheapest: it sells 1 at $3, then A sells 2 at $4. The order is full, so C sells nothing.'} Two stalls served him, so nobody draws a favour card.`;
+    : `${guess ? (guess === first ? 'Right. ' : 'Not quite. ') : ''}${SALE_SAYS[freshOnly ? 'premium' : 'everyday']} Two stalls served him, so nobody draws a favour card.`;
   return (
     <>
       <div class="ht-sale-top">
         <CardZoom class="ht-cust" title={SALE_BUYER.name}><TradingCard who={SALE_BUYER.who} wants={[{ fruit: SALE_BUYER.fruit, qty: SALE_BUYER.qty, max: SALE_BUYER.max }]} eager /></CardZoom>
         <div class="ht-sale-want">
-          <b>{SALE_BUYER.name} wants 3 blueberries</b>
-          <small>{freshOnly ? 'Today: Fresh only, up to $5 each.' : 'Up to $5 for a Fresh one, $4 for Okay. He won\'t take Soft.'}</small>
+          <b>{SALE_BUYER.name} wants {SALE_BUYER.qty} blueberries</b>
+          <small>{freshOnly ? `Today: Fresh only, up to $${SALE_BUYER.max} each.` : `Up to $${SALE_BUYER.max} for a Fresh one, $${SALE_BUYER.max - stageLess('okay', SALE_BUYER.fruit)} for Okay. He won't take Soft.`}</small>
           <div class="ht-seg" role="group" aria-label={`What ${SALE_BUYER.name} takes`}>
             <button type="button" class={freshOnly ? '' : 'on'} aria-pressed={!freshOnly} onClick={() => reset(false)}>Fresh or Okay</button>
             <button type="button" class={freshOnly ? 'on' : ''} aria-pressed={freshOnly} onClick={() => reset(true)}>Fresh only</button>

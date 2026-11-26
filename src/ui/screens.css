@@ -67,42 +67,10 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
   .game .street.street { --card-w: 9.5rem; }
 }
 
-/* ---------- a customer's card, opened from the street ---------- */
-.game .tip-pop.tip-card-pop {
-  left: 0; right: 0; width: min(296px, calc(100% - 24px)); margin: 0 auto; align-items: center; gap: 8px; padding: 12px;
-  --card-w: min(15.75rem, calc(100vw - 72px));
-}
-.tip-card-pop .tip-notes { display: flex; flex-direction: column; gap: 4px; width: 100%; font-size: 0.85rem; }
-.tip-card-pop .tip-special { font: 600 0.75rem/1.2 var(--f-label); letter-spacing: calc(0.14em * var(--ls, 1)); text-transform: uppercase; color: var(--x-red-d); }
-
-/* ---------- character pick: Stall Signs in a carousel (design A, PLAN-063) ---------- */
-.char-pick { display: flex; flex-direction: column; gap: 6px; margin-top: 0; }
-.cp-stage { position: relative; height: 21.4rem; margin: 0 -14px; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; }
-.cp-card { position: absolute; left: 50%; top: 6px; width: 14.75rem; margin-left: -7.375rem; pointer-events: none;
-  transition: transform .35s cubic-bezier(.3,1.2,.5,1), opacity .3s; }
-.cp-card img { -webkit-user-drag: none; }
-.cp-nav { display: flex; align-items: center; justify-content: space-between; }
-.cp-arrow { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); font: 800 1.4rem/1 var(--f-label); cursor: pointer; }
-.cp-arrow:focus-visible { outline: 3px solid var(--x-green); outline-offset: 3px; }
-.cp-dots { display: flex; gap: 6px; }
-.cp-dots i { width: 8px; height: 8px; border-radius: 4px; background: var(--x-edge); transition: width .25s; }
-.cp-dots i.on { width: 20px; background: var(--x-red); }
-.cp-dots i.taken { opacity: .35; }
-@media (prefers-reduced-motion: reduce) { .cp-card { transition: none; }  }
-
 /* ---------- home: the Ticket Booth and its opening live in booth.css ---------- */
 
 /* ---------- opening (Opening.tsx, booth.css): the overlay's fade out ---------- */
 @keyframes opx-out { to { opacity: 0; } }
-
-/* New game: the headings sit right on their field and on the shopkeeper carousel (PLAN-063) */
-.setup-body .panel h3.tight { margin-bottom: 4px; }
-.setup-body .panel h3.tight.next { margin-top: 14px; }
-.setup-body .panel .input.tight { margin-top: 0; }
-/* first visit: the dots read "Swipe to choose" until the first swipe (PLAN-064) */
-.cp-hint { font: 700 0.85rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-red); animation: cp-nudge 1.6s ease-in-out infinite; }
-@keyframes cp-nudge { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-6px); } 60% { transform: translateX(6px); } }
-@media (prefers-reduced-motion: reduce) { .cp-hint { animation: none; } }
 
 /* PLAN-116 (REP-133 B-04): a pop-up takes focus as it opens (focusTrap.tsx) so a screen reader reads its title; the box
    itself needs no ring (its buttons have theirs). */

@@ -234,9 +234,6 @@ export function stakeAtRisk(s: GameState, p: number): number | undefined {
 
 // ---------- pricing (PLAN-085, the approved Pricing screen) ----------
 
-/** "The Bell" notice never opens by itself (owner, PLAN-064; it opened on Day 1 before): only from the i button. */
-export const bellOpensOnStart = (_s: GameState): boolean => false;
-
 /** Prices pre-filled from the planner for every fruit you put out. */
 export function startingPrices(s: GameState, p: number): Record<string, number> {
   const plan = planPrices(s, p).posts;

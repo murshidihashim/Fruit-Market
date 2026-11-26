@@ -300,8 +300,7 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     const game = read('src/ui/Game.tsx');
     expect(game).toContain("const orderUp = !!c.orderShow || (s.phase === 'order' && !!s.standing && s.players[viewer]?.kind === 'human');");
     // (PLAN-099: while the round table is up, its own foot takes the bar's place too)
-    // (PLAN-113: the guided first sale's strip takes the bar's place while it sets up a first-time player's stall)
-    expect(game).toContain(': !pricing && !stalling && !orderUp && !tying && !evSheet && !tableOn && <ActionBar');
+    expect(game).toContain('{!pricing && !stalling && !orderUp && !tying && !evSheet && !tableOn && <ActionBar');
   });
 
   it('says what there is to deliver the order with: the shelf, the market, tomorrow\'s lorry', () => {

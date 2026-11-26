@@ -124,21 +124,21 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
   // Refreshing or reopening the link with a seat token on this device goes straight back in.
   useEffect(() => {
     if (!initialCode) return;
-    try { if (localStorage.getItem(`fm.room.${initialCode}`)) begin(initialCode); } catch { /* ignore */ }
+    try { if (localStorage.getItem(`fm.room.${initialCode}`)) begin(initialCode); } catch { /* storage blocked: no seat was kept, so the link is joined afresh */ }
   }, []);
 
   const begin = (c: string) => {
     forgetMatch();
     const nm = name.trim() || 'Player';
     saveName(name.trim());
-    try { localStorage.setItem('fm.avatar', avatar); } catch { /* ignore */ }
+    try { localStorage.setItem('fm.avatar', avatar); } catch { /* storage blocked: the shopkeeper is not remembered for next time */ }
     setErr(null);
     // A player who opens an invitation never passes Home: what they have earned (and the first rank's title and frame,
     // which are everyone's) is brought up to date here, before the room is told what they have on.
     syncTiers();
     syncLooks();
     setClient(new OnlineClient(c, nm, avatar, worn()));
-    try { history.replaceState(null, '', `?room=${c}`); } catch { /* ignore */ }
+    try { history.replaceState(null, '', `?room=${c}`); } catch { /* the address cannot be changed here (a sandboxed frame): the room works without it */ }
   };
 
   // PLAN-112: a room is private unless it is opened from the Public rooms page.
@@ -165,17 +165,15 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
     setBusy(true);
     track('online', 'quick');
     try { localStorage.setItem(QUICK_KEY, String(stalls)); } catch { /* no storage: 2 stalls next time */ }
-    // PLAN-125: the table size goes with the request (client.ts quickMatch(stalls)). It is called through a type that
-    // takes the size either way, so this screen also works with a client that does not take one yet (2 stalls then).
-    const ask: (n?: QuickStalls) => Promise<string> = quickMatch;
-    try { begin(await ask(stalls)); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+    // PLAN-125: the table size goes with the request (client.ts quickMatch(stalls)).
+    try { begin(await quickMatch(stalls)); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   };
 
   const exit = () => {
     // ON-08: said before Home is drawn, so its "Back to room" ticket is there at once.
     if (client?.view?.status === 'playing' && !client.view.seats[client.view.you]?.left) rememberMatch(client.code);
     client?.stop();
-    try { history.replaceState(null, '', location.pathname); } catch { /* ignore */ }
+    try { history.replaceState(null, '', location.pathname); } catch { /* the address cannot be changed here: Home works without it */ }
     onExit();
   };
 
@@ -187,7 +185,7 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
         fx.tap();
         setClient(null);
         setInvited(undefined);
-        try { history.replaceState(null, '', location.pathname); } catch { /* ignore */ }
+        try { history.replaceState(null, '', location.pathname); } catch { /* the address cannot be changed here: the set-up works without it */ }
       };
       return (
         <SbPage title={title} sub="Couldn't join" onBack={exit} class="jo" foot={<SbGo onClick={back}>Back</SbGo>}>
@@ -208,7 +206,7 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
     }
     if (v.quick) {
       // PLAN-113: the wait. Cancel stops looking and comes back to the set-up; the computer game leaves the queue first.
-      const stop = () => { client.leave(); client.stop(); setClient(null); try { history.replaceState(null, '', location.pathname); } catch { /* ignore */ } };
+      const stop = () => { client.leave(); client.stop(); setClient(null); try { history.replaceState(null, '', location.pathname); } catch { /* the address cannot be changed here: the set-up works without it */ } };
       return (
         <QuickWait v={v} stalls={stalls} onExit={() => { client.leave(); exit(); }}
           onCancel={() => { fx.tap(); stop(); }}
@@ -646,7 +644,7 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
   // Browsing starts at your own pick, or the shopkeeper you used last, or the first one free.
   const [look, setLook] = useState(() => {
     let last = '';
-    try { last = localStorage.getItem('fm.avatar') ?? ''; } catch { /* ignore */ }
+    try { last = localStorage.getItem('fm.avatar') ?? ''; } catch { /* storage blocked: browsing starts at the first free shopkeeper */ }
     return mine || (CHARACTER_AVATARS.includes(last) && !taken[last] ? last : CHARACTER_AVATARS.find((a) => !taken[a]) ?? CHARACTER_AVATARS[0]);
   });
   const [err, setErr] = useState<string | null>(null);
@@ -678,7 +676,7 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
   const choose = () => {
     fx.tap();
     setErr(null);
-    try { localStorage.setItem('fm.avatar', look); } catch { /* ignore */ }
+    try { localStorage.setItem('fm.avatar', look); } catch { /* storage blocked: the room still gets the choice; it is not remembered for next time */ }
     client.character(look);
   };
   const confirm = () => { fx.card(); setErr(null); client.confirm(); };

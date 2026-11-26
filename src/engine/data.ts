@@ -228,6 +228,9 @@ export function acceptsStage(pref: Pref | undefined, stage: Stage): boolean {
   if (!pref || stage === 'fresh') return true;
   return stage === 'okay' ? pref !== 'premium' : pref === 'bargain';
 }
+/** The one set of freshness words (PLAN-123), wherever a piece's freshness is named: the lanes, the shelf, the crate,
+ *  the customer cards, the rush and the sale stories (story.ts). The screens read it through src/ui/stageWords.ts. */
+export const STAGE_WORD: Record<Stage, string> = { unripe: 'Green', fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
 export const PREF_INFO: Record<Pref, { title: string; short: string; text: string }> = {
   premium: { title: 'Premium', short: 'Fresh only', text: 'Buys Fresh fruit only.' },
   everyday: { title: 'Everyday', short: 'Fresh or Okay', text: 'Buys Fresh or Okay fruit.' },

@@ -8,7 +8,7 @@ import type { GameConfig } from '../engine/game';
 import { tierById } from './achievements';
 import { colourHex, colourId, loadGranted, loadLooks, loadWorn, saveColour, saveLooks, saveWorn, snapshot } from './progress';
 import { placeOf } from './stamps';
-import { LOOKS, colourOf, lookById, partsOf, slotIsPublic, stallOf, type Look, type LookSet, type Slot } from '../net/looks';
+import { LOOKS, colourOf, lookById, partsOf, slotIsPublic, type Look, type LookSet, type Slot } from '../net/looks';
 import type { Snapshot } from './achievements';
 
 export { LOOKS, SLOTS, lookById, type Look, type LookKind, type Slot } from '../net/looks';
@@ -118,4 +118,3 @@ export function toggleLook(id: string): LookSet {
 
 /** Shopkeeper pieces on show, as names the portrait painter knows. */
 export const wornParts = (w: LookSet = worn()): string[] => partsOf(w);
-export const wornStall = (w: LookSet = worn()): { roof?: string; trim?: string; prop?: string } => stallOf(w);
