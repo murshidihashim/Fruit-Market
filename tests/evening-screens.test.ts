@@ -16,9 +16,18 @@ import { playedFavours } from '../src/ui/game/dayBeats';
 import { eveningWaitLine, priorityBackLine, priorityNote, priorityWouldReturn } from '../src/ui/game/evening';
 import { waitsForPerson } from '../src/ui/game/turn';
 import { computerStep, eveningAside } from '../src/ui/game/stepKind';
+import { moves } from '../src/ui/game/animator';
+import { FAVOURS, UPGRADES } from '../src/engine/data';
 import { EveningPanel } from '../src/ui/panel';
 import { FavourPopView } from '../src/ui/game/panels/Popovers';
 import { Stalls, rivalNote } from '../src/ui/table';
+
+/** The labels put up over the stalls (anim.ts tag), as the evening's beat makes them. */
+const labels = vi.hoisted((): { at: string; text: string; cls: string }[] => []);
+vi.mock('../src/ui/anim', async (original) => {
+  const real = await original<typeof import('../src/ui/anim')>();
+  return { ...real, tag: (at: string | string[], text: string, cls = '') => { labels.push({ at: String(at), text, cls }); return real.tag(at, text, cls); } };
+});
 
 // The stalls' boxes redraw themselves when a held-back total changes (hooks); a still picture needs none of that.
 vi.mock('../src/ui/cashShown', async (original) => ({ ...(await original<typeof import('../src/ui/cashShown')>()), useCashShown: () => undefined }));
@@ -72,13 +81,31 @@ describe('a solo evening: the computers first, together, then the person straigh
     expect(computerStep(computerStep(open)!)).toBeNull();
   });
 
-  it('each stall has one label: a stall that built and played cards names its cards on the upgrade\'s label', () => {
-    const anim = read('src/ui/game/animator.tsx');
-    expect(anim).toContain('if (builtNow) jobs.push(built(i, pl.upgrades[pl.upgrades.length - 1], cards));');
-    expect(anim).toContain('if (!builtNow) {');
-    const beats = read('src/ui/game/dayBeats.tsx');
-    expect(beats).toContain("const label = A.tag(`p${p}`, `${also ? `${also} · ` : ''}Built: ${d.title}`, 'upgrade');\n  fitTag(label, p);");
+  it('each stall has one label: a stall that built and played cards names its cards on the upgrade\'s label', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('matchMedia', () => ({ matches: true }));
+    vi.stubGlobal('requestAnimationFrame', (cb: () => void) => setTimeout(cb, 0));
+    try {
+      labels.length = 0;
+      const done = moves(open, shown, 0);
+      await vi.runAllTimersAsync();
+      await done;
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+    }
+    const at = labels.map((x) => x.at);
+    expect(new Set(at).size).toBe(at.length);
+    // Ali played Priority and Gossip in the step; if Ali also built, the cards are named on the upgrade's label
+    const ali = labels.find((x) => x.at === 'p1')!;
+    const built = shown.players[1].upgrades.length > open.players[1].upgrades.length;
+    expect(ali.text).toBe(built ? `${FAVOURS.priority.title} · ${FAVOURS.gossip.title} · Built: ${UPGRADES[shown.players[1].upgrades[shown.players[1].upgrades.length - 1]].title}` : `${FAVOURS.priority.title} · ${FAVOURS.gossip.title}`);
+    expect(ali.cls).toBe(built ? 'upgrade' : 'favour');
+    // every stall that built has its one label
+    for (const p of [1, 2, 3]) if (shown.players[p].upgrades.length > open.players[p].upgrades.length) expect(labels.filter((x) => x.at === `p${p}` && x.cls === 'upgrade')).toHaveLength(1);
     // Labels over several stalls at once keep to their own stall's width (on two lines if need be).
+    const anim = read('src/ui/game/animator.tsx');
+    const beats = read('src/ui/game/dayBeats.tsx');
     expect(anim).toContain('if (evening) fitTag(t, i);');
     expect(beats).toContain("el.style.maxWidth = `${Math.max(72, Math.floor(r.width))}px`;");
   });
