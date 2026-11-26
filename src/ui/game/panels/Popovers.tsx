@@ -82,7 +82,7 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
     <>
   {coach && (
     // While pricing, the tip sits at the top so it never covers the Seal button.
-    <div class={`coach ${c.s.phase === 'bid' || c.s.phase === 'stall' ? 'top' : ''}`} role="note">
+    <div class={`coach ${c.s.phase === 'bid' || c.s.phase === 'stall' ? 'top' : ''}`} role="note" data-tip={coach.id}>
       <b>{coach.title}</b>
       <span>{coach.text}</span>
       <div class="coach-btns">
