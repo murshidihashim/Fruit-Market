@@ -27,7 +27,7 @@ import { Icon, PropSprite, RoofBand } from './icons';
 import { myAvatar, setupAvatar, worn } from './looks';
 import { crateUrl } from './marketArt';
 import { C } from './palette';
-import { nextTrophy } from './League';
+import { nextTrophy } from './leagueTrophy';
 import { MODE_REASON, WAYS, leagueEcho } from './playMenu';
 import { HOME_MODES, type HomeMode } from './modes';
 import { leagueConfig, leagueStage, myStars } from './progress';

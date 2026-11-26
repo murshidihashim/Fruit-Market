@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { h } from 'preact';
 import { RIVALS } from '../src/engine/data';
 import { toStaticHtml } from '../src/ui/cards';
-import { LocalSetup, seatShopkeepers } from '../src/ui/Setup';
+import { LocalSetup, localGame, seatShopkeepers } from '../src/ui/Setup';
 import { Online } from '../src/ui/Online';
 import { RoomLength } from '../src/ui/OnlineRoom';
 import { PlayMenu } from '../src/ui/Home';
@@ -67,6 +67,18 @@ describe('the one-page set-up (Setup.tsx LocalSetup)', () => {
     expect(html).toContain('aria-label="Add a person at stall 3"');
     expect(html).toContain('aria-label="Add a computer at stall 3"');
     expect(html).not.toMatch(/one phone/i);
+  });
+
+  it('starts the full game with you first, then each stall as set (REP-140 A-02: the set-up\'s game, as a function)', () => {
+    const [me, a, b] = RIVALS;
+    const cfg = localGame({ name: 'Mblabla', avatar: me.avatar }, [{ kind: 'human', level: 'normal', name: 'Ana' }, { kind: 'ai', level: 'hard', name: '' }],
+      [a.avatar, b.avatar], ['Ana', 'Player 3'], 14, 99);
+    expect(cfg.players).toEqual([
+      { name: 'Mblabla', kind: 'human', avatar: me.avatar },
+      { name: 'Ana', kind: 'human', avatar: a.avatar },
+      { name: b.name, kind: 'ai', level: 'hard', avatar: b.avatar, quip: b.quip },
+    ]);
+    expect(cfg).toMatchObject({ days: 14, unripe: true, upgrades: true, events: true, marketDays: true, core: false, street: false, pulse: false, seed: 99 });
   });
 
   it('gives every person a different shopkeeper and the computers the ones left, in the order shown', () => {
