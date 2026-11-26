@@ -32,6 +32,16 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     // PLAN-125: the Public rooms are on the Quick Match page
     await page.click('[data-a="quick"]');
     await page.click('[data-a="public"]');
+    if (tag === 'A') {
+      // PLAN-130: Back from the Public rooms, pressed from the keyboard, leaves focus on the set-up's own Back button
+      // (Online.tsx: the set-up's frame is one element from page to page), not on the page itself.
+      await page.focus('.sb-public .sb-back');
+      await page.keyboard.press('Enter');
+      await page.waitForSelector('.sb-quick');
+      if (!(await page.evaluate(() => !!document.activeElement?.matches('.sb-quick .sb-back')))) throw new Error('focus left the Back button on the way back from the Public rooms');
+      console.log('Back from the Public rooms keeps keyboard focus');
+      await page.click('[data-a="public"]');
+    }
     return P;
   };
   const shot = (P, n) => P.page.screenshot({ path: `${out}/${n}.png` });

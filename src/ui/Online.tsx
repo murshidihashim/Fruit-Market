@@ -134,9 +134,12 @@ type OnlineState = ReturnType<typeof useOnline>;
  *  room or joins one by its code. */
 export function Online(p: OnlineProps) {
   const o = useOnline(p);
-  if (o.client) return <InRoom o={o} client={o.client} quick={!!p.quick} onComputer={p.onComputer} />;
-  if (o.page === 'quick' && !o.invited) return <QuickSetup o={o} />;
-  if (o.page === 'public' && !o.invited) return <PublicPage o={o} quick={!!p.quick} />;
+  // The pages are called, not drawn as components of their own: each returns its SbPage in this same place, so the
+  // set-up's frame stays one element from page to page (as before PLAN-130's split) and a Back button keeps the
+  // keyboard's focus. None of them uses a hook.
+  if (o.client) return InRoom({ o, client: o.client, quick: !!p.quick, onComputer: p.onComputer });
+  if (o.page === 'quick' && !o.invited) return QuickSetup({ o });
+  if (o.page === 'public' && !o.invited) return PublicPage({ o, quick: !!p.quick });
   if (o.invited) {
     return (
       <SbPage title={wayName('room')} sub={p.typed ? `Room ${o.invited}` : `Invited to room ${o.invited}`} onBack={o.exit} class="jo sb-room"
@@ -148,7 +151,7 @@ export function Online(p: OnlineProps) {
       </SbPage>
     );
   }
-  return <RoomPage o={o} />;
+  return RoomPage({ o });
 }
 
 /** Joined (or joining) a room: connecting, could not join, choosing shopkeepers, the match, the quick wait or the lobby. */
