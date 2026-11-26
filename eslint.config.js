@@ -15,6 +15,9 @@ export default tseslint.config(
     plugins: { 'react-hooks': hooks },
     rules: {
       'react-hooks/rules-of-hooks': 'error',
+      // REP-140 A-02: every hook lists what it reads. Where leaving one out is on purpose (a ref stands in for state, or
+      // an effect runs on one change only), the line says so in an eslint-disable comment with its reason.
+      'react-hooks/exhaustive-deps': 'error',
       eqeqeq: ['error', 'always'],
       'no-var': 'error',
       'prefer-const': 'error',
@@ -24,6 +27,12 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
     },
+  },
+  // PLAN-130: helper T2 fixes the hook dependencies of these files in its own branch; until that is merged they only
+  // warn. Remove this block when it is.
+  {
+    files: ['src/ui/App.tsx', 'src/ui/Online.tsx', 'src/ui/Opening.tsx', 'src/ui/Sprint.tsx', 'src/ui/HomeCards.tsx', 'src/ui/DailyIntro.tsx'],
+    rules: { 'react-hooks/exhaustive-deps': 'warn' },
   },
   {
     files: ['scripts/**/*.cjs', 'scripts/**/*.mjs', 'docs/**/*.cjs'],
