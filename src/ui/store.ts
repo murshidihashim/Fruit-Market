@@ -151,9 +151,10 @@ export function loadGame(slot: SaveSlot): GameState | null {
     write(slotKey(slot), null);
     return null;
   }
-  // Saves from before v1.2 were the bare game (rules version 2, the same rules as now).
-  if (looksLikeGame(data) && data.config && slotOf(data.config) === slot) return data;
-  notices.push(`Your unfinished ${what} couldn't be read, so it was cleared.`);
+  // Saves from before v1.2 were the bare game, played under rules version 2. REP-140 C-05: the rules have changed many
+  // times since, so such a game is set aside like any game saved under older rules.
+  const bare = looksLikeGame(data) && !!data.config && slotOf(data.config) === slot;
+  notices.push(bare ? `Your unfinished ${what} used older rules and could not be continued.` : `Your unfinished ${what} couldn't be read, so it was cleared.`);
   write(slotKey(slot), null);
   return null;
 }
