@@ -163,10 +163,8 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
     setBusy(true);
     track('online', 'quick');
     try { localStorage.setItem(QUICK_KEY, String(stalls)); } catch { /* no storage: 2 stalls next time */ }
-    // PLAN-125: the table size goes with the request (client.ts quickMatch(stalls)). It is called through a type that
-    // takes the size either way, so this screen also works with a client that does not take one yet (2 stalls then).
-    const ask: (n?: QuickStalls) => Promise<string> = quickMatch;
-    try { begin(await ask(stalls)); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+    // PLAN-125: the table size goes with the request (client.ts quickMatch(stalls)).
+    try { begin(await quickMatch(stalls)); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   };
 
   const exit = () => {

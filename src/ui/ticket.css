@@ -1,6 +1,7 @@
 /* =====================================================================
    Fruit Market · the game table, "Market Ticket" (PLAN-072).
-   One day, beat by beat, on a phone: the black bar and the five beats, today's customers as tickets on a kraft band,
+   One day, beat by beat, on a phone: the top bar (the day, today's event, your rank and cash; PLAN-127), today's
+   customers as tickets on a kraft band,
    the rivals as boxes, the middle of the table (the news, the market lanes, your crate, your prices, the rush, the
    night), your shelf and one black button. The lanes, letters (G F O S), patterns and colours are the printed game's.
    Every rule here starts with "#app .tkt" so it wins over the older table styles in styles.css, which still style

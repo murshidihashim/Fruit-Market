@@ -298,7 +298,7 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
   const toOnline = (mode: 'room' | 'public', code?: string, back: Screen = 'play') => { setOnlineMode(mode); setJoinCode(code); setFrom(back); go('online'); };
   // PLAN-125: Computer and Pass & Play open their set-up page (asking first when a game against the computer waits).
   const toSetup = (mode: 'computer' | 'phone', back: Screen) => orAsk('play', 'a new game', () => { setSetupMode(mode); setFrom(back); go('setup'); });
-  // PLAN-113: the Market League has a screen of its own (the stage you are on and the six stages); its Play button
+  // PLAN-113: the Market League has a screen of its own (the stage you are on and every stage); its Play button
   // starts the stage, asking first when a game is waiting. Its question is drawn over it, as over Home.
   const body = screen === 'league' ? <LeagueScreen onBack={() => go('home')} onPlay={(stage) => orAsk('league', 'a Market League game', () => startLeague(stage))()} /> : screen === 'intro' ? (
     <DailyIntro kind={introKind} today={today} waiting={games[introKind] ?? null}

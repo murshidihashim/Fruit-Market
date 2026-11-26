@@ -64,7 +64,7 @@ const path = require('path');
       await page.click('button:has-text("Done buying"), button:has-text("Skip buying")');
       continue;
     }
-    // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
+    // "The Bell" pop-up: it opens only from its i button since PLAN-064; close it if it is up.
     if (await page.locator('.bell-notice').count()) { await page.click('.bell-notice .btn'); continue; }
     // The first-game tips (tips are on in this test): read and close each one.
     if (await page.locator('.coach .btn:not(.skip)').count()) { await page.click('.coach .btn:not(.skip)'); continue; }
