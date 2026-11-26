@@ -246,3 +246,9 @@ button.sb-cin:active { transform: translateY(2px); }
   .sb-lobby .sb-code { padding-top: 4px; padding-bottom: 4px; }
 }
 @media (max-height: 599px) { .sb-pick .sb-row.wrap .sb-cpic { display: none; } }
+
+/* REP-140 B-21: on a tablet or computer screen the set-up pages keep Home's column (720px, home-cards.css), centred,
+   while the lanes still run edge to edge. Phones are unchanged. */
+@media (min-width: 760px) {
+  #app .page.sb > .sb-hd, #app .page.sb > .sb-main { width: 100%; max-width: 720px; margin-left: auto; margin-right: auto; box-sizing: border-box; }
+}
