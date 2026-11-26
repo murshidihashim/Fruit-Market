@@ -36,6 +36,6 @@
 /* PLAN-123: the game's own Reduced motion setting (Settings; motion.ts setStill) does what the phone's setting does:
    every animation and transition off (as styles.css), the opening's lanes and the crate lids left out, the stamp there. */
 html.fm-still *, html.fm-still *::before, html.fm-still *::after { animation: none !important; transition: none !important; }
-html.fm-still .op-lanes, html.fm-still .crate-lid { display: none; }
+html.fm-still .op-lanes { display: none; }
 html.fm-still .op.op-ld:not(.op-wait) .op-cover { display: none; }
 html.fm-still .phase-banner { opacity: 1; }

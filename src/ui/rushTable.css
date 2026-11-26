@@ -423,7 +423,7 @@
   font: 600 0.6875rem/1.15 var(--tk-txt);
 }
 #app .tkt .rt-sheet .ps-info .x-fruit { display: block; flex: none; }
-#app .tkt .rt-sheet .ps-info > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#app .tkt .rt-sheet .ps-info > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 #app .tkt .rt-sheet .ds-out { gap: 4px; }
 #app .tkt .rt-sheet .ds-out b { font-size: 0.6875rem; }
 #app .tkt .rt-sheet .ds-dial { flex: none; display: flex; align-items: stretch; }
@@ -489,11 +489,5 @@
    and its pricing sheet stay in reach (written to win over the day's sheet's own place for it, daysheet.css) */
 #app .game.gx.tkt.table-up > .coach, #app .game.gx.tkt.table-up > .coach.top,
 #app .game.gx.tkt.table-up.coach-row > .coach, #app .game.gx.tkt.table-up.coach-row > .coach.top {
-  grid-area: auto; grid-column: 1 / -1; grid-row: street; align-self: end; top: auto; bottom: 4px; margin: 0 auto;
-}
-
-/* ---------- reduced motion: every end state at once ---------- */
-@media (prefers-reduced-motion: reduce) {
-  #app .tkt .rt-crate, #app .tkt .rt-lid, #app .tkt .rt-word, #app .tkt .rt-bell, #app .tkt .rt-bell.on, #app .tkt .rt-sheet, #app .tkt .rt-tags.fade { transition: none; }
-  #app .tkt .rt-sheet, #app .tkt > .rush-table > .rt-bg, #app .tkt .rt-lines, #app .tkt > .rush-table > .rt-line, #app .tkt > .rush-table > .rt-foot { animation: none; }
+  grid-column: 1 / -1; grid-row: street; align-self: end; top: auto; bottom: 4px; margin: 0 auto;
 }

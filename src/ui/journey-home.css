@@ -78,7 +78,6 @@
 #app .jp .jp-faces { display: flex; gap: 2px; margin-top: auto; }
 #app .jp .jp-faces .xf { border-radius: 50%; box-shadow: 0 0 0 2px var(--j-ink); background: var(--j-tint); }
 #app .jp .jp-tile.wide { min-height: 64px; }
-#app .jp .jp-tile.dark { background: var(--j-ink); color: var(--j-paper); }
 #app .jp .jp-join { padding: 10px 12px 12px; box-shadow: inset 0 0 0 2.5px var(--j-ink); display: flex; flex-direction: column; gap: 6px; }
 #app .jp .jp-join label { font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
 #app .jp .jp-join .input { border-radius: 0; min-height: 48px; font: 400 1.25rem/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; }

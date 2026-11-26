@@ -211,7 +211,7 @@
 /* Shade Cloth's fruit */
 #app .tkt .shade-pick { margin: 0; gap: 6px; }
 #app .tkt .shade-pick button {
-  all: unset; flex: 1 1 0; min-width: 0; min-height: 44px; box-sizing: border-box; display: grid; place-items: center; cursor: pointer;
+  all: unset; flex: 1 1 0; min-width: 0; box-sizing: border-box; place-items: center; cursor: pointer;
   background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 2px var(--tk-ink); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase;
 }
 #app .tkt .shade-pick button.on { background: var(--tk-yel); box-shadow: inset 0 0 0 3px var(--tk-ink); }
@@ -291,10 +291,6 @@
 @media (max-width: 379px) {
   #app .tkt .ob-status li { gap: 5px; padding-left: 4px; padding-right: 4px; }
   #app .tkt .ob-status .xf { width: 22px !important; height: 22px !important; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #app .tkt .ob-status.open li { animation: none; }
 }
 
 /* Shade Cloth (owner, 2026-11-24): each fruit's button says what you hold of it, since the sheet covers the shelf. */

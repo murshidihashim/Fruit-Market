@@ -81,7 +81,7 @@ describe('the event chip in the top bar shows its whole name (ticket.css)', () =
   });
 });
 
-describe('places to tap of at least 40 px (rushTable.css, booth.css)', () => {
+describe('places to tap of at least 40 px (rushTable.css, daysheet.css)', () => {
   it('the pricing sheet\'s − and + at every step, without moving a row', () => {
     const css = read('src/ui/rushTable.css');
     const sel = "#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3'])";
@@ -129,15 +129,6 @@ describe('places to tap of at least 40 px (rushTable.css, booth.css)', () => {
     expect(px(rule(css, '#app .tkt .sh-day .mini-step > .ds-st:first-child::before').left)).toBe(-2);
   });
 
-  it('Home\'s dots: 40 px tall; the first and the last 40 px across', () => {
-    const css = read('src/ui/booth.css');
-    const dot = rule(css, '.home.hm .hm-dots button');
-    expect(dot.height).toBe('8px');
-    const [top, side, bottom] = rule(css, '.home.hm .hm-dots button::after').inset.split(' ').map(px);
-    expect(8 - top - bottom).toBe(40);
-    expect(8 - side - px(rule(css, '.home.hm .hm-dots button:first-child::after').left)).toBe(40);
-    expect(8 - side - px(rule(css, '.home.hm .hm-dots button:last-of-type::after').right)).toBe(40);
-  });
 });
 
 describe('faint labels are dark enough to read (4.5:1 for small words, 3:1 for a mark)', () => {
@@ -190,9 +181,9 @@ describe('faint labels are dark enough to read (4.5:1 for small words, 3:1 for a
     expect(ratio(css('table.css', '#app .tkt .tb-night .tb-box:not(.has) .tk-lamp').color, ink)).toBeGreaterThanOrEqual(4.5);
   });
 
-  it('the stamp book\'s later ranks and Home\'s dots', () => {
+  // (Home's dots are no longer drawn: PLAN-130 took their styles out with the other classes the code never writes.)
+  it('the stamp book\'s later ranks', () => {
     const later = css('stampbook.css', '.sbk .sbk-rk.later .sbk-n');
     expect(ratio(later.color, later.background)).toBeGreaterThanOrEqual(4.5);
-    expect(ratio(css('booth.css', '.home.hm .hm-dots button').background, 'var(--hm-paper)')).toBeGreaterThanOrEqual(3);
   });
 });

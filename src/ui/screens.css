@@ -67,8 +67,6 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
   .game .street.street { --card-w: 9.5rem; }
 }
 
-/* ---------- home: the Ticket Booth and its opening live in booth.css ---------- */
-
 /* ---------- opening (Opening.tsx, booth.css): the overlay's fade out ---------- */
 @keyframes opx-out { to { opacity: 0; } }
 

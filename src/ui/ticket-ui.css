@@ -78,10 +78,6 @@
 #app .tkt > .centre > .tk-night > :last-child { margin-bottom: auto; }
 @keyframes tk-dusk { from { background-color: transparent; } to { background-color: var(--tk-ink); } }
 @keyframes tk-dusk-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) {
-  #app .game.gx.tkt { transition: none; }
-  #app .tkt > .centre > .tk-night, #app .tkt > .centre > .tk-night > * { animation: none; }
-}
 
 /* ---------- Settings, How to play and the pass-the-phone screen (S17, PLAN-110) ----------
    The square Market Ticket look of Home, the game and Trophies: the black bar with its back arrow, square boxes with
@@ -129,7 +125,6 @@
 #app .howto.tk-page .slide h2 { font: 400 1.5rem/1.05 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
 #app .tk-page .dots span { width: 10px; height: 10px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
 #app .tk-page .dots span.on { width: 22px; background: var(--x-ink); }
-#app .howto.tk-page .day-strip li { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); }
 
 /* the pass-the-phone screen: the next person's name on a ticket, and one black button */
 #app .handoff { gap: 0; padding: 24px 16px; background: var(--x-ink); }
@@ -154,15 +149,7 @@
    A long name wraps and shrinks first; the online dot and the READY tag keep their size inside the row. */
 #app .seat-row { min-width: 0; }
 #app .seat-row .seat-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
-#app .seat-row .sbk-seat-title { flex: 0 1 auto; min-width: 0; }
-#app .seat-row .dot { flex: none; }
 #app .pick-away { margin: 6px 0 0; }
-/* S13 (PLAN-110): the Wardrobe's colour row at 320 px: the colours go under their name, which reads whole ("Not chosen") */
-@media (max-width: 339px) {
-  #app .sbk .sbk-slot:has(> .sbk-sws) { flex-wrap: wrap; row-gap: 6px; padding-top: 6px; padding-bottom: 6px; }
-  #app .sbk .sbk-slot > .sbk-sws { margin-left: 0; }
-}
-
 /* ---------- C-21 (PLAN-110): small words on the watermelon green and the apple red ----------
    Paper type on those colours is 3.5:1 and 4.0:1, under the 4.5:1 small type needs. The colours are the print kit's
    and stay as they are; in the app the words on a fruit's colour get a thin ink outline, so each letter stands on ink
@@ -173,7 +160,7 @@
 }
 /* (a lorry's row for this table is ink on paper, and a number of nothing is faint on purpose: no outline on either) */
 #app :is(.ln-watermelon, .ln-apple):is(.cd-ly-n, .wc-lt-n):is(.nil, .on) { text-shadow: none; }
-#app .home.hm .hm-chip, #app .sbk .sbk-note.good, #app .sbk .sbk-rk.done .sbk-n { background: var(--c-0a7443); }
+#app .sbk .sbk-note.good, #app .sbk .sbk-rk.done .sbk-n { background: var(--c-0a7443); }
 
 
 /* ---------- B-08 (PLAN-130, REP-140): keyboard focus in the game ----------
@@ -209,7 +196,7 @@
    screen. */
 @media not all and (min-width: 900px) and (min-height: 560px) {
   #app .game.gx.tkt.ph-morning > .coach, #app .game.gx.tkt.ph-buy > .coach[data-tip="buy"] {
-    grid-area: auto; grid-column: 1 / -1; grid-row: mid-start / dock-end; align-self: end; box-sizing: border-box; max-height: calc(100% - 8px);
+    grid-column: 1 / -1; grid-row: mid-start / dock-end; align-self: end; box-sizing: border-box; max-height: calc(100% - 8px);
     margin: 0 auto 6px; overflow: hidden;
   }
   #app .game.gx.tkt:is(.ph-morning, .ph-buy) > .coach > span { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }

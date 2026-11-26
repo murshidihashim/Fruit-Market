@@ -26,13 +26,7 @@
 .sbk .sbk-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 
 /* ---------- the black bar and the tabs ---------- */
-.sbk .sbk-bar {
-  flex: none; min-height: 52px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; background: var(--k-ink); color: var(--k-paper);
-  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
-}
 .sbk .sbk-back { width: 44px; height: 44px; margin-left: -10px; display: grid; place-items: center; color: var(--k-paper); }
-.sbk .sbk-bar h1 { font: 400 1.125rem/1 var(--f-display); text-transform: uppercase; letter-spacing: 0; }
-.sbk .sbk-lv { margin-left: auto; background: var(--k-yel); color: var(--k-ink); padding: 6px 8px; font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
 .sbk .sbk-tabs { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 2px solid var(--k-ink); }
 .sbk .sbk-tabs button { min-height: 44px; padding: 4px 2px; text-align: center; font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
 .sbk .sbk-tabs button.on { background: var(--k-yel); }
@@ -43,9 +37,8 @@
 .sbk .sbk-ch b { flex: none; white-space: nowrap; color: var(--k-yel); }
 .sbk .sbk-perf { height: 0; border-top: 2px dashed var(--k-ink); margin: 0 9px; }
 .sbk .sbk-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
-.sbk .sbk-cell, .sbk-fly { aspect-ratio: 1; border: 1.5px dashed var(--k-stone); border-radius: 50%; box-sizing: border-box; display: block; }
-.sbk .sbk-cell.s { border: 2px solid var(--k-ink); background: radial-gradient(circle, var(--k-ink) 0 34%, var(--k-paper) 35% 52%, var(--k-ink) 53% 100%); }
-.sbk .sbk-cell.n, .sbk-fly { border: 2px solid var(--c-b62528); background: radial-gradient(circle, var(--c-b62528) 0 34%, var(--c-fffcf5) 35% 52%, var(--c-b62528) 53% 100%); transform: rotate(-12deg); }
+.sbk .sbk-cell, .sbk-fly { aspect-ratio: 1; border-radius: 50%; box-sizing: border-box; display: block; }
+.sbk .sbk-cell.n, .sbk-fly { transform: rotate(-12deg); }
 /* a stamp on its way from its line to the card (the results move it; it takes no taps and no room) */
 .sbk-fly { position: fixed; left: 0; top: 0; z-index: 30; margin: 0; pointer-events: none; will-change: transform; }
 /* PLAN-116 (REP-133 B-07, B-08): a tier not yet earned is drawn dashed in slate (6:1 on the paper; the pale stone was
@@ -94,10 +87,6 @@
    The first rule is the sample in the Wardrobe; the others are the same edges for the tag while pricing (.ds-tag) and
    on the crates of the round table before the rush (.rt-tg, PLAN-099; its face is cut like a tag, so the edge is drawn
    inside it), which take the class "tg-" and the style's name (tagOf, src/net/looks.ts). */
-.sbk-tag { display: inline-grid; place-items: center; min-width: 30px; height: 22px; padding: 0 5px; box-sizing: border-box; border: 2px solid var(--c-1f272a); background: var(--c-fffcf5); color: var(--c-1f272a); font: 400 0.8125rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
-.sbk-tag.tg-chalk { border-style: dashed; }
-.sbk-tag.tg-star { border-style: double; border-width: 4px; }
-.sbk-tag.tg-hand { border-width: 2px 2px 4px 2px; border-radius: 2px 7px 3px 6px / 6px 3px 7px 2px; }
 #app .tkt .rt-tg.tg-chalk:not(.down) .rt-tgf { outline: 1px dashed var(--c-1f272a); outline-offset: -3px; }
 #app .tkt .rt-tg.tg-star:not(.down) .rt-tgf { outline: 3px double var(--c-1f272a); outline-offset: -4px; }
 #app .tkt .rt-tg.tg-hand:not(.down) .rt-tgf { border-radius: 0 4px 2px 0 / 0 2px 4px 0; box-shadow: inset 0 -2px 0 var(--c-1f272a); }
@@ -115,24 +104,12 @@
 .sbk .sbk-win small { font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--k-yel); }
 .sbk .sbk-win h2 { margin: 4px 0 3px; font: 400 1.875rem/0.95 var(--f-display); text-transform: uppercase; color: var(--k-paper); overflow-wrap: anywhere; }
 .sbk .sbk-win.long h2 { font-size: 1.25rem; line-height: 1.05; }
-.sbk .sbk-pods { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px 0; }
-.sbk .sbk-pod { display: flex; align-items: center; gap: 7px; border: 2px solid var(--k-ink); padding: 0 7px 0 0; min-height: 36px; background: var(--k-paper); }
-.sbk .sbk-pod.me { background: var(--k-yel); }
-.sbk .sbk-pod .sbk-sw { align-self: stretch; width: 10px; flex: none; border-right: 2px solid var(--k-ink); background: repeating-linear-gradient(0deg, var(--a) 0 6px, var(--k-paper) 6px 12px); }
-.sbk .sbk-pod .sbk-md { width: 30px; flex: none; font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.06em; }
-.sbk .sbk-pod .sbk-nm { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.sbk .sbk-pod .sbk-nm b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sbk .sbk-pod .sbk-nm small { font: 700 0.5625rem/1 var(--f-label); color: var(--k-slate); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sbk .sbk-pod.me .sbk-nm small { color: var(--k-ink); }
-.sbk .sbk-pod .sbk-cs { margin-left: auto; flex: none; font: 400 1.0625rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
 .sbk .sbk-note { margin: 8px 12px 0; padding: 6px 8px; background: var(--k-pale); font-weight: 700; }
-.sbk .sbk-note.good { background: var(--k-green); color: var(--k-paper); }
+.sbk .sbk-note.good { color: var(--k-paper); }
 .sbk .sbk-earn { display: flex; align-items: center; gap: 8px; padding: 5px 9px; min-height: 20px; }
 .sbk .sbk-earn > b { width: 30px; flex: none; font: 400 0.9375rem/1 var(--f-display); color: var(--k-red-d); }
 .sbk .sbk-earn .sbk-pip { margin-left: auto; }
 .sbk .sbk-earn.wait, .sbk .sbk-wait { visibility: hidden; }
-.sbk .sbk-next { display: flex; align-items: center; gap: 8px; padding: 8px 9px; background: var(--k-yel); min-height: 18px; }
-.sbk .sbk-next b { font: 400 0.8125rem/1.1 var(--f-display); }
 .sbk .sbk-close { display: flex; gap: 6px; }
 .sbk .sbk-close > span { flex: 1 1 0; min-width: 0; border: 2px dashed var(--k-ink); padding: 6px 8px; display: flex; flex-direction: column; gap: 3px; }
 .sbk .sbk-more { padding: 10px 12px 0; display: flex; flex-direction: column; gap: 8px; }
@@ -147,22 +124,15 @@
 .sbk .sbk-board li b:last-child { margin-left: auto; font: 400 0.875rem/1 var(--f-display); }
 /* the buttons stay in reach at the bottom of the screen while the page scrolls */
 .sbk .sbk-acts { position: sticky; bottom: 0; z-index: 2; margin-top: auto; background: var(--k-paper); padding: 8px max(12px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); display: flex; flex-direction: column; gap: 6px; }
-.sbk .sbk-btns { display: flex; gap: 6px; }
 .sbk .sbk-btn { flex: 1 1 0; min-width: 0; min-height: 52px; padding: 0 8px; background: var(--k-ink); color: var(--k-yel); font: 400 1rem/1.05 var(--f-display); text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
 .sbk .sbk-btn.gh { background: var(--k-paper); color: var(--k-ink); box-shadow: inset 0 0 0 2px var(--k-ink); font-size: 0.75rem; }
 .sbk .sbk-btn:disabled { opacity: 0.45; cursor: default; }
-.sbk .sbk-foot { display: flex; justify-content: space-between; gap: 8px; color: var(--k-slate); }
-.sbk .sbk-foot button { text-decoration: underline; color: var(--k-ink); min-height: 24px; }
-/* "Share · Main menu" stays on one line on a narrow phone; the note beside it wraps instead */
-.sbk .sbk-foot > span:last-child { flex: none; white-space: nowrap; }
-
 /* ---------- Trophies: the stamp book ---------- */
 .sbk .sbk-how { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; padding: 8px 9px; background: var(--k-kraft); }
 .sbk .sbk-how b { text-align: right; }
-.sbk .sbk-rk { display: flex; align-items: center; gap: 8px; border: 2px solid var(--k-ink); padding: 3px 8px; min-height: 30px; }
+.sbk .sbk-rk { display: flex; align-items: center; gap: 8px; border: 2px solid var(--k-ink); padding: 3px 8px; }
 .sbk .sbk-rk .sbk-n { width: 22px; height: 22px; flex: none; background: var(--k-ink); color: var(--k-paper); display: grid; place-items: center; font: 800 0.6875rem/1 var(--f-label); }
 .sbk .sbk-rk.done { background: var(--k-pale); }
-.sbk .sbk-rk.done .sbk-n { background: var(--k-green); }
 .sbk .sbk-rk.now { background: var(--k-yel); }
 .sbk .sbk-rk.later { border-style: dashed; color: var(--k-slate); }
 .sbk .sbk-rk.later .sbk-n { background: var(--k-stone); color: var(--k-ink); }
@@ -199,40 +169,8 @@
 .cd-pop.sbk-pop:focus { outline: none; }
 
 /* ---------- the Wardrobe ---------- */
-.sbk .sbk-stage { margin: 10px 12px 0; border: 2px solid var(--k-ink); outline: 2px solid var(--k-ink); outline-offset: 3px; background: var(--k-paper); }
-.sbk .sbk-stage .sbk-srow { display: flex; align-items: center; gap: 10px; padding: 6px 8px 8px; min-width: 0; }
-.sbk .sbk-stage .sbk-sc { width: 84px; height: 84px; flex: none; overflow: hidden; border: 2px solid var(--k-ink); box-sizing: border-box; background: var(--k-kraft); display: grid; place-items: center; position: relative; }
-.sbk .sbk-stage .sbk-sc .sbk-prop { position: absolute; right: 2px; bottom: 2px; }
-.sbk .sbk-stage .sbk-snm { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.sbk .sbk-stage .sbk-snm > b { font: 400 1.1875rem/1 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
-.sbk .sbk-where { display: flex; gap: 6px; }
-.sbk .sbk-where > div { flex: 1 1 0; min-width: 0; border: 2px solid var(--k-ink); display: flex; flex-direction: column; }
-.sbk .sbk-where .sbk-cap { padding: 4px 6px; background: var(--k-ink); color: var(--k-paper); font: 800 0.53rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
-.sbk .sbk-where .sbk-wi { display: flex; align-items: center; gap: 6px; padding: 3px 6px 6px; min-width: 0; }
-.sbk .sbk-where .sbk-wi > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sbk .sbk-slot { display: flex; align-items: center; gap: 8px; border: 2px solid var(--k-ink); padding: 4px 8px; min-height: 30px; width: 100%; box-sizing: border-box; background: var(--k-paper); }
-.sbk .sbk-slot .sbk-k { width: 74px; flex: none; font: 800 0.59rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--k-slate); }
-.sbk .sbk-slot .sbk-v { font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sbk .sbk-slot .sbk-nn { margin-left: auto; color: var(--k-slate); font-size: 0.625rem; text-align: right; flex: none; max-width: 42%; }
-.sbk .sbk-slot.lock { border-style: dashed; color: var(--k-slate); }
-.sbk .sbk-slot.open { background: var(--k-yel); }
-.sbk .sbk-sws { display: flex; gap: 3px; margin-left: auto; flex: none; }
-.sbk .sbk-sws button { width: 20px; height: 22px; border: 1.5px solid var(--k-ink); box-sizing: border-box; position: relative; }
-.sbk .sbk-sws button::after { content: ""; position: absolute; inset: -9px -1px; }
-.sbk .sbk-sws button.on { outline: 2px solid var(--k-ink); outline-offset: 1px; }
-.sbk .sbk-picks { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border: 2px solid var(--k-ink); border-top: 0; margin-top: -5px; }
-.sbk .sbk-pick { flex: 1 1 46%; min-width: 0; min-height: 40px; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 4px 6px; border: 1.5px solid var(--k-ink); background: var(--k-paper); }
-.sbk .sbk-pick.on { background: var(--k-ink); color: var(--k-paper); }
-.sbk .sbk-pick.locked { border-style: dashed; color: var(--k-slate); }
-.sbk .sbk-pick small { font: 600 0.5625rem/1.15 var(--f-label); }
 
 @media (max-width: 370px) {
   .sbk .sbk-tabs button { letter-spacing: 0; text-transform: none; }
-  .sbk .sbk-slot .sbk-k { width: 62px; }
   .sbk .sbk-win h2 { font-size: 1.5rem; }
-  .sbk .sbk-sws button { width: 18px; }
 }
-
-/* ---------- the online lobby: what each player has on ---------- */
-.sbk-seat-awn { flex: none; align-self: stretch; width: 8px; min-height: 30px; border: 1.5px solid var(--c-1f272a); box-sizing: border-box; }
-.sbk-seat-title { flex: none; font: 700 0.75rem/1.1 var(--f-label); color: var(--c-5a6266); max-width: 34%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

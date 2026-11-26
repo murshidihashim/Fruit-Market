@@ -213,10 +213,9 @@
 .home.hm.jh .jh-gp { flex: none; font: 400 1rem/1 var(--f-display); }
 
 /* ---------- compact Market (under 760 px high) and roomy Market ---------- */
-.home.hm.jh .jh-why, .home.hm.jh .jh-x { display: none; }
+.home.hm.jh .jh-why { display: none; }
 @media (min-height: 760px) {
   .home.hm.jh .jh-why { display: block; }
-  .home.hm.jh .jh-way { min-height: 60px; }
   .home.hm.jh .jh-way span { display: block; }
   .home.hm.jh .jh-hhd h2 { font-size: 1.5rem; }
   .home.hm.jh .jh-hhd { padding: 10px 12px 9px; }

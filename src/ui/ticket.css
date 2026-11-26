@@ -120,7 +120,6 @@
 #app .tkt .street { all: unset; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
 #app .tkt .street::-webkit-scrollbar { display: none; }
 #app .tkt .street > .cust { all: unset; position: relative; flex: 1 1 0; min-width: 62px; max-width: 112px; display: flex; cursor: pointer; }
-#app .tkt .street > .cust.rush-away { visibility: hidden; }
 /* B-11 (PLAN-130): a served customer's picture and fruit fade; the words on the card keep their contrast (fading the
    whole card took them to 1.4:1) */
 #app .tkt .street > .cust:is(.rush-served, .happy, .rush-none) :is(.tkc-pc, .tkc-rw .x-fruit, .tkc-dots) { opacity: 0.45; }
@@ -204,12 +203,6 @@
 #app .tkt .tk-market .mk-cell:disabled { pointer-events: none; }
 #app .tkt .tk-box .x-fruit { width: 19px; height: 19px; }
 #app .tkt .tk-box .price { all: unset; margin-left: auto; font: 700 0.75rem/1 var(--tk-txt); }
-#app .tkt .mk-cover {
-  all: unset; position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center;
-  background: var(--tk-ink); color: var(--tk-paper); opacity: 0.94;
-}
-#app .tkt .mk-cover b { font: 400 1.25rem/1 var(--tk-disp); text-transform: uppercase; color: var(--tk-yel); }
-#app .tkt .mk-cover small { font: 600 0.8125rem/1.2 var(--tk-txt); }
 #app .tkt .next-lorry { all: unset; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font: 500 0.75rem/1.3 var(--tk-txt); color: var(--tk-ink); }
 #app .tkt .next-lorry .nl-head { display: inline-flex; gap: 4px; }
 #app .tkt .next-lorry .nl-name { font-weight: 800; }
@@ -305,10 +298,6 @@
 }
 #app .tkt .evening-panel .chip, #app .tkt .trait-card { border-radius: 0; }
 
-@media (prefers-reduced-motion: reduce) {
-  #app .tkt .ns-piece { transition: none; }
-}
-
 /* a phone: the event's name a little smaller, so its longest word ("Breakdown") fits between the day and the rank and
    a cash of three figures (PLAN-096, PLAN-127) */
 @media (max-width: 419px) {
@@ -345,18 +334,18 @@
 }
 
 /* ---------- pop-ups over the table, in the same boxes ---------- */
-#app .tkt .tip-pop, #app .tkt .card-pop, #app .tkt .coach, #app .tkt .modal, #app .tkt .bn-card {
+#app .tkt .tip-pop, #app .tkt .coach, #app .tkt .modal, #app .tkt .bn-card {
   border: 0; border-radius: 0; background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink), 0 10px 0 rgba(0, 0, 0, 0.18);
 }
-#app .tkt .modal .btn, #app .tkt .coach .btn, #app .tkt .card-pop .btn, #app .tkt .bn-card .btn, #app .tkt .event-sheet > .btn {
+#app .tkt .modal .btn, #app .tkt .coach .btn, #app .tkt .bn-card .btn, #app .tkt .event-sheet > .btn {
   border: 0; border-radius: 0; box-shadow: none; background: var(--tk-ink); color: var(--tk-yel); font-family: var(--tk-disp); font-weight: 400; letter-spacing: 0.02em; text-transform: uppercase;
 }
-#app .tkt .modal .btn:not(.primary), #app .tkt .coach .btn.skip, #app .tkt .card-pop .btn.ghost { background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink); }
+#app .tkt .modal .btn:not(.primary), #app .tkt .coach .btn.skip { background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink); }
 #app .tkt .modal h2 { font-family: var(--tk-disp); font-weight: 400; text-transform: uppercase; }
 #app .tkt .fx-layer .ptag { border-radius: 0; border: 0; box-shadow: none; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.8125rem/1.2 var(--tk-txt); padding: 7px 10px; }
 #app .tkt .toast { border-radius: 0; background: var(--tk-ink); color: var(--tk-paper); border: 0; }
 /* today's news again, full screen (from the event name in the top bar) */
-#app .tkt .event-sheet { justify-content: flex-start; gap: 12px; padding: 16px 12px; background: var(--tk-paper); color: var(--tk-ink); }
+#app .tkt .event-sheet { gap: 12px; padding: 16px 12px; background: var(--tk-paper); color: var(--tk-ink); }
 #app .tkt .event-sheet .morning-card { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; }
 /* a customer's own ticket, large (tap a ticket) */
 #app .tkt .tk-cust.big { flex: none; width: min(100%, 250px); margin: 0 auto; box-shadow: 0 0 0 3px var(--tk-ink); }

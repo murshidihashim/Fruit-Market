@@ -14,7 +14,7 @@
 #app .game.tkt .tb-awn.thin { height: 7px !important; }
 
 /* ---------- a stall's box: the cash, then what it bought or is doing, on one line across the box ---------- */
-#app .game.tkt .tb-line { grid-column: 1 / -1; grid-row: 3; min-width: 0; display: flex; align-items: center; gap: 5px; }
+#app .game.tkt .tb-line { grid-column: 1 / -1; grid-row: 3; min-width: 0; display: flex; align-items: center; }
 #app .game.tkt .tb-line .tb-cash { flex: none; }
 #app .game.tkt .tb-line .tb-got { flex: 1 1 0; }
 #app .game.tkt .tb-line { gap: 4px; }
