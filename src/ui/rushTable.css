@@ -36,15 +36,6 @@
   #app .tkt > .rush-table { position: fixed; max-width: 520px; margin: 0 auto; }
 }
 
-/* ---------- the customer's place in the row: they are at the stalls ---------- */
-#app .tkt .street > .cust.rush-away::after {
-  content: var(--rt-at, "") "\A at the stalls"; white-space: pre-line;
-  /* PLAN-123: drawn, not read aloud: the table itself is announced as "The rush: customer 1 of 2" (it was said twice) */
-  content: var(--rt-at, "") "\A at the stalls" / "";
-  position: absolute; inset: 0; display: grid; place-items: center; padding: 4px; text-align: center;
-  border: 2px dashed var(--x-lamp-off); color: var(--tk-slate); font: 800 0.6875rem/1.25 var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase;
-}
-
 /* ---------- the stage ---------- */
 #app .tkt .rt-stage { position: relative; z-index: 1; flex: 1 1 auto; min-height: 0; margin-top: 4px; }
 #app .tkt .rt-lines { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
@@ -151,7 +142,8 @@
 }
 /* the crate that sells first; one that cannot sell to this customer (over their price, a freshness they will not take);
    one without the fruit, or not in a standing order */
-.tkt .rt-crate.first { box-shadow: 0 0 0 3px var(--tk-yel), 0 0 0 5px var(--tk-ink); }
+#app .tkt .rt-crate.first { background: var(--tk-yel); box-shadow: 0 0 0 3px var(--tk-yel), 0 0 0 5px var(--tk-ink); }
+#app .tkt .rt-crate.first .rt-say { color: var(--tk-ink); }
 /* B-11 (PLAN-130): such a crate fades its awning, face and pieces, as before; its words (the name, its price, why it
    cannot sell, "Empty") keep 4.5:1 or more (fading the whole crate took them to 1.9:1). Its price is grey. */
 #app .tkt .rt-crate:is(.over, .none, .off) > .tb-awn, #app .tkt .rt-crate:is(.over, .none, .off) > .rt-who .xf, #app .tkt .rt-crate:is(.over, .none, .off) > .rt-box > :not(.rt-empty, .dim) {
@@ -274,11 +266,16 @@
 #app .tkt .rt-tgf .x-fruit { display: block; flex: none; width: 11px; height: 11px; }
 #app .tkt .rt-tgf b { font: inherit; }
 /* face down: the tag's back, the same size as its face */
+#app .tkt .rt-tg.down .rt-tgf { background: var(--tk-ink) repeating-linear-gradient(135deg, transparent 0 3px, var(--x-ink-2) 3px 6px); }
 .tkt .rt-tg.down .x-fruit { opacity: 0; }
 #app .tkt .rt-tgb { display: block; width: 14px; }
 /* a price another stall asks too is marked; Favoured Trade played on it stamps it (the stamp waits until the card lands) */
 #app .tkt .rt-tg.tie .rt-tgf { background: var(--tk-yel); }
 #app .tkt .rt-tg .ds-stamp { right: -9px; top: -12px; width: 20px; height: 20px; font-size: 0.6875rem; letter-spacing: -0.04em; }
+#app .tkt .rt-tags.small { gap: 3px; }
+#app .tkt .rt-tags.small .rt-tgf { height: 15px; padding: 0 3px 0 7px; clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font-size: 0.6875rem; }
+#app .tkt .rt-tags.small .rt-tgf .x-fruit { width: 9px; height: 9px; }
+#app .tkt .rt-tags.small .rt-tgb { width: 12px; }
 /* as the first customer comes in, the tags of the bell fade; the tag for the fruit being bought shows in its place */
 #app .tkt .rt-tags.fade { opacity: 0; transition: opacity calc(var(--mk, 1) * var(--t-sheet-out)) ease; }
 

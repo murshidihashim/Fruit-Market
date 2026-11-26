@@ -95,14 +95,12 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
 });
 
 describe('one element stays on the table (Game.tsx, DaySheet.tsx, RushTable.tsx)', () => {
-  it('the game table draws the day\'s sheet for stocking and the takings, and the round table between them', () => {
-    // which of them is up at each step: table-layout.test.ts 'stocking draws the day's sheet; once the stall has opened
-    // the round table takes over' and 'the takings lie on the day's sheet once the rush is truly over'
-    // The day's sheet stays one element through the day and the round table one element from the moment the stall
-    // opens to the last customer; the takings come as their own panel over the day's sheet, which stays plain under
-    // them: checked in the browser as a whole game is played (scripts/smoke.cjs with scripts/table-checks.cjs: "drawn again as a new
-    // element", "takings").
-  });
+  // The game table draws the day's sheet for stocking and the takings, and the round table between them. Which of them
+  // is up at each step: table-layout.test.ts 'stocking draws the day's sheet; once the stall has opened the round table
+  // takes over' and 'the takings lie on the day's sheet once the rush is truly over'. The day's sheet stays one element
+  // through the day and the round table one element from the moment the stall opens to the last customer; the takings
+  // come as their own panel over the day's sheet, which stays plain under them: checked in the browser as a whole game
+  // is played (scripts/smoke.cjs with scripts/table-checks.cjs: "drawn again as a new element", "takings").
 
   it('the day\'s sheet and the round table move by position, size and fade only, on the table\'s clock, and wait for nothing', () => {
     // Every move the day's sheet and the round table make in a whole game (element.animate, CSS animations and
@@ -293,13 +291,12 @@ describe('stocking and pricing are drawn closer before anything scrolls (dayShee
     expect(fitSheet([278], 277, 0)).toEqual({ tight: 0, over: false, up: false });
   });
 
-  it('the room is measured from the sheet itself, each time the rows are laid out and at each step of the day', () => {
-    // In the browser, as a game is played, stocking scrolls only at its closest step, and the pricing sheet at the
-    // round table's foot stays on the screen (scripts/smoke.cjs with scripts/table-checks.cjs: "scrolls at step", "runs off the screen").
-    // No fixed screen height decides how close the rows are drawn (only where the sheet lies, on a short phone), the
-    // sheet lies over your shelf by its margin, and the pricing sheet (the round table's since PLAN-099) leaves out the
-    // Favoured Trade note at its closest step: read in the browser (scripts/style-checks.cjs, PLAN-130).
-    // the pricing sheet's one-line forms: tieOrderLine's test above, and table-panels.test.ts 'a stall holding Favoured
-    // Trade is told it will be asked after the prices flip if it ties'
-  });
+  // The room is measured from the sheet itself, each time the rows are laid out and at each step of the day. In the
+  // browser, as a game is played, stocking scrolls only at its closest step, and the pricing sheet at the round table's
+  // foot stays on the screen (scripts/smoke.cjs with scripts/table-checks.cjs: "scrolls at step", "runs off the screen").
+  // No fixed screen height decides how close the rows are drawn (only where the sheet lies, on a short phone), the
+  // sheet lies over your shelf by its margin, and the pricing sheet (the round table's since PLAN-099) leaves out the
+  // Favoured Trade note at its closest step: read in the browser (scripts/style-checks.cjs, PLAN-130). The pricing
+  // sheet's one-line forms: tieOrderLine's test above, and table-panels.test.ts 'a stall holding Favoured Trade is told
+  // it will be asked after the prices flip if it ties'.
 });

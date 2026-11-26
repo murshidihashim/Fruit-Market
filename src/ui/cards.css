@@ -481,7 +481,6 @@
 #app .tkt .modal .btn:not(.primary), #app .tkt .coach .btn.skip {
   background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink);
 }
-#app .tkt .event-sheet .morning-card { all: unset; box-sizing: border-box; display: flex; flex-direction: column; }
 #app .modal .btn.primary small { color: var(--x-paper); }
 #app .modal .btn:disabled { opacity: 0.45; }
 #app .modal .btn:active:not(:disabled) { transform: translateY(2px); }

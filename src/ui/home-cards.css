@@ -143,7 +143,8 @@
 /* the Play row: one big Play, or Continue with a smaller New game beside it */
 .home.hm.jh .jh-go-row { flex: none; display: flex; gap: 8px; margin-bottom: 5px; }
 .home.hm.jh .jh-go-row .jh-go { flex: 1 1 auto; min-width: 0; margin: 0; }
-.home.hm.jh .jh-cont { text-align: left; }
+.home.hm.jh .jh-play { font-size: 2rem; }
+.home.hm.jh .jh-cont { justify-content: flex-start; gap: 10px; padding: 7px 12px; text-align: left; }
 .home.hm.jh .jh-cont svg { flex: none; }
 .home.hm.jh .jh-cont span { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .home.hm.jh .jh-cont b { font: 400 1.5rem/1 var(--f-display); text-transform: uppercase; }
@@ -231,6 +232,7 @@
   .home.hm.jh .jh-vs i { font-size: 1.5rem; }
   .home.hm.jh .jh-tab { min-height: 52px; }
   .home.hm.jh .jh-go-row .jh-go, .home.hm.jh .jh-new { min-height: 72px; }
+  .home.hm.jh .jh-play { font-size: 2.25rem; }
   .home.hm.jh .jh-pmain { min-height: 56px; }
 }
 @media (max-height: 759px) {
@@ -256,6 +258,7 @@
   .home.hm.jh .jh-hero .jh-dcard { --card-w: 72px; }
   .home.hm.jh .jh-hero .jh-lorry span { min-height: 26px; }
   .home.hm.jh .jh-go-row .jh-go, .home.hm.jh .jh-new { min-height: 54px; }
+  .home.hm.jh .jh-play { font-size: 1.625rem; }
   .home.hm.jh .jh-cont b { font-size: 1.25rem; }
   .home.hm.jh .jh-tab { min-height: 44px; }
 }

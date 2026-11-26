@@ -329,11 +329,10 @@ describe('the evening: one main button, and what is built travels (PLAN-084)', (
     expect(chosen.match(/uo-pick sel/g)).toHaveLength(1);
   });
 
-  it('the main button is the sheet\'s: "Build <name> · $<cost>" beside "Lights out without building", or "Lights out"', () => {
-    // table-panels.test.ts 'one main button: "Build <name> · $<cost>" beside "Lights out without building", or "Lights
-    // out"'. Lights out is always a tap: the evening never ends by itself (a whole game through the controller only
-    // moves on as Lights out is said: controller.test.ts 'Day 1 to the results').
-  });
+  // The main button is the sheet's, "Build <name> · $<cost>" beside "Lights out without building", or "Lights out":
+  // table-panels.test.ts 'one main button: "Build <name> · $<cost>" beside "Lights out without building", or "Lights
+  // out"'. Lights out is always a tap: the evening never ends by itself (a whole game through the controller only
+  // moves on as Lights out is said: controller.test.ts 'Day 1 to the results').
 
   it('an offer the stall cannot pay for is greyed and says why', () => {
     const poor = structuredClone(draft);

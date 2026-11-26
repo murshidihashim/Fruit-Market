@@ -113,21 +113,17 @@ describe('after a Favoured Trade answer (tableNow.ts, RushTable.tsx)', () => {
 // of the sheet, which keeps room free for it (and on a small phone lies over the customers' tickets while it is up):
 // checked in the browser as the first game is played (scripts/smoke.cjs with scripts/table-checks.cjs: "the tip covers").
 
-describe('the evening: an upgrade the stall cannot build (panel.tsx)', () => {
-  it('can still be opened as its whole card, with the reason; it is never chosen', () => {
-    // a tap on it opens the card, with the reason; choosing is for an offer that can be built: table-panels.test.ts
-    // 'an offer the stall cannot build can still be opened' and 'its opened card says why'
-    // it is still drawn greyed, and at the evening's closest step it still says why under its one line: read in the
-    // browser (scripts/style-checks.cjs, "the evening is drawn closer a step at a time", PLAN-130)
-  });
-});
+// The evening: an upgrade the stall cannot build (panel.tsx) can still be opened as its whole card, with the reason;
+// it is never chosen. A tap on it opens the card, with the reason; choosing is for an offer that can be built:
+// table-panels.test.ts 'an offer the stall cannot build can still be opened' and 'its opened card says why'. It is still
+// drawn greyed, and at the evening's closest step it still says why under its one line: read in the browser
+// (scripts/style-checks.cjs, "the evening is drawn closer a step at a time", PLAN-130).
 
 describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
-  it('the market is out of reach of the keyboard and screen readers while a sheet lies over it, and back when it leaves', () => {
-    // when the market is covered (a sheet or the round table): table-layout.test.ts 'stocking draws the day's sheet;
-    // once the stall has opened the round table takes over, the market is out of reach'; the market itself in a game:
-    // scripts/smoke.cjs with scripts/table-checks.cjs ("the market is in reach under a sheet", "out of reach with no sheet over it")
-  });
+  // The market is out of reach of the keyboard and screen readers while a sheet lies over it, and back when it leaves.
+  // When the market is covered (a sheet or the round table): table-layout.test.ts 'stocking draws the day's sheet; once
+  // the stall has opened the round table takes over, the market is out of reach'; the market itself in a game:
+  // scripts/smoke.cjs with scripts/table-checks.cjs ("the market is in reach under a sheet", "out of reach with no sheet over it").
 
   it('each row of the table a sheet covers all of is out of reach too, measured where things come to rest (PLAN-091)', () => {
     // a row covered to the pixel; one the sheet covers in part can still be seen and tapped
