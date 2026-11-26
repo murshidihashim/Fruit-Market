@@ -1,8 +1,10 @@
 // Local persistence: settings, stats, saved games (one per mode, PLAN-120), daily challenge records.
 import type { FavourId } from '../engine/data';
 import type { GameConfig, GameState } from '../engine/game';
-import { AI_VERSION, NAME_MAX, RULES_VERSION } from '../net/protocol';
+import { AI_VERSION, RULES_VERSION } from '../net/protocol';
+import { typedName } from '../net/nameText';
 import { profileChanged } from './changed';
+import { kindOf, kindSentence, slotOfKind, slotSentence } from './modes';
 
 /** `reactions` (PLAN-112): show the preset reactions other players send in an online room (off: none are shown).
  *  REP-140 B-15: the old `tips` field is gone (nothing read it; the coach is turned off with Skip tutorial and back on
@@ -66,15 +68,9 @@ export const SAVE_SLOTS: readonly SaveSlot[] = ['play', 'league', 'daily', 'spri
 /** The key a slot is kept under. The single save of 1.28.0 and earlier was "fm.save" (K.save). */
 export const slotKey = (slot: SaveSlot): string => `${K.save}.${slot}`;
 
-/** The slot a game belongs to, from its set-up: a Sprint, a Daily market, a League stage, otherwise a Play game. */
-export function slotOf(cfg: Pick<GameConfig, 'daily' | 'sprint' | 'league'>): SaveSlot {
-  if (cfg.daily) return cfg.sprint ? 'sprint' : 'daily';
-  if (cfg.league !== undefined) return 'league';
-  return 'play';
-}
-
-/** How a notice names a slot's game: "Your unfinished Sprint game …" (REP-135 RA-13). */
-const SLOT_WORDS: Record<SaveSlot, string> = { play: 'game', league: 'League game', daily: 'Daily market game', sprint: 'Sprint game' };
+/** The slot a game belongs to, from its set-up: a Sprint, a Daily market, a League stage, otherwise a Play game
+ *  (modes.ts, REP-140 A-06). */
+export const slotOf = (cfg: Pick<GameConfig, 'daily' | 'sprint' | 'league'>): SaveSlot => slotOfKind(kindOf(cfg));
 
 const notices: string[] = [];
 
@@ -138,9 +134,11 @@ export function loadGame(slot: SaveSlot): GameState | null {
   try { data = JSON.parse(raw); } catch { data = null; }
   const env = data as SaveEnvelope | null;
   // REP-136 R120-03: a Play save names its kind, a computer game or a Pass & Play game (PLAN-125), from its own players.
+  // How a notice names the game: "Your unfinished Sprint game …" (REP-135 RA-13; the words are modes.ts's).
   const inner = env && typeof env === 'object' && 'game' in env ? env.game : data;
-  const humans = looksLikeGame(inner) && inner.config ? inner.config.players.filter((p) => p.kind === 'human').length : 0;
-  const what = slot === 'play' && humans > 0 ? (humans > 1 ? 'Pass & Play game' : 'computer game') : SLOT_WORDS[slot];
+  const players = looksLikeGame(inner) && inner.config ? inner.config.players : [];
+  const humans = players.filter((p) => p.kind === 'human').length;
+  const what = slot === 'play' && humans > 0 ? kindSentence(kindOf({ players })) : slotSentence(slot);
   if (env && typeof env === 'object' && 'game' in env && typeof env.v === 'number') {
     const game = looksLikeGame(env.game) && env.game.config ? env.game : null;
     // A game that is not this slot's mode (never written so) cannot be read here.
@@ -178,6 +176,8 @@ export const saveGame = (g: GameState) => write(slotKey(slotOf(g.config)), { v: 
 /** Empties one slot (its game ended, or the player started it over). */
 export const clearGame = (slot: SaveSlot) => write(slotKey(slot), null);
 /** Whether this phone holds a saved game, in a slot or in the old single save (telemetry's check for older players). */
+/** True when this phone has kept game stats (it has finished a game; telemetry counts it as an older install). */
+export const hasStats = (): boolean => readRaw(K.stats) !== null;
 export const anySave = (): boolean => readRaw(K.save) !== null || SAVE_SLOTS.some((s) => readRaw(slotKey(s)) !== null);
 
 /**
@@ -224,10 +224,10 @@ export function loadName(): string {
   }
 }
 /**
- * REP-140 B-17: a name as the room server will keep it (server/names.ts tidy: NFKC, one space between words, at most
- * NAME_MAX), so the name box shows what others will see and the server never cuts it. Ends are trimmed when it is saved.
+ * REP-140 B-17: a name as the room server will keep it (REP-140 A-06: the server's own cleaning, nameText.ts), so the
+ * name box shows what others will see and the server never cuts it. Ends are trimmed when it is saved.
  */
-export const fitName = (n: string): string => n.normalize('NFKC').replace(/\s+/g, ' ').slice(0, NAME_MAX);
+export const fitName = (n: string): string => typedName(n);
 /** What the game uses when the name field was left blank. */
 export const nameOrDefault = (n: string, fallback = 'You') => n.trim() || fallback;
 export function saveName(n: string) {

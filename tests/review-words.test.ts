@@ -36,10 +36,9 @@ function morningOf(day: number, extra: Partial<GameConfig> = {}): GameState {
 describe('C-02: a standing order only when it can be collected', () => {
   it('the Market Days without one are worked out as the engine draws them, at every game length', () => {
     expect(GAME_LENGTHS).toEqual([8, 10, 14]);
-    // The set-up page's lengths and the online room's: since PLAN-116 (REP-133 B-14) both draw the Play menu's list
-    // (playMenu.ts LENGTHS), which holds the same three lengths; PLAN-125: through one segment (Setup.tsx LengthSeg).
-    expect(read('src/ui/Setup.tsx')).toContain('LENGTHS.map((l) =>');
-    expect(read('src/ui/Online.tsx')).toContain('<LengthSeg ');
+    // The set-up page's lengths and the online room's are the Play menu's list (playMenu.ts LENGTHS), which holds the
+    // same three lengths; that both screens draw it is checked on the drawn screens in setup-b.test.ts ("the game
+    // lengths"; REP-140 A-01: no longer read from the source text).
     expect(LENGTHS.map((l) => l.days)).toEqual([...GAME_LENGTHS]);
     expect(GAME_LENGTHS.map(marketDaysWithoutOrder)).toEqual([[], [9], []]);
     expect(NO_ORDER_DAYS).toBe('Day 9 of a 10-day game');
@@ -208,14 +207,8 @@ describe('C-14, S16: the evening tip', () => {
 });
 
 describe('C-13, C-16: the Daily market', () => {
-  it('Home calls it the Daily market', () => {
-    // PLAN-120: the Daily market has its own card on Home (HomeCards.tsx). PLAN-124: its card and its Play are named
-    // from the mode list ("Daily market"; the tab says "Daily").
-    const home = read('src/ui/HomeCards.tsx').split(/\r?\n/).filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
-    expect(home).toContain("{ id: 'daily', slot: 'daily', tab: 'Daily', name: 'Daily market' }");
-    expect(home).toContain('<Frame mode="daily" sub={`${shortDate(p.today)}');
-    expect(home).not.toMatch(/today['’]s market/i);
-  });
+  // "Home calls it the Daily market" (PLAN-120, PLAN-124) is checked on the drawn Home in home-cards.test.ts ("the Daily
+  // card"), and the mode's names in modes.test.ts (REP-140 A-01: no longer read from the source text).
 
   it('the twists say the whole change: generous customers under fixed prices, no standing orders in the Basic game', () => {
     const dates = Array.from({ length: 7 }, (_, k) => `2026-11-${String(k + 1).padStart(2, '0')}`);

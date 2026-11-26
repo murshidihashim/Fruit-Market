@@ -87,6 +87,11 @@ export function forgetMatch() {
   try { localStorage.removeItem(MATCH_KEY); } catch { /* nothing kept */ }
 }
 
+/** True when this phone keeps a seat in the room with this code (reopening its link goes straight back in). */
+export function hasSeat(code: string): boolean {
+  return !!loadToken(code);
+}
+
 function loadToken(code: string): string | undefined {
   try { return localStorage.getItem(tokenKey(code)) ?? undefined; } catch { return undefined; }
 }

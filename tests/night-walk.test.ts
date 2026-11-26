@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { EVENT_CARDS, RIVALS } from '../src/engine/data';
@@ -8,6 +8,16 @@ import { toStaticHtml } from '../src/ui/cards';
 import { NightShift } from '../src/ui/game/panels/NightShift';
 import { Street, Tomorrow } from '../src/ui/table';
 import { NIGHT_EASE, walkFrames, walkFrom, walkMs, walkTable, walkers } from '../src/ui/tableModel';
+import * as A from '../src/ui/anim';
+import { NIGHT, nightfall } from '../src/ui/game/animator';
+
+/** What the night's script does, in order: the slide's steps, and the walk of tomorrow's cards ended (table.tsx endWalk). */
+const nightLog = vi.hoisted((): string[] => []);
+const nightStart = vi.hoisted(() => ({ at: 0 }));
+vi.mock('../src/ui/table', async (original) => {
+  const real = await original<typeof import('../src/ui/table')>();
+  return { ...real, endWalk: () => { nightLog.push(`walk ends@${Date.now() - nightStart.at}`); real.endWalk(); } };
+});
 
 // PLAN-128 (the owner): "tomorrow customer cards should be animated to enter the today's customer slot when fruit is
 // aging, time it to be in sync". At night, on the night's own slide, tomorrow's cards walk from the Tomorrow strip into
@@ -141,8 +151,30 @@ describe('the walk keeps time with the ageing (PLAN-128: one clock)', () => {
     for (const f of frames) expect(Object.keys(f).every((k) => ['transform', 'opacity', 'offset'].includes(k))).toBe(true);
   });
 
-  it('the night\'s script ends the walk with the slide, so a tap puts the cards in their places at once', () => {
-    const src = readFileSync('src/ui/game/animator.tsx', 'utf8');
-    expect(src).toMatch(/await A\.hold\(NIGHT\.slide \+ NIGHT\.settle\);\s*endWalk\(\);\s*setSlide\('done'\);/);
+  it('the night\'s script ends the walk with the slide, so a tap puts the cards in their places at once', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    vi.stubGlobal('requestAnimationFrame', (cb: () => void) => setTimeout(cb, 0));
+    A.setBaseSpeed(false);
+    A.resetHurry();
+    try {
+      const g = playTo(game(), (s) => s.phase === 'evening');
+      for (const tap of [false, true]) {
+        nightLog.length = 0;
+        nightStart.at = Date.now();
+        const done = nightfall(g, () => {}, (x) => { nightLog.push(`${x === null ? 'dusk' : typeof x === 'number' ? 'slide' : x}@${Date.now() - nightStart.at}`); });
+        await vi.advanceTimersByTimeAsync(NIGHT.dusk + 1);
+        if (tap) A.hurryUp();
+        await vi.runAllTimersAsync();
+        await done;
+        A.resetHurry();
+        const end = tap ? NIGHT.dusk + 1 : NIGHT.dusk + NIGHT.slide + NIGHT.settle;
+        // the walk ends with the slide, and the pieces rest in their new boxes then: at once after a tap
+        expect(nightLog.slice(0, 4), tap ? 'a tap' : 'the night\'s own pace').toEqual(['dusk@0', `slide@${NIGHT.dusk}`, `walk ends@${end}`, `done@${end}`]);
+      }
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+    }
   });
 });

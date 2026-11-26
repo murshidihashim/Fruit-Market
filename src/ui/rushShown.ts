@@ -134,7 +134,7 @@ function useListener(ls: Set<() => void>): void {
     const l = () => set((n) => n + 1);
     ls.add(l);
     return () => { ls.delete(l); };
-  }, []);
+  }, [ls]);
 }
 
 /** Redraws the calling component whenever a ticket or a favour card changes (the game table). */

@@ -23,6 +23,7 @@ export function DailyResult({ s }: { s: GameState }) {
       if (alive) setRes(r);
     });
     return () => { alive = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- the day's score is sent (or the board read) once, as the results open
   }, []);
   const share = async () => {
     const text = `${shareText(s, res?.rank)}\nPlay: https://fruit-market.murshidi-hashim.workers.dev`;

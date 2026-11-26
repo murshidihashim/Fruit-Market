@@ -9,11 +9,11 @@ import { pulse, wantText } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { canGetLine, orderResultText } from '../src/ui/game/panels/OrderPanel';
 import { unsentChoice } from '../src/ui/game/panels/Popovers';
-import { pickAwayLine } from '../src/ui/Online';
+import { pickAwayLine } from '../src/ui/onlineWords';
 import { loadSettings, loadUndo, saveSettings, saveUndo } from '../src/ui/store';
 import type { PublicSeat } from '../src/net/protocol';
-import { rushOver, takingsRows } from '../src/ui/game/panels/SalesSummary';
-import { daySoldLine } from '../src/ui/panel';
+import { rushOver } from '../src/ui/game/panels/SalesSummary';
+import { daySoldLine, takingsRows } from '../src/ui/game/dayWords';
 import { CustomerChar, boughtAny } from '../src/ui/table';
 
 // PLAN-110 (REP-122, the smaller bugs and polish): the numbers the screens show.

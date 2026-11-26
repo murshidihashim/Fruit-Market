@@ -210,7 +210,7 @@ if (args.includes('--check')) {
   const version = JSON.parse(read('package.json')).version;
   const r = cur.rel.releases.find((x) => x.version === version);
   const problems = [];
-  if (!r) problems.push(`No release entry for ${version} in ${REC}/releases.json. Ask Claude to PREPARE RELEASE first.`);
+  if (!r) problems.push(`No release entry for ${version} in ${REC}/releases.json. Do PREPARE RELEASE first (see CLAUDE.md, Release path).`);
   else if (r.status !== 'candidate') problems.push(`Release ${version} is already marked published. Bump the version for a new release.`);
   let tagTaken = false;
   try { tagTaken = git('ls-remote', '--tags', 'origin', `refs/tags/v${version}`) !== ''; } catch { /* offline: checked again when tagging */ }

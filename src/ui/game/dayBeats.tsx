@@ -79,6 +79,15 @@ export function playedFavours(prev: GameState, next: GameState, p: number): Favo
 
 /** The upgrade the person has just asked to build, and where its offer lay on the screen (noted as Build is tapped). */
 let offer: { p: number; u: UpgradeId; box: A.Box } | null = null;
+/** The label over stall `i` for the favour cards it played in this step, named as the game says them aloud (its log),
+ *  never from the hand that held them: online a rival's hand is only stand-ins (PLAN-091). Rules 19: a computer's
+ *  evening is one step, so it may name several. 'A favour card' when nothing public names it; '' when none was played. */
+export function playedLabel(prev: GameState, next: GameState, i: number): string {
+  if (next.players[i].favours.length >= prev.players[i].favours.length) return '';
+  const played = playedFavours(prev, next, i);
+  return played.length ? played.map((id) => FAVOURS[id].title).join(' · ') : 'A favour card';
+}
+
 export function noteOffer(p: number, u: UpgradeId, box: A.Box | null) { offer = box ? { p, u, box } : null; }
 
 /** The standing order's bids on the table once they are in: face down ('in'), turned over ('up'), the stake on the card ('paid'). */

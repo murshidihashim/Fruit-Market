@@ -104,6 +104,7 @@ export function SprintResult({ s }: { s: GameState }) {
     setRes(null);
     void (s.moves ? submitSprint(s) : fetchSprint(date)).then((r) => { if (alive) setRes(r); });
     return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on purpose: the finished run is sent once, and again only on "Check again"
   }, [tries]);
   const me = s.players.findIndex((p) => p.kind === 'human');
   const line = me >= 0 ? runLine(s, me) : null;

@@ -259,3 +259,12 @@ export function crateFit(w: number, h: number, seat: Pick<TableSeat, 'look' | 's
   };
   return fits(0) ? 0 : fits(1) ? 1 : 2;
 }
+
+/** The day on which this stall was last asked about Favoured Trade (`asked`: it is being asked now): once it has been,
+ *  the line that says its prices are tied is not shown again that day. */
+export const askedOn = (was: number, asked: boolean, day: number): number => (asked ? day : was);
+
+/** After the last customer, until the takings: the bell's step is still on the table, no customer is up, and the rush
+ *  has been played on this table today (`rushedOn`); the crates then show what is left in them. */
+export const afterRush = (customerUp: boolean, step: TableStep | null, s: GameState, rushedOn: number): boolean =>
+  !customerUp && step === 'bell' && s.phase === 'reveal' && rushedOn === s.day;

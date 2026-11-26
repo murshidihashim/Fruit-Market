@@ -5,24 +5,15 @@ import type { GameConfig, PlayerConfig } from '../engine/game';
 import { DEFAULT_CONFIG, MAX_SEATS, QUICK_FILL_MS, type RoomConfig } from '../net/protocol';
 import { LEAGUE } from './progress';
 import type { Stage } from './campaign';
+import { CUSTOM_MATCH } from './modes';
 
 /** The game lengths a new game offers (the Play menu's, the set-up screen's and the room's), shortest first everywhere
  *  (PLAN-116, REP-133 B-14: the Play menu put Standard first, the other two Quick). */
 export const LENGTHS: { days: RoomConfig['days']; word: string }[] = [{ days: 8, word: 'Quick' }, { days: 10, word: 'Standard' }, { days: 14, word: 'Long' }];
 export const lengthWord = (days: number): string => LENGTHS.find((l) => l.days === days)?.word ?? `${days} days`;
 
-/** PLAN-125 (DEC-133): the four ways to play a Custom match, in this order everywhere (Home's card, the Play page),
- *  with the names the owner chose and the short line under each (from the approved mockup B). */
-export type PlayWay = 'quick' | 'room' | 'computer' | 'phone';
-export const WAYS: { id: PlayWay; name: string; line: string }[] = [
-  { id: 'quick', name: 'Quick Match', line: 'Strangers online' },
-  { id: 'room', name: 'Private Room', line: 'Friends by link or code' },
-  { id: 'computer', name: 'Computer', line: 'On this phone' },
-  { id: 'phone', name: 'Pass & Play', line: 'Take turns on this phone' },
-];
-const way = (id: PlayWay) => WAYS.find((w) => w.id === id) ?? WAYS[0];
-export const wayName = (id: PlayWay): string => way(id).name;
-export const wayLine = (id: PlayWay): string => way(id).line;
+/** PLAN-125 (DEC-133): the four ways to play a Custom match, with their names and lines (modes.ts, REP-140 A-06). */
+export { WAYS, wayLine, wayName, type PlayWay } from './modes';
 
 /** PLAN-125: a Quick Match is for 2, 4 or 6 stalls (2 is the default). Strangers are looked for up to QUICK_FILL_MS, then
  *  Normal computers take the empty stalls (the room server decides; this is only what the screen says). It is played at
@@ -70,7 +61,7 @@ export function foundLine(found: number, stalls: number, msLeft?: number): strin
  * a full market of your own under NORMAL_HEADING (PLAN-124: "Custom match", the name on Home). PLAN-120: the three modes moved to Home's cards, where each reason
  * heads its card (the Sprint's in its row), and the Daily intro shows the Daily market's or the Sprint's.
  */
-export const NORMAL_HEADING = 'Custom match';
+export const NORMAL_HEADING = CUSTOM_MATCH;
 export const MODE_REASON = {
   league: 'What will the next market throw at you',
   daily: 'How you rank in today\'s full market',

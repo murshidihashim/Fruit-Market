@@ -11,7 +11,7 @@ import { dayLedger, gameRecap } from '../src/engine/story';
 import { LEAGUE, afterLine, starsEarned } from '../src/ui/campaign';
 import { boardName, firstCustomer, rivalsLine, shortDate } from '../src/ui/dailyCard';
 import { awaitsHandOver } from '../src/ui/game/turn';
-import { orderLine } from '../src/ui/game/panels/SalesSummary';
+import { orderLine } from '../src/ui/game/dayWords';
 import { modeOf, waitingGame } from '../src/ui/paused';
 import { leagueConfig } from '../src/ui/progress';
 
