@@ -4,7 +4,7 @@
 // the engine used to sort them (cheapest first; ties (rules 11): Favoured Trade, then fresher fruit, then a Haggler,
 // then today's buying order, which was set at dawn with the poorest shop first).
 
-import { FRUIT, JUICE_VALUE, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
+import { FRUIT, JUICE_VALUE, STAGE_WORD, lookOf, prefOf, type FruitId, type Pref } from './data';
 import {
   count, dayNet, eligible, places, rowCount, rowStock, minPrice, nightOutlook, ranking, servingCustomers,
   type GameState, type LineResult, type NightOutlook, type Offer,
@@ -61,8 +61,6 @@ function haggled(s: GameState, winner: Offer, loser: Offer): boolean {
  * no "beat", "undercut" or "tie" line may count it.
  */
 export const inContest = (o: Offer): boolean => !o.tooOld;
-
-const STAGE_WORD: Record<Exclude<Stage, 'unripe'>, string> = { fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
 
 /** The freshness rule the engine used for this customer (Premium, Everyday, Bargain; none for a hand-made test customer). */
 function prefFor(s: GameState, l: LineResult): Pref | undefined {

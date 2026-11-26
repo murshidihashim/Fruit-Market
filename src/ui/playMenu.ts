@@ -2,7 +2,7 @@
 // Nothing here changes a rule: the player counts and lengths are the game's own (MAX_SEATS, DEFAULT_CONFIG, LEAGUE).
 import { MARKET_DAY_EVERY, ORDER_LEAD, RIVALS, lookOf, prefOf } from '../engine/data';
 import type { GameConfig, PlayerConfig } from '../engine/game';
-import { DEFAULT_CONFIG, MAX_SEATS, type RoomConfig } from '../net/protocol';
+import { DEFAULT_CONFIG, MAX_SEATS, QUICK_FILL_MS, type RoomConfig } from '../net/protocol';
 import { LEAGUE } from './progress';
 import type { Stage } from './campaign';
 
@@ -24,9 +24,9 @@ const way = (id: PlayWay) => WAYS.find((w) => w.id === id) ?? WAYS[0];
 export const wayName = (id: PlayWay): string => way(id).name;
 export const wayLine = (id: PlayWay): string => way(id).line;
 
-/** PLAN-125: a Quick Match is for 2, 4 or 6 stalls (2 is the default). Strangers are looked for up to 30 seconds, then
- *  Normal computers take the empty seats (the room server decides; this is only what the screen says). It is played at
- *  the room's standard length. */
+/** PLAN-125: a Quick Match is for 2, 4 or 6 stalls (2 is the default). Strangers are looked for up to QUICK_FILL_MS
+ *  (30 seconds), then Normal computers take the empty seats (the room server decides; this is only what the screen
+ *  says). It is played at the room's standard length. */
 export type QuickStalls = 2 | 4 | 6;
 export const QUICK_STALLS: QuickStalls = 2;
 export const QUICK_SIZES: { stalls: QuickStalls; word: string; small: string }[] = [
@@ -34,7 +34,7 @@ export const QUICK_SIZES: { stalls: QuickStalls; word: string; small: string }[]
   { stalls: 4, word: '4 stalls', small: 'up to 4' },
   { stalls: 6, word: '6 stalls', small: 'up to 6' },
 ];
-export const QUICK_NOTE = 'Up to 30 seconds to find strangers; empty seats get Normal computers.';
+export const QUICK_NOTE = `Up to ${QUICK_FILL_MS / 1000} seconds to find strangers; empty seats get Normal computers.`;
 /** The length a quick match is played at, beside its table size ("10 days"). */
 export const DEFAULT_LENGTH_NOTE = `${DEFAULT_CONFIG.days} days`;
 export const isQuickStalls = (n: unknown): n is QuickStalls => n === 2 || n === 4 || n === 6;
