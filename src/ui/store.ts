@@ -4,8 +4,10 @@ import type { GameConfig, GameState } from '../engine/game';
 import { AI_VERSION, RULES_VERSION } from '../net/protocol';
 import { profileChanged } from './changed';
 
-/** `reactions` (PLAN-112): show the preset reactions other players send in an online room (off: none are shown). */
-export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean; music: boolean; analytics: boolean; reactions: boolean; still: boolean }
+/** `reactions` (PLAN-112): show the preset reactions other players send in an online room (off: none are shown).
+ *  REP-140 B-15: the old `tips` field is gone (nothing read it; the coach is turned off with Skip tutorial and back on
+ *  with Settings' Replay the tutorial). */
+export interface Settings { sound: boolean; haptics: boolean; fast: boolean; music: boolean; analytics: boolean; reactions: boolean; still: boolean }
 export interface Stats { played: number; wins: number; bestCash: number; totalSold: number }
 export interface DailyRecord { [date: string]: number }
 
@@ -32,11 +34,13 @@ function write(key: string, value: unknown) {
 /**
  * The settings on this phone. S11 (PLAN-110): the Freshness patterns switch is gone (the letters F, O, S and G already
  * tell the boxes apart); settings saved while it was there still load, and the old value is dropped. PLAN-112: settings
- * saved before "Show reactions" load with it on (each missing field takes its default).
+ * saved before "Show reactions" load with it on (each missing field takes its default). REP-140 B-15: so is the unused
+ * `tips` field.
  */
 export function loadSettings(): Settings {
-  const st: Settings & { patterns?: boolean } = read<Settings & { patterns?: boolean }>(K.settings, { sound: true, haptics: true, fast: false, tips: true, music: false, analytics: true, reactions: true, still: false });
+  const st: Settings & { patterns?: boolean; tips?: boolean } = read<Settings & { patterns?: boolean; tips?: boolean }>(K.settings, { sound: true, haptics: true, fast: false, music: false, analytics: true, reactions: true, still: false });
   delete st.patterns;
+  delete st.tips;
   return st;
 }
 export const saveSettings = (s: Settings) => write(K.settings, s);

@@ -21,6 +21,7 @@ import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { openMatch } from '../net/client';
 import { fx, setMusic } from './fx';
 import { setStill } from './motion';
+import { FAST_PLAY, REDUCED_MOTION, phoneStill } from './settingWords';
 import { FullScreenButton, FullscreenPrompt } from './FullScreenButton';
 import { shouldAskFullscreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
@@ -374,7 +375,7 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
   const [replay, setReplay] = useState(false);
   const stats = loadStats();
   // The phone's own reduced-motion setting: then the game's switch shows on (the phone's setting wins).
-  const phoneStill = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const phone = phoneStill();
   const upd = (p: Partial<Settings>) => {
     const n = { ...st, ...p };
     setSt(n);
@@ -390,9 +391,9 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
           <Toggle on={st.haptics} set={(v) => upd({ haptics: v })} title="Vibration" text="A small buzz when you buy." />
           {/* PLAN-123: "Fast" speeds up every move on the table and the computers' turns (motion.ts setBaseSpeed), so it
               is named for what it does; Reduced motion is the game's own switch beside the phone's setting. */}
-          <Toggle on={st.fast} set={(v) => upd({ fast: v })} title="Fast play" text="Moves and computer turns go quicker." />
-          <Toggle on={st.still || phoneStill} set={(v) => { upd({ still: v }); setStill(v); }} title="Reduced motion"
-            text={phoneStill ? 'On in your phone\'s settings: nothing slides across the table.' : 'Nothing slides across the table: each change shows at once.'} />
+          {/* REP-140 B-15: the in-game menu has the same two switches, in the same words (settingWords.ts). */}
+          <Toggle on={st.fast} set={(v) => upd({ fast: v })} title={FAST_PLAY.title} text={FAST_PLAY.text} />
+          <Toggle on={st.still || phone} set={(v) => { upd({ still: v }); setStill(v); }} title={REDUCED_MOTION.title} text={REDUCED_MOTION.text(phone)} />
           <Toggle on={st.music} set={(v) => { upd({ music: v }); setMusic(v); }} title="Music" text="A gentle market tune." />
           <Toggle on={st.reactions} set={(v) => upd({ reactions: v })} title="Show reactions" text="Emoji and short lines other players send in online games." />
           <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share anonymous stats" text="Helps fix crashes and balance the game. No names or IDs are sent." />
