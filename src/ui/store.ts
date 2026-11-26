@@ -1,7 +1,7 @@
 // Local persistence: settings, stats, saved games (one per mode, PLAN-120), daily challenge records.
 import type { FavourId } from '../engine/data';
 import type { GameConfig, GameState } from '../engine/game';
-import { AI_VERSION, RULES_VERSION } from '../net/protocol';
+import { AI_VERSION, NAME_MAX, RULES_VERSION } from '../net/protocol';
 import { profileChanged } from './changed';
 
 /** `reactions` (PLAN-112): show the preset reactions other players send in an online room (off: none are shown).
@@ -223,6 +223,11 @@ export function loadName(): string {
     return '';
   }
 }
+/**
+ * REP-140 B-17: a name as the room server will keep it (server/names.ts tidy: NFKC, one space between words, at most
+ * NAME_MAX), so the name box shows what others will see and the server never cuts it. Ends are trimmed when it is saved.
+ */
+export const fitName = (n: string): string => n.normalize('NFKC').replace(/\s+/g, ' ').slice(0, NAME_MAX);
 /** What the game uses when the name field was left blank. */
 export const nameOrDefault = (n: string, fallback = 'You') => n.trim() || fallback;
 export function saveName(n: string) {

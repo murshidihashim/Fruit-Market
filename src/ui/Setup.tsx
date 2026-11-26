@@ -21,8 +21,9 @@ import { fx } from './fx';
 import { LENGTHS, wayLine, wayName, type PlayWay } from './playMenu';
 import { BackArrow, FramedFace } from './stampCard';
 import { myAvatar } from './looks';
-import { loadName, saveName } from './store';
+import { fitName, loadName, saveName } from './store';
 import type { LookSet } from '../net/looks';
+import { NAME_MAX } from '../net/protocol';
 import './setup.css';
 
 const N = RIVALS.length;
@@ -150,11 +151,11 @@ export function Deck({ value, taken = {}, chosen, fixed, onPick, name, onName, n
       </div>
       <div class="sb-nav">
         {!fixed && <button type="button" class="sb-arrow" aria-label="Previous shopkeeper" onClick={() => go(-1)}>‹</button>}
-        <div class="sb-nm">
+        <div class={cx('sb-nm', !onName && 'wrap')}>
           {onName
-            ? <input class="sb-name" aria-label={nameLabel} value={name} maxLength={14} placeholder="Your name" autocomplete="off" spellcheck={false}
+            ? <input class="sb-name" aria-label={nameLabel} value={name} maxLength={NAME_MAX} placeholder="Your name" autocomplete="off" spellcheck={false}
                 style={{ width: `${Math.max(5, Math.min(16, (name || 'Your name').length + 2))}ch` }}
-                onInput={(e) => onName((e.target as HTMLInputElement).value)} />
+                onInput={(e) => onName(fitName((e.target as HTMLInputElement).value))} />
             : <b>{name}</b>}
           <span>{fixed ? '\u00a0· chosen' : '\u00a0· swipe to choose'}</span>
         </div>
@@ -168,6 +169,9 @@ export function Deck({ value, taken = {}, chosen, fixed, onPick, name, onName, n
     </section>
   );
 }
+
+/** REP-140 B-17: a card's name longer than this many letters is set a step smaller (it may also wrap to two lines). */
+const LONG_TITLE = 9;
 
 /** A band colour on a small card: y yellow (a level, you), b blue (a person), k ink. */
 export type Band = 'y' | 'b' | 'k';
@@ -186,7 +190,7 @@ export function SeatCard({ top, title, avatar, face, look, band, small, big, lab
     <>
       <span class="sb-ctop">{top}</span>
       <i class="sb-crule" />
-      <b class="sb-cttl">{title}</b>
+      <b class={cx('sb-cttl', title.length > LONG_TITLE && 'long')}>{title}</b>
       <span class="sb-cpic">
         {art && avatar ? <CardArt src={art} alt="" w={600} h={400} focus={shopFocus(avatar)} eager />
           : <span class="sb-cface"><PlainFace who={face ?? ''} look={look} /></span>}
@@ -220,7 +224,9 @@ export function OpenCard({ top, big, small, onClick, label, children, class: cls
  *  to a row, on as many rows as it takes (the room's six seats); `wrapOver`: wrap once there are more cards than that. */
 export function TableRow({ count, children, wrap, min = 4, wrapOver }: { count: number; children: ComponentChildren; wrap?: boolean; min?: number; wrapOver?: number }) {
   const w = wrap || (wrapOver !== undefined && count > wrapOver);
-  return <div class={cx('sb-row', w && 'wrap')} style={{ '--n': w ? 3 : Math.max(min, count) }}>{children}</div>;
+  const n = w ? 3 : Math.max(min, count);
+  // REP-140 B-17: five or more cards in a row: on the narrowest phones their names are set a step smaller (setup.css)
+  return <div class={cx('sb-row', w && 'wrap', n >= 5 && 'crowded')} style={{ '--n': n }}>{children}</div>;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -260,7 +266,7 @@ export const stallsWord = (n: number) => `${n} stalls`;
  */
 export function LocalSetup({ mode, days: days0 = 10, onBack, onStart }: { mode: Extract<PlayWay, 'computer' | 'phone'>; days?: number; onBack: () => void; onStart: (c: GameConfig, days: number) => void }) {
   const phone = mode === 'phone';
-  const [name, setName] = useState(loadName());
+  const [name, setName] = useState(() => fitName(loadName()));
   const [myChar, setMyChar] = useState<string>(myAvatar);
   const [seats, setSeats] = useState<Seat[]>(() => phone
     ? [{ kind: 'human', level: 'normal', name: 'Player 2' }]

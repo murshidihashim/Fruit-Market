@@ -113,6 +113,9 @@
 #app .tkt .rt-who { flex: none; display: flex; align-items: center; gap: 4px; min-width: 0; padding: 2px 5px 0; font: 800 0.5625rem/1 var(--tk-txt); white-space: nowrap; }
 #app .tkt .rt-who .xf { flex: none; box-shadow: 0 0 0 1.5px var(--tk-ink); }
 #app .tkt .rt-who b { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* REP-140 B-17: a name too long for one line takes two beside the face (two lines are no taller than the face), so
+   "Uncle Benny" reads in full at six stalls instead of "Uncle Be…" */
+#app .tkt .rt-who b { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal; }
 /* the crate: every piece the stall has out, five to a row, each with its freshness letter; "+3" for those not drawn.
    A piece leaves as a customer takes it. While a fruit is being bought the crate's other fruit is greyed. */
 #app .tkt .rt-box {

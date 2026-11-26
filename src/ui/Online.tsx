@@ -16,7 +16,7 @@ import {
 import { fx } from './fx';
 import { NOT_COPIED, copyText } from './share';
 import { Game } from './Game';
-import { loadName, saveName } from './store';
+import { fitName, loadName, saveName } from './store';
 import { StallSign, TradingCard } from './cards';
 import { CardZoom } from './cardZoom';
 import {
@@ -73,7 +73,7 @@ function MyName({ name, onRename }: { name: string; onRename: (n: string) => voi
   return (
     <span class="seat-name">
       <input ref={box} class="seat-edit" aria-label="Your name" value={draft} maxLength={NAME_MAX}
-        onInput={(e) => setDraft((e.target as HTMLInputElement).value)} onBlur={done}
+        onInput={(e) => setDraft(fitName((e.target as HTMLInputElement).value))} onBlur={done}
         onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
     </span>
   );
@@ -91,7 +91,8 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
   initialCode?: string; typed?: boolean; quick?: boolean; mode?: 'room' | 'public'; onExit: () => void; onComputer?: (avatar: string, stalls: QuickStalls) => void;
 }) {
   const [client, setClient] = useState<OnlineClient | null>(null);
-  const [name, setName] = useState(loadName());
+  // REP-140 B-17: the name box holds the name as the room will keep it (store.ts fitName), so nothing is cut unseen
+  const [name, setName] = useState(() => fitName(loadName()));
   // Quick Match: the character you ask for when you enter; if another player already has it, you get a free one.
   // A private room chooses shopkeepers after everyone has joined (PLAN-102).
   const [avatar, setAvatar] = useState(() => {
@@ -223,7 +224,7 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
     <section class="sb-sec">
       <SbLabel>Your name</SbLabel>
       <input id="online-name" class="sb-input" aria-label="Your name" value={name} maxLength={NAME_MAX} placeholder="Your name" autocomplete="off" spellcheck={false}
-        onInput={(e) => setName((e.target as HTMLInputElement).value)} />
+        onInput={(e) => setName(fitName((e.target as HTMLInputElement).value))} />
     </section>
   );
   const error = err && <p class="sb-warn" role="alert">{err}</p>;
