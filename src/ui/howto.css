@@ -2,8 +2,17 @@
    and above Home's bottom bar), drawn with the table's own pieces. Colours from the palette (exchange.css --x-...,
    styles.css --fresh/--okay/--notso/--unripe). Wider rows (cards, upgrades) scroll inside themselves. */
 
-/* the frame: the page list across the top, a tight slide, Back and Next */
-.howto .ht-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 8px; margin: 0; scrollbar-width: none; }
+/* the frame: the page list across the top, a tight slide, Back and Next. REP-140 B-01 and B-16: the page list and Back /
+   Next sit outside the scrolling slide, so both stay in view on every page at every size. */
+.howto .ht-tabs {
+  flex: none; display: flex; gap: 6px; overflow-x: auto; margin: 0 auto; width: 100%; max-width: 560px; box-sizing: border-box; scrollbar-width: none;
+  padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
+}
+#app .howto.tk-page > .scroll.pad { padding-top: 2px; padding-bottom: 14px; }
+.howto .ht-foot { flex: none; border-top: 2px solid var(--x-ink); background: var(--x-cream); }
+#app .howto.tk-page .ht-foot .row2 {
+  margin: 0 auto; max-width: 560px; box-sizing: border-box; padding: 8px max(14px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+}
 .howto .ht-tabs::-webkit-scrollbar { display: none; }
 .howto .ht-tabs button {
   flex: none; min-height: 32px; padding: 0 10px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink);
@@ -13,7 +22,6 @@
 #app .howto.tk-page .slide { padding: 12px 14px; }
 #app .howto.tk-page .slide h2 { margin: 0 0 6px; font-size: 1.375rem; }
 #app .howto.tk-page .slide > p { margin: 0 0 8px; font-size: 0.9375rem; line-height: 1.4; }
-#app .howto.tk-page .row2 { margin-top: 10px; }
 
 .howto .ht-h3 { margin: 10px 0 6px; padding-bottom: 4px; border-bottom: 2px solid var(--x-ink); font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-ink); }
 .howto .ht-btn { min-height: 38px; padding: 0 12px; font-size: 0.8125rem; }

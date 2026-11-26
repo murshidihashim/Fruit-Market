@@ -32,9 +32,9 @@ const path = require('path');
   await page.goto('file://' + path.resolve(file));
   const shot = (n) => page.screenshot({ path: `${out}/${n}.png` });
   if (save) {
-    // PLAN-124: the first view opens the tab of the mode whose game is waiting; its Play button is Continue.
+    // PLAN-124: the first view opens the tab of the mode whose game is waiting; its Play button is Continue. REP-140
+    // B-20: Continue goes straight into the game.
     await page.click('[data-a^="continue-"]');
-    await page.click('button:has-text("Resume")');
   } else {
     await page.click('[data-tab="custom"]'); await page.click('[data-a="play"]'); await page.click('[data-a="computer"]'); // PLAN-124: Home's Custom tab and Play, then Computer
     await setRivals(page, rivals);

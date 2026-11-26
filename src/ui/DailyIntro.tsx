@@ -13,7 +13,7 @@ import { Gazette, TradingCard } from './cards';
 import { CardZoom } from './cardZoom';
 import { firstCustomer, rivalsLine, shortDate } from './dailyCard';
 import { PlayIcon, useDailyBoard, waitWords } from './HomeCards';
-import { myAvatar, worn } from './looks';
+import { setupAvatar, worn } from './looks';
 import { MODE_REASON, leagueEcho } from './playMenu';
 import { leagueStage } from './progress';
 import { waitingGame } from './paused';
@@ -106,7 +106,7 @@ export function DailyIntro(p: DailyIntroProps) {
                 <span class="jh-iwho">{who ? lookOf(who.name).title : e ? e.title : ''}</span>
                 <span class="jh-lb">Your rivals</span>
                 <span class="jh-ifaces">
-                  <FramedFace who={myAvatar()} size={34} look={worn()} /><i aria-hidden="true">vs</i>
+                  <FramedFace who={setupAvatar(cfg)} size={34} look={worn()} /><i aria-hidden="true">vs</i>
                   {rivals.map((r) => <span class="jh-round" title={r.name}><Face who={r.avatar ?? ''} size={34} /></span>)}
                 </span>
                 {mine && <span class="jh-imine">{mine}</span>}
@@ -119,16 +119,17 @@ export function DailyIntro(p: DailyIntroProps) {
             <div><span class="jh-lb">Retries</span><p>{words.retry}</p></div>
           </section>
           <div class="jh-igo">
-            {w ? (
-              <>
-                <button class="jp-go" data-a="intro-continue" onClick={p.onContinue}><PlayIcon /><span class="ji-cont">Continue<small>{waitWords(w)}</small></span></button>
-                <button class="jh-go2 jh-c2" data-a="intro-start" onClick={p.onStart}>Start again</button>
-              </>
-            ) : <button class="jp-go" data-a="intro-start" onClick={p.onStart}><PlayIcon />Start</button>}
+            {w && <button class="jh-go2 jh-c2" data-a="intro-start" onClick={p.onStart}>Start again</button>}
             <button class="jh-go2 jh-c2" onClick={p.onBack}>Back</button>
           </div>
         </div>
       </main>
+      {/* REP-140 B-01: the main action stays at the foot of the screen, in view without scrolling */}
+      <footer class="jp-foot">
+        {w
+          ? <button class="jp-go" data-a="intro-continue" onClick={p.onContinue}><PlayIcon /><span class="ji-cont">Continue<small>{waitWords(w)}</small></span></button>
+          : <button class="jp-go" data-a="intro-start" onClick={p.onStart}><PlayIcon />Start</button>}
+      </footer>
     </div>
   );
 }

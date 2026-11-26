@@ -128,6 +128,16 @@
 .sbk .jp-vs { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
 .sbk .jp-lg-rivals { display: flex; gap: 4px; }
 .sbk .jp-go { align-self: stretch; min-height: 56px; margin-top: 6px; background: var(--k-yel); color: var(--k-ink); text-align: center; font: 400 1.5rem/1 var(--f-display); text-transform: uppercase; }
+/* REP-140 B-01: a page's main action at the foot of the screen, outside the part that scrolls (the League, the Daily and
+   Sprint intros), in the column's width */
+.sbk .jp-foot {
+  flex: none; display: flex; flex-direction: column; border-top: 3px solid var(--k-ink); background: var(--k-paper);
+  padding: 8px max(12px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+.sbk .jp-foot > .jp-go {
+  width: 100%; max-width: 496px; margin: 0 auto 4px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: inset 0 0 0 3px var(--k-ink), 0 4px 0 var(--k-ink);
+}
 .sbk .jp-lg-list { list-style: none; margin: 0; padding: 10px 12px 0; display: flex; flex-direction: column; gap: 6px; }
 .sbk .jp-lg { display: flex; align-items: center; gap: 10px; border: 2.5px solid var(--k-ink); padding: 6px 8px; min-height: 48px; box-sizing: border-box; }
 .sbk .jp-lg.now { background: var(--k-yel); }

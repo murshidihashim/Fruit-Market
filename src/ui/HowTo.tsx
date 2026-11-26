@@ -569,31 +569,43 @@ const PAGES: { title: string; body: () => ComponentChildren; info?: { label: str
   { title: 'Try a sale', body: () => <TrySale /> },
 ];
 
-/** How to play. PLAN-124: `inTab` draws it as Home's Rules tab (the bottom bar leaves it, so it has no Close). */
+/**
+ * How to play. PLAN-124: `inTab` draws it as Home's Rules tab (the bottom bar leaves it, so it has no Close).
+ * REP-140 B-01 and B-16: the chapter tabs and Back / Next stay in view on every page and screen size; only the page
+ * between them scrolls. The chapter shown is scrolled into view in the tab row.
+ */
 export function HowTo({ onDone, inTab }: { onDone: () => void; inTab?: boolean }) {
   const [i, setI] = useState(0);
   const [info, setInfo] = useState(false);
   const top = useRef<HTMLElement>(null);
+  const tabs = useRef<HTMLElement>(null);
   const go = (k: number) => { setI(k); setInfo(false); top.current?.scrollTo?.({ top: 0 }); };
+  useEffect(() => {
+    const row = tabs.current;
+    const on = row?.querySelector<HTMLElement>('button.on');
+    if (row && on && row.scrollTo) row.scrollTo({ left: Math.max(0, on.offsetLeft - (row.clientWidth - on.offsetWidth) / 2) });
+  }, [i]);
   const s = PAGES[i];
   return (
     <div class={`page howto tk-page${inTab ? ' howto-tab' : ''}`}>
       <header class="topbar">{!inTab && <button class="icon-btn" onClick={onDone} aria-label="Close">✕</button>}<div class="day"><b>How to play</b></div><span class="muted">{i + 1}/{PAGES.length}</span></header>
+      <nav class="ht-tabs" aria-label="Rules pages" ref={tabs}>
+        {PAGES.map((p, k) => <button type="button" class={k === i ? 'on' : ''} aria-current={k === i ? 'page' : undefined} onClick={() => go(k)}>{p.title}</button>)}
+      </nav>
       <main class="scroll pad" ref={top}>
-        <nav class="ht-tabs" aria-label="Rules pages">
-          {PAGES.map((p, k) => <button type="button" class={k === i ? 'on' : ''} aria-current={k === i ? 'page' : undefined} onClick={() => go(k)}>{p.title}</button>)}
-        </nav>
         <section class="panel slide" key={i}>
           <h2>{s.title}</h2>
           {s.info && <button type="button" class="ht-info" aria-label={s.info.label} aria-haspopup="dialog" onClick={() => { fx.tap(); setInfo(true); }}>i</button>}
           {s.body()}
           {s.info && info && <CardPop title={s.info.label} onClose={() => setInfo(false)}>{s.info.card()}</CardPop>}
         </section>
+      </main>
+      <footer class="ht-foot">
         <div class="row2">
           <button class="btn" disabled={i === 0} onClick={() => go(i - 1)}>← Back</button>
           {i < PAGES.length - 1 ? <button class="btn primary" onClick={() => go(i + 1)}>Next →</button> : <button class="btn primary" onClick={onDone}>Done</button>}
         </div>
-      </main>
+      </footer>
     </div>
   );
 }
