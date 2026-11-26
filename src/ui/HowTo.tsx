@@ -25,7 +25,7 @@ import { MARKET_DAY_LIST, TIE_ORDER } from './rulesText';
 import { PriceTag, StallPreview } from './stampCard';
 import { seatColour } from './table';
 import { STAGE_LETTER, Ticket, TicketBack } from './ticket';
-import { STAGE_WORD, stageLess } from './stageWords';
+import { STAGE_WORD, stageLess, type Ripe } from './stageWords';
 import './howto.css';
 
 // ---------- small pieces drawn as the table draws them ----------
@@ -155,7 +155,7 @@ const USUAL_PRICE: Record<FruitId, number> = { blueberry: 5, watermelon: 7, appl
 
 /** A fruit's card in a pop-up: what it is like, what it costs at the Wholesale Market at each freshness, how long it
  *  keeps, and what customers usually pay. */
-function FruitCard({ f }: { f: FruitId }) {
+export function FruitCard({ f }: { f: FruitId }) {
   const d = FRUIT[f];
   const stages: Stage[] = [...(deliveredGreen(f) ? ['unripe' as Stage] : []), 'fresh', 'okay', 'notso'];
   const fresh = d.ripe.filter((x) => x === 'fresh').length;
@@ -171,7 +171,7 @@ function FruitCard({ f }: { f: FruitId }) {
             <tr>
               <th scope="row"><Lamp stage={st} /> {STAGE_WORD[st]}</th>
               <td>${d.cost[st]}</td>
-              <td>{st === 'unripe' ? "Can't sell yet" : st === 'fresh' ? `About $${USUAL_PRICE[f]}` : `$${st === 'okay' ? 1 : 2} less`}</td>
+              <td>{st === 'unripe' ? "Can't sell yet" : st === 'fresh' ? `About $${USUAL_PRICE[f]}` : `$${stageLess(st, f)} less`}</td>
             </tr>
           ))}
         </tbody>
@@ -206,7 +206,7 @@ export function FruitLane({ f, at, n = 1, onOpen }: { f: FruitId; at?: number; n
 }
 
 const PREFS: Pref[] = ['premium', 'everyday', 'bargain'];
-const SOLD_STAGES: Stage[] = ['fresh', 'okay', 'notso'];
+const SOLD_STAGES: Ripe[] = ['fresh', 'okay', 'notso'];
 const firstBox = (f: FruitId) => FRUIT[f].ripe.length - 1 + (deliveredGreen(f) ? FRUIT[f].unripeSlots : 0);
 /** The delivery on the board: a real lorry card's row at three stalls. */
 const BOARD_LORRY = FARMER_CARDS.find((c) => c.name === 'Mixed Basket') ?? FARMER_CARDS[0];
@@ -235,8 +235,9 @@ function Freshness() {
   );
 }
 
-/** Who buys what: each customer type against each freshness (the (i) on the Customer page). */
-function WhoBuys() {
+/** Who buys what: each customer type against each freshness (the (i) on the Customer page). What Okay and Soft pay
+ *  less is the same for every fruit, so it is read from one (stageWords.ts). */
+export function WhoBuys() {
   return (
     <article class="ht-infocard">
       <header><span>Customers</span><b>Who buys what</b></header>
@@ -246,8 +247,8 @@ function WhoBuys() {
           {PREFS.map((p) => (
             <tr class={`pref-${p}`}>
               <th scope="row"><b>{PREF_INFO[p].title}</b></th>
-              {SOLD_STAGES.map((s, i) => (acceptsStage(p, s)
-                ? <td class="yes">{i === 0 ? 'Top price' : `$${i} less`}</td>
+              {SOLD_STAGES.map((s) => (acceptsStage(p, s)
+                ? <td class="yes">{s === 'fresh' ? 'Top price' : `$${stageLess(s, 'apple')} less`}</td>
                 : <td class="no">Won't buy</td>))}
             </tr>
           ))}

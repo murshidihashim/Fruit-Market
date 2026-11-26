@@ -7,7 +7,7 @@ import { CUSTOMER_CARDS, FRUIT, FRUITS, STAGE_WORD, acceptsStage, prefOf, stageA
 import { capAt } from '../src/engine/game';
 import { QUICK_FILL_MS } from '../src/net/protocol';
 import { PrefLegend, prefWords, toStaticHtml } from '../src/ui/cards';
-import { SALE_SAYS, TrySale, saleOrder } from '../src/ui/HowTo';
+import { FruitCard, SALE_SAYS, TrySale, WhoBuys, saleOrder } from '../src/ui/HowTo';
 import { QUICK_NOTE } from '../src/ui/playMenu';
 import { topPrice } from '../src/ui/practice';
 import { OKAY_LESS, SOFT_LESS, STAGE_WORD as SCREEN_WORD, stageLess, type Ripe } from '../src/ui/stageWords';
@@ -82,6 +82,29 @@ describe('the price practice (practice.ts)', () => {
         }
       }
     }
+  });
+});
+
+describe('How to play, the fruit cards and Who buys what (HowTo.tsx)', () => {
+  it('each fruit\'s card says what Okay and Soft pay less by the engine\'s numbers for that fruit', () => {
+    for (const f of FRUITS) {
+      const html = toStaticHtml(h(FruitCard, { f }));
+      expect(html, f).toContain(`<td>$${7 - engineCap(f, 'okay', 7)} less</td>`);
+      expect(html, f).toContain(`<td>$${7 - engineCap(f, 'notso', 7)} less</td>`);
+      expect(html, f).toContain('<td>$1 less</td>');
+      expect(html, f).toContain('<td>$2 less</td>');
+    }
+  });
+
+  it('Who buys what: a type buys a freshness exactly when the engine says so, for the engine\'s numbers', () => {
+    const html = toStaticHtml(h(WhoBuys, {}));
+    const rows = [...html.matchAll(/<tr class="pref-(\w+)">(.*?)<\/tr>/g)];
+    expect(rows.map((r) => r[1])).toEqual(PREFS);
+    for (const [, pref, row] of rows) {
+      const cells = [...row.matchAll(/<td class="(yes|no)">([^<]*)<\/td>/g)].map((m) => m[2]);
+      expect(cells, pref).toEqual(RIPE.map((st) => (!acceptsStage(pref as Pref, st) ? 'Won\'t buy' : st === 'fresh' ? 'Top price' : `$${stageLess(st, 'apple')} less`)));
+    }
+    expect(html).toContain('<td class="yes">$2 less</td>');
   });
 });
 
