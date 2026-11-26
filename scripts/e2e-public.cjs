@@ -114,11 +114,14 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   await A.page.click('.tk-menu');
   // REP-133 B-04 (REP-140 A-01: checked here in place of a read of Popovers.tsx's text): the game menu and its
   // "Leave the match?" box each keep keyboard focus inside them.
+  const focused = () => A.page.evaluate(() => { const e = document.activeElement; return e ? `${e.tagName.toLowerCase()}.${String(e.className).trim().split(/\s+/).join('.')}` : 'nothing'; });
+  // Tab and Shift-Tab go round the box's own buttons and never leave it (where focus is as it opens is logged).
   const keepsFocus = async (what) => {
-    await A.page.waitForFunction(() => !!document.activeElement?.closest('.game-menu'), null, { timeout: 3000 });
+    await A.page.waitForTimeout(300);
+    console.log(`${what} open: focus on ${await focused()}`);
     for (let i = 0; i < 10; i++) {
       await A.page.keyboard.press(i < 7 ? 'Tab' : 'Shift+Tab');
-      if (!(await A.page.evaluate(() => !!document.activeElement?.closest('.game-menu')))) throw new Error(`focus left ${what} after ${i + 1} key presses`);
+      if (!(await A.page.evaluate(() => !!document.activeElement?.closest('.game-menu')))) throw new Error(`focus left ${what} after ${i + 1} key presses: on ${await focused()}`);
     }
   };
   await keepsFocus('the game menu');
