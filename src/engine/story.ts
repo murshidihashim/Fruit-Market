@@ -38,22 +38,6 @@ export const nameOwn = (name: string, start = false) => (isYou(name) ? (start ? 
 /** Several names: "Rosa and you", "You and Rosa". */
 const namesAnd = (names: string[], start = true) => names.map((n, i) => (i === 0 && start ? n : nameIn(n))).join(' and ');
 
-function hash(...xs: number[]): number {
-  let h = 2166136261;
-  for (const x of xs) { h ^= x & 0xffff; h = Math.imul(h, 16777619); h ^= x >>> 16; h = Math.imul(h, 16777619); }
-  return h >>> 0;
-}
-
-/**
- * The Haggler's tie rule in one wording for every screen (the showdown, the what-if and the Price panel's hint):
- * "Rosa is the Haggler, who wins equally fresh ties", or "you're the Haggler, ..." for the viewer.
- */
-export function hagglerWins(names: string[], you = false): string {
-  if (you) return "you're the Haggler, who wins equally fresh ties";
-  return names.length === 1 ? `${nameVerb(names[0], 'is', 'are')} the Haggler, who wins equally fresh ties` : `${namesAnd(names)} are Hagglers, who win equally fresh ties`;
-}
-
-
 /** The rush pop-up's short form of tieReason (PLAN-067): "fresher fruit", "Haggler", "Favoured Trade", "bought earlier today". */
 function tieShort(s: GameState, winner: Offer, loser: Offer): string {
   const w = s.players[winner.player];
@@ -477,21 +461,6 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
   }
   const full = w.price >= l.max;
   return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at top price.` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };
-}
-
-// One plain line for each outcome (DEC-087). The audit would cut these altogether; the rush card (src/ui/game/rush.ts)
-// still prints this answer in quotes for a customer no stall offered anything, so it must not be empty.
-const HAPPY = ['Thanks.'];
-const MEH = ['I wanted more.'];
-const GONE = ['Nothing for me today.'];
-
-export function customerReaction(s: GameState, customerId: number, name: string): string {
-  const r = s.results;
-  if (!r) return '';
-  const h = hash(s.day, customerId);
-  if (r.happy.includes(name)) return HAPPY[h % HAPPY.length];
-  if (r.leftAngry.includes(name)) return GONE[h % GONE.length];
-  return MEH[h % MEH.length];
 }
 
 // ---------- standing ----------
