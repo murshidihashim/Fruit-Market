@@ -26,22 +26,22 @@
 #app .game.gx.tkt.is-night { background: var(--tk-ink); }
 #app .tkt.is-night::after { display: none; }
 #app .tkt.is-night > .street-wrap, #app .tkt.is-night > .seats { display: none; }
-@media (max-height: 639px) and (max-width: 899px), (max-height: 559px) {
+@media (max-height: 479px), (min-width: 900px) and (max-height: 559px) {
   #app .game.gx.tkt { grid-template-rows: auto auto auto minmax(380px, auto) auto auto auto; }
 }
 
 /* ---------- shared marks ---------- */
 #app .tkt .tk-lamp {
   width: var(--s, 16px); height: var(--s, 16px); flex: none; box-sizing: border-box; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-  font: 800 calc(var(--s, 16px) * 0.6) / 1 var(--tk-txt); font-style: normal; background: transparent; color: var(--tk-ink); border: 1.5px solid var(--tk-ink);
+  font: 800 max(11px, calc(var(--s, 16px) * 0.6)) / 1 var(--tk-txt); font-style: normal; background: transparent; color: var(--tk-ink); border: 1.5px solid var(--tk-ink);
 }
 #app .tkt .tk-lamp.on { background: var(--tk-ink); color: var(--tk-paper); }
-#app .tkt .tk-label { font: 800 0.6875rem/1.2 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
+#app .tkt .tk-label { font: 800 0.75rem/1.2 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; }
 #app .tkt .tk-label.red { color: var(--tk-red-d); }
 #app .tkt .tk-label-row { flex: none; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 #app .tkt .tk-side { font: 700 0.75rem/1 var(--tk-txt); white-space: nowrap; }
 #app .tkt .tk-note { all: unset; display: block; font: 500 0.75rem/1.35 var(--tk-txt); }
-#app .tkt .tk-chip { flex: none; padding: 3px 6px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.625rem/1.1 var(--tk-txt); letter-spacing: 0.05em; text-transform: uppercase; }
+#app .tkt .tk-chip { flex: none; padding: 3px 6px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.6875rem/1.1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; }
 #app .tkt .tk-chip.warn { background: var(--tk-red-d); color: var(--tk-paper); }
 #app .tkt .tk-chip.good { background: var(--c-0a7443); color: var(--tk-paper); }
 #app .tkt .tk-info { all: unset; display: block; padding: 6px 8px; background: var(--tk-kraft); font: 600 0.75rem/1.3 var(--tk-txt); }
@@ -120,9 +120,11 @@
 #app .tkt .street::-webkit-scrollbar { display: none; }
 #app .tkt .street > .cust { all: unset; position: relative; flex: 1 1 0; min-width: 62px; max-width: 112px; display: flex; cursor: pointer; }
 #app .tkt .street > .cust.rush-away { visibility: hidden; }
-#app .tkt .street > .cust.rush-served .tk-cust, #app .tkt .street > .cust.happy .tk-cust { opacity: 0.45; }
+/* B-11 (PLAN-130): a served customer's picture and fruit fade; the words on the card keep their contrast (fading the
+   whole card took them to 1.4:1) */
+#app .tkt .street > .cust:is(.rush-served, .happy, .rush-none) :is(.tkc-pc, .tkc-rw .x-fruit, .tkc-dots) { opacity: 0.45; }
 /* S10 (PLAN-110): a customer who left with nothing is greyed, with no tick */
-#app .tkt .street > .cust.rush-none .tk-cust { opacity: 0.35; filter: grayscale(1); }
+#app .tkt .street > .cust.rush-none .tk-cust { filter: grayscale(1); }
 #app .tkt .cust .rush-none { all: unset; position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 #app .tkt .street > .cust.special .tk-cust { box-shadow: 0 0 0 3px var(--tk-yel); }
 #app .tkt .street > .cust.pickable .tk-cust { box-shadow: 0 0 0 3px var(--tk-ink); }
@@ -135,7 +137,7 @@
 }
 /* tomorrow's customers on the same band, above today's (PLAN-127), and the standing order under them */
 #app .tkt .tomorrow { all: unset; display: flex; align-items: center; gap: 5px; margin-bottom: 7px; overflow: hidden; }
-#app .tkt .tomorrow .tm-k { all: unset; flex: none; font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
+#app .tkt .tomorrow .tm-k { all: unset; flex: none; font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
 #app .tkt .tomorrow .tm-chip { all: unset; flex: none; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 6px 0 3px; background: var(--tk-paper); color: var(--tk-ink); font: 400 0.75rem/1 var(--tk-disp); cursor: pointer; }
 #app .tkt .tomorrow .tm-chip.tm-back { padding: 0 5px; cursor: default; background: repeating-linear-gradient(135deg, var(--tk-paper) 0 5px, var(--tk-tint) 5px 10px); }
 #app .tkt .tomorrow .tm-chip.heard { box-shadow: inset 0 0 0 2px var(--tk-ink); }
@@ -146,7 +148,7 @@
   background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 2px var(--tk-ink); font: 600 0.6875rem/1 var(--tk-txt);
 }
 #app .tkt .order-strip.due { background: var(--tk-yel); }
-#app .tkt .order-strip .os-k { font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; color: var(--tk-red-d); }
+#app .tkt .order-strip .os-k { font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; color: var(--tk-red-d); }
 #app .tkt .order-strip .os-want, #app .tkt .order-strip .os-who { display: inline-flex; align-items: center; gap: 3px; font-weight: 800; }
 #app .tkt .order-strip .os-fine { margin-left: auto; }
 #app .tkt .order-strip.due .os-k { color: var(--c-9c2b32); }
@@ -156,7 +158,7 @@
 #app .tkt > .seats { all: unset; grid-area: rivals; position: relative; z-index: 5; display: flex; gap: 6px; min-width: 0; padding: 6px 12px; }
 #app .tkt .tk-seat-name { font: 800 0.6875rem/1 var(--tk-txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* Rules 18: what a rival bought today, as small fruit marks with counts (public until the bell). */
-#app .tkt .tk-seat-buys { display: flex; gap: 4px; min-width: 0; overflow: hidden; font: 800 0.625rem/1 var(--tk-txt); }
+#app .tkt .tk-seat-buys { display: flex; gap: 4px; min-width: 0; overflow: hidden; font: 800 0.6875rem/1 var(--tk-txt); }
 #app .tkt .tk-seat-buys > span { flex: none; display: inline-flex; align-items: center; gap: 1px; }
 #app .tkt .seats .rival-drop {
   all: unset; position: absolute; top: calc(100% - 3px); left: 12px; right: 12px; z-index: 8; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 10px;
@@ -232,7 +234,7 @@
 #app .tkt .mini-step button:disabled { opacity: 0.35; cursor: default; }
 #app .tkt .mini-step > b { all: unset; width: 58px; height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; background: var(--tk-paper); color: var(--tk-ink); }
 #app .tkt .mini-step > b span { font: 400 1.125rem/1 var(--tk-disp); }
-#app .tkt .mini-step > b small { font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
+#app .tkt .mini-step > b small { font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase; }
 #app .tkt .pp-info { all: unset; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--tk-ink); font: italic 800 0.8125rem/1 var(--tk-txt); cursor: pointer; }
 #app .tkt .tk-drop-crate { display: flex; align-items: center; gap: 10px; }
 
@@ -280,13 +282,13 @@
 #app .tkt > .centre > .pp-lock .btn.tk-auto {
   flex: 0 0 auto; max-width: 42%; padding: 0 10px; background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink); font-size: 0.9375rem;
 }
-#app .tkt > .centre > .pp-lock .btn.tk-auto small { color: var(--tk-ink); font-size: 0.625rem; }
+#app .tkt > .centre > .pp-lock .btn.tk-auto small { color: var(--tk-ink); font-size: 0.75rem; letter-spacing: 0.02em; }
 /* beside it the main button's words may take two lines ("Sell nothing today" on a narrow phone) */
 #app .tkt > .centre > .pp-lock > .tk-pair > .tk-go { white-space: normal; line-height: 1.05; }
 #app .tkt > .actionbar .btn.ghost, #app .tkt > .actionbar .btn.skip { flex: 0 0 auto; min-width: 52px; background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink); font-size: 0.9375rem; }
 /* S3 (DEC-120): after a favour card, Undo says where it goes back to ("after Scout"), small, under its arrow */
 #app .tkt > .actionbar .btn.ghost.undo-after { flex-direction: column; gap: 3px; padding: 0 10px; line-height: 1; }
-#app .tkt > .actionbar .btn.ghost.undo-after small { font: 700 0.625rem/1 var(--tk-txt); letter-spacing: 0.02em; color: var(--tk-ink); text-transform: none; }
+#app .tkt > .actionbar .btn.ghost.undo-after small { font: 700 0.75rem/1 var(--tk-txt); letter-spacing: 0.02em; color: var(--tk-ink); text-transform: none; }
 #app .tkt > .actionbar .hint-bar { all: unset; flex: 1 1 auto; min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; font: 600 0.8125rem/1.25 var(--tk-txt); color: var(--tk-ink); }
 #app .tkt > .actionbar .buy-hint { all: unset; display: flex; align-items: center; font: 800 0.75rem/1.1 var(--tk-txt); text-transform: uppercase; }
 
@@ -310,7 +312,7 @@
    a cash of three figures (PLAN-096, PLAN-127) */
 @media (max-width: 419px) {
   #app .tkt .tk-top-row { --side: 124px; }
-  #app .tkt .tk-event { font-size: 0.625rem; letter-spacing: 0.03em; }
+  #app .tkt .tk-event { font-size: 0.6875rem; letter-spacing: 0.02em; }
 }
 /* a narrow phone: the same table, a little tighter */
 @media (max-width: 379px) {
@@ -321,7 +323,7 @@
   #app .tkt .tk-event { padding-right: 6px; }
   #app .tkt .tk-me { gap: 6px; }
   #app .tkt .tk-cash { padding-left: 7px; padding-right: 7px; }
-  #app .tkt .tk-seat-name { font-size: 0.65rem; letter-spacing: -0.01em; }
+  #app .tkt .tk-seat-name { font-size: 0.6875rem; letter-spacing: -0.01em; }
   #app .tkt > .street-wrap, #app .tkt > .seats { padding-left: 8px; padding-right: 8px; }
   #app .tkt > .centre > .market-stall, #app .tkt > .centre > .mid-panel, #app .tkt > .centre > .morning-card, #app .tkt > .centre > .sales-card { padding-left: 8px; padding-right: 8px; }
   #app .tkt > .actionbar, #app .tkt > .centre > .pp-lock { padding-left: 8px; padding-right: 8px; }
@@ -331,7 +333,7 @@
   #app .tkt .tk-top-row { --side: 102px; }
   #app .tkt .tk-top-row > .tk-lead { gap: 2px; padding-left: 2px; }
   #app .tkt .tk-pill { min-width: 38px; padding-left: 6px; padding-right: 6px; font-size: 0.9375rem; }
-  #app .tkt .tk-event { padding-left: 3px; padding-right: 5px; font-size: 0.5625rem; letter-spacing: 0.02em; }
+  #app .tkt .tk-event { padding-left: 3px; padding-right: 5px; font-size: 0.6875rem; letter-spacing: 0; }
   #app .tkt .tk-me { gap: 5px; }
   #app .tkt .tk-cash { padding-left: 6px; padding-right: 6px; font-size: 1.0625rem; }
 }

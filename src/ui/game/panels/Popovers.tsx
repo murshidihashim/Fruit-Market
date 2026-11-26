@@ -91,7 +91,7 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
     <>
   {coach && (
     // While pricing, the tip sits at the top so it never covers the Seal button.
-    <div class={`coach ${c.s.phase === 'bid' || c.s.phase === 'stall' ? 'top' : ''}`} role="note">
+    <div class={`coach ${c.s.phase === 'bid' || c.s.phase === 'stall' ? 'top' : ''}`} role="note" data-tip={coach.id}>
       <b>{coach.title}</b>
       <span>{coach.text}</span>
       <div class="coach-btns">
@@ -107,7 +107,8 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
     const id = s.players[actor].favours[cardInfo];
     const why = canPlayFavour(s, actor, cardInfo);
     return (
-      <div class="cd-pop" role="dialog" aria-label={`Favour card: ${FAVOURS[id].title}`} onClick={(e) => { e.stopPropagation(); setCardInfo(null); }}>
+      // B-08 (PLAN-130): keyboard focus stays in the pop-up (Play and Close); Escape closes it.
+      <TrapBox class="cd-pop" role="dialog" aria-modal="true" aria-label={`Favour card: ${FAVOURS[id].title}`} onEscape={() => setCardInfo(null)} onClick={(e) => { e.stopPropagation(); setCardInfo(null); }}>
         <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
           <FavourCard id={id} hold={handLimit(s.players[actor])} eager />
           {why && <p class="cd-pop-why">{why}</p>}
@@ -120,16 +121,18 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
             <button type="button" class="btn ghost" onClick={() => setCardInfo(null)}>Close</button>
           </div>
         </div>
-      </div>
+      </TrapBox>
     );
   })()}
 
   {pulseInfo && (
-    <div class="tip-pop" onClick={() => setPulseInfo(false)}>
+    // B-08 (PLAN-130): opened from a lane's head by the keyboard too; Escape, Enter or Space closes it, as a tap does.
+    <TrapBox class="tip-pop" role="dialog" aria-modal="true" aria-label="What customers want" onEscape={() => setPulseInfo(false)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPulseInfo(false); } }} onClick={() => setPulseInfo(false)}>
       <b>What customers want</b>
       <span>Each lane shows how many fruits today’s customers potentially want. Use this to plan your purchases.</span>
       <small>Tap to close.</small>
-    </div>
+    </TrapBox>
   )}
   {/* A customer's own card, opened from their ticket (PLAN-083): the whole card with today's prices; a standing order
       collected today shows its order card. The card's legend is the key to the prices. Tap anywhere to close. */}
@@ -137,7 +140,11 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
     const order = tip.order ? ORDER_CARDS.find((x) => x.name === tip.name) : undefined;
     const qty = (i: number) => (tip.wants[i].qty <= 0 ? tip.original?.[i]?.qty ?? 0 : tip.wants[i].qty);
     return (
-      <div class="cd-pop" role="dialog" aria-label={lookOf(tip.name).title} onClick={(e) => { e.stopPropagation(); setTip(null); }}>
+      // B-09 (PLAN-130): opened from the card's button by Enter or Space too. Focus moves onto the pop-up, Escape, Enter
+      // or Space closes it (as a tap does), and focus goes back to the card.
+      <TrapBox class="cd-pop" role="dialog" aria-modal="true" aria-label={lookOf(tip.name).title} onEscape={() => setTip(null)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTip(null); } }}
+        onClick={(e) => { e.stopPropagation(); setTip(null); }}>
         <div class="cd-pop-in">
           {order && tip.order
             ? <OrderCard card={order} qty={tip.original?.[0]?.qty ?? tip.wants[0]?.qty ?? 0} due="Due today" bid={tip.order.price} stake={tip.order.stake} />
@@ -145,7 +152,7 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
                 wants={tip.wants.map((w, i) => ({ fruit: w.fruit, qty: qty(i), max: effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />}
           <small class="cd-pop-hint">Tap to close</small>
         </div>
-      </div>
+      </TrapBox>
     );
   })()}
 

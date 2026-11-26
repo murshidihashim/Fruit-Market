@@ -20,7 +20,7 @@
 #app .tkt .sales-card > * { flex: none; }
 #app .tkt .sales-card *, #app .tkt .sales-card *::before, #app .tkt .sales-card *::after { box-sizing: border-box; }
 #app .tkt .sales-card :where(i, em) { font-style: normal; }
-#app .tkt .sales-card .tk-label { font-size: 0.625rem; line-height: 1.2; }
+#app .tkt .sales-card .tk-label { font-size: 0.75rem; line-height: 1.2; }
 
 /* ---------- the rush is over: today's customers, the ones who bought nothing faded ---------- */
 #app .tkt .tg-strip { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 8px var(--side); background: var(--tk-kraft); }
@@ -37,7 +37,7 @@
 #app .tkt .tg-led { display: flex; flex-direction: column; margin: var(--g) var(--side) 0; border: 2px solid var(--tk-ink); }
 #app .tkt .tg-hd {
   display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 9px;
-  background: var(--tk-ink); color: var(--tk-paper); font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase;
+  background: var(--tk-ink); color: var(--tk-paper); font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
 }
 #app .tkt .tg-hd b { flex: none; font: inherit; letter-spacing: inherit; color: var(--tk-yel); }
 #app .tkt .tg-rows { display: flex; flex-direction: column; }
@@ -47,7 +47,7 @@
 #app .tkt .tg-row > b.bad { color: var(--tk-red-d); }
 #app .tkt .tg-row > b.flat { color: var(--tk-slate); }
 #app .tkt .tg-ic { flex: none; display: inline-flex; align-items: center; gap: 2px; }
-#app .tkt .tg-ic > span { display: inline-flex; align-items: center; gap: 1px; margin-right: 3px; font: 800 0.625rem/1 var(--tk-txt); }
+#app .tkt .tg-ic > span { display: inline-flex; align-items: center; gap: 1px; margin-right: 3px; font: 800 0.6875rem/1 var(--tk-txt); }
 #app .tkt .tg-net { display: flex; align-items: center; gap: 8px; padding: 9px; background: var(--tk-yel); font: 400 0.8125rem/1 var(--tk-disp); letter-spacing: 0.04em; text-transform: uppercase; }
 #app .tkt .tg-net > b { flex: none; margin-left: auto; font: 400 1.625rem/1 var(--tk-disp); letter-spacing: 0; font-variant-numeric: tabular-nums; }
 
@@ -61,7 +61,7 @@
   border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink);
 }
 #app .tkt .tg-stall.me { background: var(--tk-yel); }
-#app .tkt .tg-pl { flex: none; width: 20px; height: 20px; display: grid; place-items: center; background: var(--tk-ink); color: var(--tk-paper); font: 800 0.625rem/1 var(--tk-txt); }
+#app .tkt .tg-pl { flex: none; width: 20px; height: 20px; display: grid; place-items: center; background: var(--tk-ink); color: var(--tk-paper); font: 800 0.6875rem/1 var(--tk-txt); }
 #app .tkt .tg-stall .xf { flex: none; border: 1.5px solid var(--tk-ink); border-radius: 0; overflow: hidden; background: var(--tk-paper); }
 #app .tkt .tg-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #app .tkt .tg-td { flex: none; margin-left: auto; color: var(--tk-slate); font: 700 0.6875rem/1 var(--tk-txt); font-variant-numeric: tabular-nums; }
@@ -72,7 +72,7 @@
 /* ---------- a favour card won today ---------- */
 #app .tkt .tg-won { display: flex; align-items: center; gap: 8px; margin: var(--g) var(--side) 0; padding: 6px 8px; border: 2px dashed var(--tk-ink); }
 #app .tkt .tg-won + .tg-won { margin-top: 6px; }
-#app .tkt .tg-tag { flex: none; max-width: 56px; padding: 4px 6px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.5625rem/1.1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
+#app .tkt .tg-tag { flex: none; max-width: 56px; padding: 4px 6px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.6875rem/1.1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; }
 #app .tkt .tg-won .x-art { flex: none; width: 54px; height: 34px; border: 1.5px solid var(--tk-ink); }
 #app .tkt .tg-won > span { min-width: 0; }
 
@@ -81,7 +81,7 @@
 #app .tkt .tg-won + .tg-shelf { margin-top: 6px; }
 #app .tkt .tg-shelf .tg-lab > span { flex: 0 1 auto; min-width: 0; color: var(--tk-ink); text-align: right; }
 #app .tkt .tg-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-#app .tkt .tg-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border: 2px solid var(--tk-ink); background: var(--tk-paper); font-size: 0.625rem; line-height: 1.3; white-space: nowrap; }
+#app .tkt .tg-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border: 2px solid var(--tk-ink); background: var(--tk-paper); font-size: 0.6875rem; line-height: 1.3; white-space: nowrap; }
 #app .tkt .tg-chip.bad { background: var(--tk-yel); }
 #app .tkt .tg-chip > b { font-weight: 800; }
 #app .tkt .tg-chip .tk-lamp { border-width: 1px; background: var(--tk-paper); }
@@ -163,7 +163,7 @@
 #app .tkt .sr-hd .xf { flex: none; border: 1.5px solid var(--tk-paper); border-radius: 0; overflow: hidden; background: var(--tk-paper); }
 #app .tkt .sr-who { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 #app .tkt .sr-who h3 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--tk-yel); font: 400 1.125rem/1.05 var(--tk-disp); letter-spacing: 0.02em; text-transform: uppercase; }
-#app .tkt .sr-who span { font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
+#app .tkt .sr-who span { font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
 #app .tkt .sr-rows { list-style: none; margin: 0; padding: 0 11px; }
 #app .tkt .sr-row { display: flex; align-items: center; gap: 9px; min-height: 50px; padding: 7px 0; border-bottom: 1.5px dashed var(--tk-ink); }
 #app .tkt .sr-face { flex: none; width: 34px; height: 34px; display: grid; place-items: center; overflow: hidden; border: 2px solid var(--tk-ink); background: var(--tk-paper); }
@@ -175,7 +175,7 @@
 #app .tkt .sr-fruit { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
 #app .tkt .sr-fruit > span { margin-left: 2px; }
 #app .tkt .sr-fruit .tk-lamp { border-width: 1px; background: var(--tk-paper); }
-#app .tkt .sr-tag { padding: 3px 5px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; }
+#app .tkt .sr-tag { padding: 3px 5px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; }
 #app .tkt .sr-juice { color: var(--c-0a7443); font-weight: 800; }
 #app .tkt .sr-paid { flex: none; font: 400 1.0625rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; }
 #app .tkt .sr-none { margin: 0; padding: 22px 12px; text-align: center; color: var(--tk-slate); font: 800 0.875rem/1.3 var(--tk-txt); }

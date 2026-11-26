@@ -21,7 +21,7 @@
 /* a picture for each piece: four fit beside a cash of two figures in a row of four boxes */
 #app .game.tkt .tb-buys.each .x-fruit { width: 11px; height: 11px; }
 /* a picture and a number for each fruit (five pieces with a Handcart, or a cash of three figures): three fruits fit */
-#app .game.tkt .tb-buys:not(.each) { gap: 0; font-size: 0.5625rem; }
+#app .game.tkt .tb-buys:not(.each) { gap: 0; font-size: 0.6875rem; }
 #app .game.tkt .tb-buys:not(.each) > span { gap: 0; margin-right: 1px; }
 #app .game.tkt .tb-buys:not(.each) .x-fruit { width: 10px; height: 10px; }
 /* five or six stalls: the box's own grid places the cash beside the face and the rest on the last line */
@@ -74,7 +74,7 @@
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to { display: inline-flex; gap: 2px; font-size: 0; }
   /* (a slim mark between the two letters in place of the arrow, which is twice as wide) */
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to::before { content: "\203A"; font: 800 0.6875rem/1 var(--tk-txt); }
-  #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to i { font-size: 0.625rem; }
+  #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to i { font-size: 0.6875rem; }
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip b { font-size: 0.6875rem; }
   /* (four chips that all change letter were 4 px short of the row at 360 wide: they stand a little closer) */
   #app .game.tkt .tb-dock.c4 .tb-chips { --chip-gap: 3px; }
@@ -85,7 +85,7 @@
   #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip-to { display: none; }
   #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip .x-fruit { width: 14px; height: 14px; }
   #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip .tk-lamp { --s: 12px; }
-  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip b { font-size: 0.625rem; }
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip b { font-size: 0.6875rem; }
   #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-dock-head .tk-shelf { font-size: 0; }
-  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-dock-head .tk-shelf span { font-size: 0.625rem; }
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-dock-head .tk-shelf span { font-size: 0.75rem; }
 }

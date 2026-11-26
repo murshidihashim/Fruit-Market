@@ -13,7 +13,7 @@ import { partsOf, stallOf, type LookSet } from '../net/looks';
 import { chosenColour, shownAvatar } from './looks';
 import { Face, Fruit } from './art';
 import { FavourChip } from './phoneCards';
-import { PayBadge } from './cards';
+import { PayBadge, prefWords } from './cards';
 import { marketChipFruit, marketChips } from './eventChips';
 import { FruitSvg } from './fruitIcons';
 import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type TicketLine } from './ticket';
@@ -615,13 +615,23 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
 }) {
   if (kind === 'mystery' || !c) {
     // Face down: only the card's back shows, with the fruit printed on it. No name, type, amount, price or
-    // portrait, and no picture is requested until the card is face up for this player.
+    // portrait, and no picture is requested until the card is face up for this player. Its spoken name says the same.
     const backs = c ? [...new Set(c.wants.map((w) => w.fruit))] : [];
+    const said = backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in';
+    const cls = `cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}${turn ? ` tb-turn-${turn}` : ''}${walk !== undefined ? ' tb-walk' : ''}`;
+    const back = <TicketBack fruits={backs} label={later ? 'Tomorrow' : 'Walk-in'} />;
+    // B-09 (PLAN-130): a walk-in that can be picked (Scout) is a real button, so the keyboard can pick it too.
+    if (onPick) {
+      return (
+        <button type="button" class={cls} data-c={c ? c.id : undefined} aria-label={`${said}. Tap to look at it`} onClick={(e) => { e.stopPropagation(); onPick(); }}>
+          {back}
+        </button>
+      );
+    }
     return (
-      <div class={`cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}${turn ? ` tb-turn-${turn}` : ''}${walk !== undefined ? ' tb-walk' : ''}`} data-c={c ? c.id : undefined} data-walk={walk !== undefined && c ? c.id : undefined}
-        data-walk-ms={walk ?? undefined} ref={walk !== undefined ? walkIn : undefined} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}
-        role={onPick ? 'button' : undefined} onClick={onPick ? (e) => { e.stopPropagation(); onPick(); } : undefined}>
-        <TicketBack fruits={backs} label={later ? 'Tomorrow' : 'Walk-in'} />
+      <div class={cls} data-c={c ? c.id : undefined} data-walk={walk !== undefined && c ? c.id : undefined}
+        data-walk-ms={walk ?? undefined} ref={walk !== undefined ? walkIn : undefined} aria-label={said}>
+        {back}
       </div>
     );
   }
@@ -640,11 +650,10 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
     const max = c.order ? c.order.price : effectiveMax(s, w, c.generous);
     return { fruit: w.fruit, qty: w.qty <= 0 ? c.original?.[i]?.qty ?? 0 : w.qty, max, done: w.qty <= 0, move: max > w.max ? 'up' : max < w.max ? 'down' : undefined };
   });
-  return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${left ? ` rush-${left}` : ''}${turn ? ` tb-turn-${turn}` : ''}${walk !== undefined ? ' tb-walk' : ''}${gone ? ' tb-gone' : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id}
-      data-walk={walk !== undefined ? c.id : undefined} data-walk-ms={walk ?? undefined} ref={walk !== undefined ? walkIn : undefined}
-      onClick={(e) => { e.stopPropagation(); onTip?.(wants === c.wants ? c : { ...c, wants }); }}
-      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when Fresh`}`).join('\n')}`}>
+  const cls = `cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${left ? ` rush-${left}` : ''}${turn ? ` tb-turn-${turn}` : ''}${walk !== undefined ? ' tb-walk' : ''}${gone ? ' tb-gone' : ''}`;
+  const title = `${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when Fresh`}`).join('\n')}`;
+  const inner = (
+    <>
       <Ticket who={c.name} lines={lines} order={!!c.order} />
       {(done || special || heard) && (
         <span class="cust-marks">
@@ -655,8 +664,50 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
       )}
       {left === 'served' && <i class="rush-tick" role="img" aria-label="Served">✓</i>}
       {left === 'none' && <i class="rush-none" role="img" aria-label="Left with nothing" />}
+    </>
+  );
+  // B-09 (PLAN-130): a card that opens the customer's whole card is a real button, so Tab reaches it and Enter or Space
+  // opens it, and its spoken name says who it is and what they want (what the card shows, and no more).
+  if (onTip) {
+    return (
+      <button type="button" class={cls} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id} title={title} aria-haspopup="dialog"
+        aria-label={custLabel(c, lines, { special, heard, left })}
+        onClick={(e) => { e.stopPropagation(); onTip(wants === c.wants ? c : { ...c, wants }); }}>
+        {inner}
+      </button>
+    );
+  }
+  return (
+    <div class={cls} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id}
+      data-walk={walk !== undefined ? c.id : undefined} data-walk-ms={walk ?? undefined} ref={walk !== undefined ? walkIn : undefined}
+      onClick={(e) => e.stopPropagation()} title={title}>
+      {inner}
     </div>
   );
+}
+
+/**
+ * B-09 (PLAN-130): a face-up customer card's spoken name, from what the card prints: who it is, each fruit wanted with
+ * how many and the most they pay each (a standing order: its price), which freshness they take, and the marks on it.
+ * "Benny Bell, wants 2 Watermelons at up to $7 each and 1 Apple at up to $5 each. Everyday: Fresh, or Okay for $1 less.
+ * No Soft. See the whole card".
+ */
+export function custLabel(c: Customer, lines: TicketLine[], marks: { special?: boolean; heard?: boolean; left?: 'away' | 'served' | 'none' } = {}): string {
+  const want = (l: TicketLine) => {
+    const what = l.qty === 1 ? FRUIT[l.fruit].name : FRUIT[l.fruit].plural;
+    if (l.done) return `${what}: done`;
+    return c.order ? `${l.qty} ${what} at $${l.max} each` : `${l.qty} ${what} at up to $${l.max} each`;
+  };
+  const takes = c.order ? 'Takes Fresh or Okay fruit at its price.' : prefWords(prefOf(c.name));
+  const said = [
+    `${lookOf(c.name).title}, wants ${lines.map(want).join(' and ')}.`,
+    takes,
+    marks.special ? 'Guest.' : '',
+    marks.heard ? `${SEEN_WALK_IN}.` : '',
+    marks.left === 'served' ? 'Served.' : marks.left === 'none' ? 'Left with nothing.' : '',
+    'See the whole card',
+  ];
+  return said.filter(Boolean).join(' ');
 }
 
 /** Did this customer buy anything in today's rush (from any stall)? */
