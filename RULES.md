@@ -18,13 +18,13 @@ You do not need to be the best at everything. Often the winner is simply the sta
 
 ### One customer, start to finish
 
-Bobby Books wants **3 blueberries** and pays up to **$5** for a Fresh one (so $4 for Okay; he is an Everyday customer, so he will not take Soft fruit).
+Hadi Hammer wants **3 blueberries** and pays up to **$5** for a Fresh one (so $4 for Okay; he is an Everyday customer, so he will not take Soft fruit).
 
 - Stall A has 2 **Fresh** blueberries, bought at $2 each, and sets its price at **$4**.
 - Stall B has 1 **Okay** blueberry, bought at $1, and sets its price at **$3**.
 - Stall C has 2 **Fresh** blueberries and sets its price at **$5**.
 
-Bobby Books buys from the **cheapest stall** first. Stall B sells 1 at $3 (+$3, which cost $1). He still wants 2, so he moves to the next cheapest, Stall A, which sells 2 at $4 (+$8, which cost $4). His order is full, so Stall C sells nothing, even though its fruit was Fresh. Because two stalls served him, nobody draws a favour card.
+Hadi Hammer buys from the **cheapest stall** first. Stall B sells 1 at $3 (+$3, which cost $1). He still wants 2, so he moves to the next cheapest, Stall A, which sells 2 at $4 (+$8, which cost $4). His order is full, so Stall C sells nothing, even though its fruit was Fresh. Because two stalls served him, nobody draws a favour card.
 
 Had Stall A been alone in serving him, A would have drawn a favour card. That is the reason to be the one stall that has what a customer wants.
 

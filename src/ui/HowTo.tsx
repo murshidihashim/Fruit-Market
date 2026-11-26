@@ -464,8 +464,11 @@ function MarketDay() {
 // ---------- 8 try a sale ----------
 
 interface SaleStall { id: string; stages: Stage[]; price: number }
-/** The example from the rules: Bobby Books wants 3 blueberries and pays up to $5 for a Fresh one. */
-const BOBBY = { who: 'Robert', name: 'Bobby Books', fruit: 'blueberry' as FruitId, qty: 3, max: 5 };
+/**
+ * The example from the rules: Hadi Hammer wants 3 blueberries and pays up to $5 for a Fresh one. REP-140 C-06: his own
+ * card wants exactly that (the example used to be Bobby Books, whose card also wants a mango).
+ */
+export const SALE_BUYER = { who: 'Hadi', name: lookOf('Hadi').title, fruit: 'blueberry' as FruitId, qty: 3, max: 5 };
 const SALE: SaleStall[] = [
   { id: 'A', stages: ['fresh', 'fresh'], price: 4 },
   { id: 'B', stages: ['okay'], price: 3 },
@@ -479,9 +482,9 @@ export function saleOrder(pref: Pref, stalls = SALE): { stall: string; k: number
   const lessFor = (s: Stage) => (s === 'okay' ? 1 : s === 'notso' ? 2 : 0);
   return stalls
     .flatMap((st) => st.stages.map((stage, k) => ({ stall: st.id, k, price: st.price, stage })))
-    .filter((p) => acceptsStage(pref, p.stage) && p.price <= BOBBY.max - lessFor(p.stage))
+    .filter((p) => acceptsStage(pref, p.stage) && p.price <= SALE_BUYER.max - lessFor(p.stage))
     .sort((a, b) => a.price - b.price || FRESHER.indexOf(a.stage) - FRESHER.indexOf(b.stage))
-    .slice(0, BOBBY.qty);
+    .slice(0, SALE_BUYER.qty);
 }
 
 function TrySale() {
@@ -515,16 +518,16 @@ function TrySale() {
   return (
     <>
       <div class="ht-sale-top">
-        <CardZoom class="ht-cust" title={BOBBY.name}><TradingCard who={BOBBY.who} wants={[{ fruit: BOBBY.fruit, qty: BOBBY.qty, max: BOBBY.max }]} eager /></CardZoom>
+        <CardZoom class="ht-cust" title={SALE_BUYER.name}><TradingCard who={SALE_BUYER.who} wants={[{ fruit: SALE_BUYER.fruit, qty: SALE_BUYER.qty, max: SALE_BUYER.max }]} eager /></CardZoom>
         <div class="ht-sale-want">
-          <b>{BOBBY.name} wants 3 blueberries</b>
+          <b>{SALE_BUYER.name} wants 3 blueberries</b>
           <small>{freshOnly ? 'Today: Fresh only, up to $5 each.' : 'Up to $5 for a Fresh one, $4 for Okay. He won\'t take Soft.'}</small>
-          <div class="ht-seg" role="group" aria-label="What Bobby takes">
+          <div class="ht-seg" role="group" aria-label={`What ${SALE_BUYER.name} takes`}>
             <button type="button" class={freshOnly ? '' : 'on'} aria-pressed={!freshOnly} onClick={() => reset(false)}>Fresh or Okay</button>
             <button type="button" class={freshOnly ? 'on' : ''} aria-pressed={freshOnly} onClick={() => reset(true)}>Fresh only</button>
           </div>
-          <span class="ht-got" role="status">{`Bought: ${moved.length} of ${BOBBY.qty}`}</span>
-          <span class="ht-basket" aria-hidden="true">{moved.map((m) => <Piece f={BOBBY.fruit} stage={m.stage} size={18} cls="ht-in" />)}</span>
+          <span class="ht-got" role="status">{`Bought: ${moved.length} of ${SALE_BUYER.qty}`}</span>
+          <span class="ht-basket" aria-hidden="true">{moved.map((m) => <Piece f={SALE_BUYER.fruit} stage={m.stage} size={18} cls="ht-in" />)}</span>
         </div>
       </div>
       <p class={`ht-ask ${done ? 'done' : ''}`} role="status">{ask}</p>
@@ -538,8 +541,8 @@ function TrySale() {
               onClick={() => setGuess(st.id)}>
               <span class="ht-awn" style={{ background: seatColour(STALL_COLOURS[si]) }} />
               <b>Stall {st.id}</b>
-              <span class="ht-st-pcs">{st.stages.map((s, k) => <Piece f={BOBBY.fruit} stage={s} size={18} cls={taken.includes(k) ? 'gone' : ''} />)}</span>
-              <PriceTag fruit={BOBBY.fruit} price={st.price} tone={taken.length ? 'sold' : undefined} />
+              <span class="ht-st-pcs">{st.stages.map((s, k) => <Piece f={SALE_BUYER.fruit} stage={s} size={18} cls={taken.includes(k) ? 'gone' : ''} />)}</span>
+              <PriceTag fruit={SALE_BUYER.fruit} price={st.price} tone={taken.length ? 'sold' : undefined} />
               <small class="ht-st-note">{n || (guess === st.id ? 'Your pick' : ' ')}</small>
             </button>
           );

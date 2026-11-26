@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { toStaticHtml } from '../src/ui/cards';
-import { HowTo, saleOrder } from '../src/ui/HowTo';
+import { CUSTOMER_CARDS, lookOf, prefOf } from '../src/engine/data';
+import { HowTo, SALE_BUYER, saleOrder } from '../src/ui/HowTo';
 
 // toStaticHtml draws hook-free trees: the hooks hold their first value here (as tests/home-cards.test.ts does).
 vi.mock('preact/hooks', () => ({
@@ -51,7 +52,21 @@ describe('How to play pages', () => {
 });
 
 describe('Try a sale', () => {
-  it('Bobby Books (Fresh or Okay): one Okay from B at $3, then two Fresh from A at $4; C sells nothing', () => {
+  // REP-140 C-06: the example customer's own card wants exactly what the example says, and RULES.md tells the same one.
+  it('the example is true to the card: Hadi Hammer, an Everyday customer, wants 3 blueberries at up to $5 and nothing else', () => {
+    const card = CUSTOMER_CARDS.find((c) => c.name === SALE_BUYER.who)!;
+    expect(card.wants).toEqual([{ fruit: SALE_BUYER.fruit, qty: SALE_BUYER.qty, max: SALE_BUYER.max }]);
+    expect(prefOf(card.name)).toBe('everyday');
+    expect(SALE_BUYER.name).toBe(lookOf(card.name).title);
+    const rules = readFileSync('RULES.md', 'utf8');
+    const example = rules.slice(rules.indexOf('### One customer, start to finish'), rules.indexOf('## Goal'));
+    expect(example).toContain(`${SALE_BUYER.name} wants **3 blueberries** and pays up to **$5** for a Fresh one`);
+    expect(example).toContain(`${SALE_BUYER.name} buys from the **cheapest stall** first.`);
+    expect(example).toContain('he is an Everyday customer');
+    expect(example).not.toContain('Bobby Books');
+  });
+
+  it('Hadi Hammer (Fresh or Okay): one Okay from B at $3, then two Fresh from A at $4; C sells nothing', () => {
     expect(saleOrder('everyday')).toEqual([
       { stall: 'B', k: 0, price: 3, stage: 'okay' },
       { stall: 'A', k: 0, price: 4, stage: 'fresh' },
