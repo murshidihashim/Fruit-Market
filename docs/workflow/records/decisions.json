@@ -4943,6 +4943,10 @@
     {
       "at": "2026-11-25 13:49",
       "text": "Owner: \"push it live\" for PLAN-129. Release candidate 1.31.5."
+    },
+    {
+      "at": "2026-11-26 15:48",
+      "text": "Audit of live 1.31.5 (REP-140), on the owner's request, findings only: rules engine PASS and every mode reaches its results; no Blocker; Major: a League star that can never be earned (C-01), Nest Egg dominant in the Sprint (C-02, owner decision), main buttons below the fold on several start screens (B-01); code health Majors A-01 and A-02. Live is 1.31.5 (published 2026-11-25 from another session); the records still show it as a candidate (A-11). No change made."
     }
   ]
 }
