@@ -3,7 +3,7 @@
 // away; online every person decides at the same time, a stall that is done says so on its box, and the bar says who
 // the evening is still waiting for once you have said Lights out. When several Priority cards are played the screens
 // say who buys first and whose card goes back.
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { computersEvening } from '../src/engine/ai';
@@ -18,7 +18,11 @@ import { waitsForPerson } from '../src/ui/game/turn';
 import { computerStep, eveningAside } from '../src/ui/game/stepKind';
 import { EveningPanel } from '../src/ui/panel';
 import { FavourPopView } from '../src/ui/game/panels/Popovers';
-import { rivalNote } from '../src/ui/table';
+import { Stalls, rivalNote } from '../src/ui/table';
+
+// The stalls' boxes redraw themselves when a held-back total changes (hooks); a still picture needs none of that.
+vi.mock('../src/ui/cashShown', async (original) => ({ ...(await original<typeof import('../src/ui/cashShown')>()), useCashShown: () => undefined }));
+vi.mock('../src/ui/stockShown', async (original) => ({ ...(await original<typeof import('../src/ui/stockShown')>()), useStockShown: () => undefined }));
 import { passEvening } from './stall-step';
 
 const read = (f: string) => readFileSync(f, 'utf8');
@@ -87,9 +91,14 @@ describe('online: everyone at once', () => {
   it('a stall\'s box says whether it is still deciding or its lights are out', () => {
     expect(rivalNote(done1, 1, false)).toBe('closed');
     expect(rivalNote(done1, 2, true)).toBe('deciding…');
-    const src = read('src/ui/table.tsx');
-    // (PLAN-123: while a stall's purchases travel it is the one drawn as buying, tableShown.ts heldBuyer)
-    expect(src).toContain("const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && (heldBuyer() ?? s.order[s.turn]) === p;");
+    // the stalls' row as Ana sees it: Bo has said Lights out, Cy is still deciding
+    const row = toStaticHtml(h(Stalls, { s: done1, viewer: 0, boards: {}, open: null, onOpen: () => undefined, onClose: () => undefined, off: [] }));
+    // each stall's box is one button: its own words, and drawn active while it is still deciding
+    const box = (p: number) => { const at = row.lastIndexOf('<button', row.indexOf(`data-a="p${p}"`)); return row.slice(at, row.indexOf('</button>', at)); };
+    expect(box(1)).toContain('closed');
+    expect(box(1)).not.toMatch(/deciding…|class="[^"]*\bactive\b/);
+    expect(box(2)).toContain('deciding…');
+    expect(box(2)).toMatch(/class="[^"]*\bactive\b/);
   });
 
   it('a person is waited for until they say Lights out, whoever else is deciding', () => {
