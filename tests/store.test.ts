@@ -35,10 +35,23 @@ describe('saved games', () => {
     expect(consumeSaveNotice()).toBeNull();
   });
 
-  it('still resumes a bare save from before v1.2', () => {
-    const g = game();
-    mem.set('fm.save', JSON.stringify(g));
-    expect(loadGame('play')).toEqual(g);
+  // REP-140 C-05: a bare save from before v1.2 (no envelope) was played under rules version 2, so it is set aside with
+  // the older-rules notice like any other save from older rules (it used to be resumed under today's rules).
+  it('sets aside a bare save from before v1.2, with the older-rules notice, in every mode', () => {
+    for (const [g, slot, what] of [[game(), 'play', 'computer game'], [phone(), 'play', 'Pass & Play game'], [league(), 'league', 'League game'],
+      [daily(), 'daily', 'Daily market game'], [sprint(), 'sprint', 'Sprint game']] as const) {
+      mem.clear();
+      mem.set('fm.save', JSON.stringify(g));
+      expect(loadGame(slot)).toBeNull();
+      expect(consumeSaveNotice()).toBe(`Your unfinished ${what} used older rules and could not be continued.`);
+      expect(mem.has('fm.save')).toBe(false);
+      expect(mem.has(slotKey(slot))).toBe(false);
+      // a bare game already in its slot is set aside the same way
+      mem.set(slotKey(slot), JSON.stringify(g));
+      expect(loadGames()).toEqual({});
+      expect(consumeSaveNotice()).toBe(`Your unfinished ${what} used older rules and could not be continued.`);
+      expect(mem.has(slotKey(slot))).toBe(false);
+    }
   });
 
   it('sets aside a game from other rules, with a notice', () => {
@@ -58,8 +71,8 @@ describe('saved games', () => {
     expect(loadGame('play')).toBeNull();
     expect(consumeSaveNotice()).toBe('Your unfinished computer game used older rules and could not be continued.');
     expect(mem.has('fm.save')).toBe(false);
-    // A bare save from before v1.2 is read as the current rules.
-    mem.set('fm.save', JSON.stringify(g));
+    // A save read as the current rules (here, today's envelope) with no list of who is done for the evening.
+    mem.set('fm.save', envelope(g));
     let s = loadGame('play')!;
     expect(s.eveningDone).toBeUndefined();
     expect(activePlayer(s)).toBe(1);
@@ -151,14 +164,18 @@ describe('PLAN-120: a saved game per mode', () => {
       expect(mem.get(`fm.save.${slot}`)).toBe(envelope(g));
       expect(loadGames()).toEqual({ [slot]: g });
     }
-    // an envelope without the computer-player version (1.8.0 and earlier), and a bare game from before v1.2
+    // an envelope without the computer-player version (1.8.0 and earlier) still loads; a bare game from before v1.2 is
+    // moved to its slot and then set aside there (REP-140 C-05)
     mem.clear();
     mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: RULES_VERSION, game: league() }));
     expect(loadGame('league')).toEqual(league());
+    expect(consumeSaveNotice()).toBeNull();
     mem.clear();
     mem.set('fm.save', JSON.stringify(league()));
-    expect(loadGame('league')).toEqual(league());
-    expect(consumeSaveNotice()).toBeNull();
+    migrateOldSave();
+    expect(mem.get('fm.save.league')).toBe(JSON.stringify(league()));
+    expect(loadGame('league')).toBeNull();
+    expect(consumeSaveNotice()).toBe('Your unfinished League game used older rules and could not be continued.');
   });
 
   it('keeps a slot\'s newer game when an old save of the same mode is still there', () => {

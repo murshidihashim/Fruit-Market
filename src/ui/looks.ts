@@ -4,6 +4,7 @@
 // or granted by the server; `syncLooks` hands out any that are owed, so it also works for players who earned trophies
 // before a look existed.
 import { CHARACTER_AVATARS } from '../engine/data';
+import type { GameConfig } from '../engine/game';
 import { tierById } from './achievements';
 import { colourHex, colourId, loadGranted, loadLooks, loadWorn, saveColour, saveLooks, saveWorn, snapshot } from './progress';
 import { placeOf } from './stamps';
@@ -29,6 +30,13 @@ export function shownAvatar(players: { avatar: string; kind: string }[], seat: n
   const mine = myAvatar();
   return !taken.has(mine) ? mine : CHARACTER_AVATARS.find((a) => !taken.has(a)) ?? mine;
 }
+
+/**
+ * REP-140 B-04: the picture a game set-up will show for a seat at the table (shownAvatar on the set-up's own players),
+ * so a Home card or an intro shows the face you get in the game, never a rival's.
+ */
+export const setupAvatar = (cfg: Pick<GameConfig, 'players'>, seat = 0): string =>
+  shownAvatar(cfg.players.map((p) => ({ avatar: p.avatar ?? '', kind: p.kind })), seat);
 
 /** The awning colour a player chose, as a colour value, or null when they chose none (the seat's colour then shows). */
 export const chosenColour = (look: LookSet | undefined): string | null => colourHex(colourOf(look));

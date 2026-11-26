@@ -151,7 +151,8 @@
 
 #app .tkt .cd-pop.sr-pop { position: fixed; z-index: 60; }
 #app .tkt .sr-pop:focus { outline: none; }
-#app .tkt .sr-pop .sr-in { width: 340px; }
+/* REP-140 B-02: never wider than the screen less the pop-up's own 12px margins (it ran off a 320px phone) */
+#app .tkt .sr-pop .sr-in { width: min(340px, calc(100vw - 24px)); }
 #app .tkt .sr-card {
   display: flex; flex-direction: column; max-height: calc(100dvh - 110px); overflow-y: auto; overscroll-behavior: contain;
   border: 3px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); text-align: left;

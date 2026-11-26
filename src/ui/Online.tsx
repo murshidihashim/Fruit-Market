@@ -14,8 +14,9 @@ import {
   type RoomView,
 } from '../net/protocol';
 import { fx } from './fx';
+import { NOT_COPIED, copyText } from './share';
 import { Game } from './Game';
-import { loadName, saveName } from './store';
+import { fitName, loadName, saveName } from './store';
 import { StallSign, TradingCard } from './cards';
 import { CardZoom } from './cardZoom';
 import {
@@ -72,7 +73,7 @@ function MyName({ name, onRename }: { name: string; onRename: (n: string) => voi
   return (
     <span class="seat-name">
       <input ref={box} class="seat-edit" aria-label="Your name" value={draft} maxLength={NAME_MAX}
-        onInput={(e) => setDraft((e.target as HTMLInputElement).value)} onBlur={done}
+        onInput={(e) => setDraft(fitName((e.target as HTMLInputElement).value))} onBlur={done}
         onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
     </span>
   );
@@ -90,7 +91,8 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
   initialCode?: string; typed?: boolean; quick?: boolean; mode?: 'room' | 'public'; onExit: () => void; onComputer?: (avatar: string, stalls: QuickStalls) => void;
 }) {
   const [client, setClient] = useState<OnlineClient | null>(null);
-  const [name, setName] = useState(loadName());
+  // REP-140 B-17: the name box holds the name as the room will keep it (store.ts fitName), so nothing is cut unseen
+  const [name, setName] = useState(() => fitName(loadName()));
   // Quick Match: the character you ask for when you enter; if another player already has it, you get a free one.
   // A private room chooses shopkeepers after everyone has joined (PLAN-102).
   const [avatar, setAvatar] = useState(() => {
@@ -222,7 +224,7 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
     <section class="sb-sec">
       <SbLabel>Your name</SbLabel>
       <input id="online-name" class="sb-input" aria-label="Your name" value={name} maxLength={NAME_MAX} placeholder="Your name" autocomplete="off" spellcheck={false}
-        onInput={(e) => setName((e.target as HTMLInputElement).value)} />
+        onInput={(e) => setName(fitName((e.target as HTMLInputElement).value))} />
     </section>
   );
   const error = err && <p class="sb-warn" role="alert">{err}</p>;
@@ -238,7 +240,8 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
         <section class="sb-sec">
           <SbLabel right={<button type="button" class="sb-link" data-a="public" onClick={() => { fx.tap(); setErr(null); setPage('public'); }}>Public rooms</button>}>The table</SbLabel>
           <TableRow count={stalls - 1}>
-            {Array.from({ length: stalls - 1 }, (_, i) => <OpenCard top={`Seat ${i + 2}`} big="?" small={i === stalls - 2 ? 'Stranger or computer' : 'A stranger'} />)}
+            {/* REP-140 B-12: any stall still empty when the wait ends gets a computer, so every one says so */}
+            {Array.from({ length: stalls - 1 }, (_, i) => <OpenCard top={`Stall ${i + 2}`} big="?" small="Stranger or computer" />)}
           </TableRow>
         </section>
         <section class="sb-sec">
@@ -291,7 +294,7 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
         <SbLabel>{`The table · 2 to ${MAX_SEATS} stalls`}</SbLabel>
         <TableRow count={4}>
           <SeatCard top="Host" title={name.trim() || 'You'} face="" look={worn()} band="y" small="You" big="Host" selected />
-          {[2, 3, 4].map((n) => <OpenCard top={`Seat ${n}`} big="Open" small="Waiting for a friend" />)}
+          {[2, 3, 4].map((n) => <OpenCard top={`Stall ${n}`} big="Open" small="Waiting for a friend" />)}
         </TableRow>
       </section>
       <section class="sb-sec">
@@ -401,7 +404,8 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const [wardrobe, setWardrobe] = useState(false);
   const host = !!me?.host;
   const link = inviteLink(v.code);
-  const [copied, setCopied] = useState(false);
+  // REP-140 B-18: the copy button says when the link was copied, and when it could not be.
+  const [copied, setCopied] = useState<boolean | null>(null);
   const allReady = v.seats.length >= 2 && v.seats.every((x) => x.ready && x.connected);
   // PLAN-107 (ON-05): a seat whose person closed the tab is freed after the grace period (the room sends when); until
   // then a line counts down to it, and the start button names who the room is waiting for.
@@ -419,10 +423,10 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const canShare = typeof navigator !== 'undefined' && 'share' in navigator;
 
   const copy = async () => {
-    try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch {
-      const el = document.getElementById('invite-link') as HTMLInputElement | null;
-      el?.select();
-    }
+    const ok = await copyText(link);
+    setCopied(ok);
+    if (ok) setTimeout(() => setCopied(null), 1800);
+    else (document.getElementById('invite-link') as HTMLInputElement | null)?.select();
   };
   const share = async () => {
     try { await navigator.share({ title: 'Fruit Market', text: `Join my Fruit Market game. Room ${v.code}`, url: link }); } catch { void copy(); }
@@ -445,7 +449,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
             ? <button type="button" class="sb-btn start-computers" disabled={!computers.othersReady} onClick={() => { fx.card(); track('online', 'computers'); client.startWithComputers(); }}>{computers.label}</button>
             : <p class="sb-note center-text start-computers-wait">{computers.label}</p>)}
           {away.map((x) => (x.takeoverAt === undefined ? null
-            : <p class="sb-warn center-text">{x.name} disconnected. Their seat is freed in {Math.max(0, Math.ceil((x.takeoverAt - now) / 1000))}s.</p>))}
+            : <p class="sb-warn center-text">{x.name} disconnected. Their stall is freed in {Math.max(0, Math.ceil((x.takeoverAt - now) / 1000))}s.</p>))}
           {!host && <p class="sb-note center-text">The host starts the game when everyone is ready.</p>}
         </>
       )}>
@@ -458,7 +462,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         </div>
         <div class="sb-share">
           {canShare && <button type="button" class="go" onClick={share}>Share link</button>}
-          <button type="button" class={canShare ? '' : 'go'} onClick={copy}>{copied ? 'Copied' : 'Copy link'}</button>
+          <button type="button" class={canShare ? '' : 'go'} onClick={copy}>{copied ? 'Copied' : copied === false ? NOT_COPIED : 'Copy link'}</button>
         </div>
         <input id="invite-link" class="sb-sr" readOnly tabIndex={-1} value={link} aria-label="Invite link" onFocus={(e) => (e.target as HTMLInputElement).select()} />
       </section>
@@ -480,19 +484,19 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
             // PLAN-112: a tap on another person's card offers to mute their reactions on this phone.
             return (
               <SeatCard seat={x.seat} class={`seat-row ${mine ? 'me' : ''} ${!x.connected || x.left ? 'off' : ''}`} selected={mine}
-                top={x.host ? 'Host' : `Seat ${x.seat + 1}`} title={x.name} face={x.avatar} look={x.look}
+                top={x.host ? 'Host' : `Stall ${x.seat + 1}`} title={x.name} face={x.avatar} look={x.look}
                 band={mine ? 'y' : 'b'} small={mine ? 'You' : muted ? 'Friend · Muted' : 'Friend'} big={seatBand(x)}
                 label={`${x.name}${mine ? ' (you)' : ''}: ${seatChip(x)}${tap ? '. Mute or unmute their reactions' : ''}`}
                 onClick={tap ? () => setMuteOpen(muteOpen === x.seat ? null : x.seat) : undefined} pressed={tap ? muteOpen === x.seat : undefined} />
             );
           })}
           {Array.from({ length: v.config.ai }, (_, i) => (
-            <SeatCard class="ai-seat" top={`Seat ${v.seats.length + i + 1}`} title={`Computer ${i + 1}`} face="computer" band="y" small="Computer" big="Normal"
+            <SeatCard class="ai-seat" top={`Stall ${v.seats.length + i + 1}`} title={`Computer ${i + 1}`} face="computer" band="y" small="Computer" big="Normal"
               label={`Computer ${i + 1}, Normal`} onRemove={host ? () => set({ ai: v.config.ai - 1 }) : undefined} removeLabel={`Remove computer ${i + 1}`} />
           ))}
           {Array.from({ length: openSeats }, (_, i) => (
-            <OpenCard class={`open-seat ${host ? 'host' : ''}`} top={`Seat ${taken + i + 1}`} big="Open" small="Waiting for a friend">
-              {host && <span class="sb-two"><button type="button" class="sb-add" aria-label="Seat a computer here" onClick={() => { fx.tap(); set({ ai: v.config.ai + 1 }); }}>+ Computer</button></span>}
+            <OpenCard class={`open-seat ${host ? 'host' : ''}`} top={`Stall ${taken + i + 1}`} big="Open" small="Waiting for a friend">
+              {host && <span class="sb-two"><button type="button" class="sb-add" aria-label="Put a computer at this stall" onClick={() => { fx.tap(); set({ ai: v.config.ai + 1 }); }}>+ Computer</button></span>}
             </OpenCard>
           ))}
         </TableRow>
@@ -500,7 +504,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
           <div class="seat-mute"><MuteButton on={mutes.muted(muting.seat, muting.name)} name={muting.name} toggle={() => { mutes.toggle(muting.seat, muting.name); setMuteOpen(null); }} /></div>
         )}
         {openSeats === 0 && <p class="sb-note room-full">Room full · start when everyone is ready</p>}
-        <p class="sb-note jl-say">{PICK_LATER}{openSeats > 0 && !host ? ' The host can seat a computer in an open seat.' : ''}</p>
+        <p class="sb-note jl-say">{PICK_LATER}{openSeats > 0 && !host ? ' The host can put a computer at an open stall.' : ''}</p>
       </section>
 
       {host
@@ -518,7 +522,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
  * then two ways out (a game against the computer now, or Cancel back to the set-up) and a price practice while you
  * wait. The game starts as soon as the table is full (the room sends it; this screen then gives way).
  */
-function QuickWait({ v, stalls: chosen, onExit, onCancel, onComputer }: {
+export function QuickWait({ v, stalls: chosen, onExit, onCancel, onComputer }: {
   v: RoomView; stalls: QuickStalls; onExit: () => void; onCancel: () => void; onComputer?: (avatar: string, stalls: QuickStalls) => void;
 }) {
   const avatar = v.seats[v.you]?.avatar ?? '';
@@ -543,14 +547,16 @@ function QuickWait({ v, stalls: chosen, onExit, onCancel, onComputer }: {
       </div>
       <p class="sb-found" role="status"><b>{foundLine(v.seats.length, stalls, left)}</b></p>
       <section class="sb-sec">
-        <SbLabel right={<span class="sb-clock" aria-label={`Waited ${clock(now - since)}`}>{clock(now - since)}</span>}>The table</SbLabel>
+        {/* REP-140 B-12: one clock. The found line counts down to the computers when the room says when; only a room that
+            does not say shows how long you have waited. */}
+        <SbLabel right={left === undefined ? <span class="sb-clock" aria-label={`Waited ${clock(now - since)}`}>{clock(now - since)}</span> : undefined}>The table</SbLabel>
         <TableRow count={stalls - 1}>
           {others.slice(0, stalls - 1).map((x, k) => (
-            <SeatCard top={`Seat ${k + 2}`} title={keeperName(x.avatar)} avatar={x.avatar || undefined} face={x.avatar} look={x.look} band="b" small="Found" big={x.name}
-              label={`Seat ${k + 2}: ${x.name}, ${keeperName(x.avatar)}`} />
+            <SeatCard top={`Stall ${k + 2}`} title={keeperName(x.avatar)} avatar={x.avatar || undefined} face={x.avatar} look={x.look} band="b" small="Found" big={x.name}
+              label={`Stall ${k + 2}: ${x.name}, ${keeperName(x.avatar)}`} />
           ))}
           {Array.from({ length: Math.max(0, stalls - 1 - others.length) }, (_, i) => (
-            <OpenCard top={`Seat ${others.length + i + 2}`} big="?" small="Looking for a stall" />
+            <OpenCard top={`Stall ${others.length + i + 2}`} big="?" small="Looking for a stall" />
           ))}
         </TableRow>
         <p class="sb-note">{waitLine(v.config.days, avatar, stalls)}</p>
@@ -611,7 +617,9 @@ export function computersOffer(v: RoomView, openedAt: number, now: number): { re
   const left = Math.ceil((openedAt + COMPUTERS_AFTER_MS - now) / 1000);
   const n = MAX_SEATS - v.seats.length;
   const othersReady = v.seats.every((x) => x.seat === v.you || (x.ready && x.connected));
-  if (left > 0) return { ready: false, othersReady, label: `In ${left}s you can start with computers in the empty seats.` };
+  // REP-140 B-13: "+ Computer" puts a computer at an empty stall at any time; the wait is only for starting at once with
+  // a computer at every empty stall (the room server's rule, even for a host alone).
+  if (left > 0) return { ready: false, othersReady, label: `Add computers now with + Computer, or in ${left}s start with a computer at every empty stall.` };
   return { ready: true, othersReady, label: `Start with ${n} computer${n === 1 ? '' : 's'}` };
 }
 
@@ -690,11 +698,11 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
         <TableRow count={v.seats.length + v.config.ai} min={3} wrapOver={4}>
           {v.seats.map((x) => (
             <SeatCard seat={x.seat} class={`seat-row ${x.seat === v.you ? 'me' : ''} ${!x.connected || x.left ? 'off' : ''}`} selected={x.seat === v.you}
-              top={x.seat === v.you ? 'You' : `Seat ${x.seat + 1}`} title={x.avatar ? keeperName(x.avatar) : x.name} avatar={x.avatar || undefined} face={x.avatar} look={x.look}
+              top={x.seat === v.you ? 'You' : `Stall ${x.seat + 1}`} title={x.avatar ? keeperName(x.avatar) : x.name} avatar={x.avatar || undefined} face={x.avatar} look={x.look}
               band={x.confirmed ? 'y' : 'b'} small={x.name} big={pickState(x)} label={`${x.name}${x.seat === v.you ? ' (you)' : ''}: ${x.avatar ? keeperName(x.avatar) : 'no shopkeeper yet'}, ${pickState(x)}`} />
           ))}
           {Array.from({ length: v.config.ai }, (_, i) => (
-            <SeatCard top={`Seat ${v.seats.length + i + 1}`} title={`Computer ${i + 1}`} face="computer" band="k" small="Computer" big="Normal" label={`Computer ${i + 1}`} />
+            <SeatCard top={`Stall ${v.seats.length + i + 1}`} title={`Computer ${i + 1}`} face="computer" band="k" small="Computer" big="Normal" label={`Computer ${i + 1}`} />
           ))}
         </TableRow>
         {v.config.ai > 0 && <p class="sb-note">The computers take shopkeepers from those left.</p>}

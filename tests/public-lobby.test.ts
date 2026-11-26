@@ -50,8 +50,9 @@ describe('the host\'s offer to start with computers', () => {
   const t0 = 1_000_000;
   it('counts down for the first minute, then offers every empty seat to the computers', () => {
     const v = room([seat(0)]);
-    expect(computersOffer(v, t0, t0)).toEqual({ ready: false, othersReady: true, label: 'In 60s you can start with computers in the empty seats.' });
-    expect(computersOffer(v, t0, t0 + 59_500)?.label).toBe('In 1s you can start with computers in the empty seats.');
+    // REP-140 B-13: "+ Computer" works at once; the wait is only for starting with a computer at every empty stall
+    expect(computersOffer(v, t0, t0)).toEqual({ ready: false, othersReady: true, label: 'Add computers now with + Computer, or in 60s start with a computer at every empty stall.' });
+    expect(computersOffer(v, t0, t0 + 59_500)?.label).toBe('Add computers now with + Computer, or in 1s start with a computer at every empty stall.');
     expect(computersOffer(v, t0, t0 + COMPUTERS_AFTER_MS)).toEqual({ ready: true, othersReady: true, label: 'Start with 5 computers' });
     expect(computersOffer(room([seat(0), seat(1), seat(2), seat(3), seat(4)]), t0, t0 + COMPUTERS_AFTER_MS)?.label).toBe('Start with 1 computer');
   });

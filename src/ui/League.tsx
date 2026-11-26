@@ -10,12 +10,12 @@ import { Face } from './art';
 import { CARDS, nextStep, stepValue } from './achievements';
 import { ALL_STAGES, EXPERTS, LEAGUE, MASTERY_STAGES, STAR_COUNT, expertOpen, stageByNo, stageStars, starGoals, type Stage } from './campaign';
 import { fx } from './fx';
-import { worn } from './looks';
+import { setupAvatar, worn } from './looks';
 import { isReduced } from './motion';
 import { leagueConfig, leagueStage, myStars, snapshot } from './progress';
 import { stageGoal, stageLine, stageRivals } from './progressView';
 import { RANKS } from './stamps';
-import { Awning, BackArrow, FramedFace, TrophyPic, myColour, shownAvatar } from './stampCard';
+import { Awning, BackArrow, FramedFace, TrophyPic, myColour } from './stampCard';
 import { MasteryList, StageMoment, Stars } from './StageMoment';
 import { partsOf } from '../net/looks';
 import './league.css';
@@ -109,8 +109,7 @@ export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: numbe
   const expert = !!st.expert;
   // Your picture as the stage will show it: the league seats you without a shopkeeper of your own, and the table shows
   // your chosen one, or the first one free when a rival on this stage is that shopkeeper (looks.ts shownAvatar).
-  const cfg = leagueConfig(sel, '', '');
-  const me = shownAvatar(cfg.players.map((p) => ({ avatar: p.avatar ?? '', kind: p.kind })), 0);
+  const me = setupAvatar(leagueConfig(sel, '', ''));
   const look = worn();
   const trophy = nextTrophy();
   const label = expert ? `Expert stage${cleared ? ' · cleared' : ''}` : done && sel === LEAGUE.length - 1 ? `All ${LEAGUE.length} stages cleared` : `Stage ${sel + 1} of ${LEAGUE.length}${cleared ? ' · cleared' : ''}`;
@@ -138,9 +137,7 @@ export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: numbe
             <StageMoment st={st} words={st.before} />
             <p class="jp-lg-lesson">{st.lesson}</p>
             <MasteryList stage={sel} have={stars} />
-            {playable
-              ? <button type="button" class="jp-go" onClick={() => { fx.tap(); onPlay(sel); }}>{play}</button>
-              : <p class="lg-closed">{opensWhen(sel, stars)}</p>}
+            {!playable && <p class="lg-closed">{opensWhen(sel, stars)}</p>}
           </section>
 
           {trophy && (
@@ -181,6 +178,8 @@ export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: numbe
           <p class="sbk-sub jp-lg-foot" data-a="league-foot">{starsFoot(stars)}</p>
         </div>
       </main>
+      {/* REP-140 B-01: the stage's Play button stays at the foot of the screen, in view without scrolling */}
+      {playable && <footer class="jp-foot"><button type="button" class="jp-go" onClick={() => { fx.tap(); onPlay(sel); }}>{play}</button></footer>}
     </div>
   );
 }

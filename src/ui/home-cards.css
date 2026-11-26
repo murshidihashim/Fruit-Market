@@ -306,7 +306,6 @@
 .sbk.jh-intro .jh-irules p { font: 600 0.875rem/1.35 var(--f-label); }
 .sbk.jh-intro .jh-irules p.jh-iecho { padding-left: 8px; border-left: 4px solid var(--k-yel); font-weight: 700; }
 .sbk.jh-intro .jh-igo { display: flex; flex-direction: column; gap: 8px; }
-.sbk.jh-intro .jh-igo .jp-go { display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: inset 0 0 0 3px var(--k-ink), 0 4px 0 var(--k-ink); margin: 0 0 4px; }
 .sbk.jh-intro .jh-go2 {
   min-height: 48px; text-align: center; box-shadow: inset 0 0 0 2.5px var(--k-ink); font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
 }

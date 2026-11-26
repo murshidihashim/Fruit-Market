@@ -4,7 +4,7 @@ import { App as CapApp } from '@capacitor/app';
 import { newGame, type GameConfig, type GameState } from '../engine/game';
 import { openStage } from '../engine/ai';
 import { dailyConfig, sprintConfig } from '../engine/daily';
-import { ContinueBody, PlayMenu, Popup, ReplaceBody, Shopfront, type HomeTab } from './Home';
+import { PlayMenu, Popup, ReplaceBody, Shopfront, StartOverBody, type HomeTab } from './Home';
 import { DailyIntro, type DailyKind } from './DailyIntro';
 import { startOrAsk, waitingGame } from './paused';
 import { vsComputerConfig } from './playMenu';
@@ -21,6 +21,7 @@ import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { openMatch } from '../net/client';
 import { fx, setMusic } from './fx';
 import { setStill } from './motion';
+import { FAST_PLAY, REDUCED_MOTION, phoneStill } from './settingWords';
 import { FullScreenButton, FullscreenPrompt } from './FullScreenButton';
 import { shouldAskFullscreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
@@ -38,7 +39,7 @@ import {
 // PLAN-125: 'setup' is the one-page set-up for Computer or Pass & Play (Setup.tsx); 'quick' the Quick Match set-up and
 // wait, 'online' the Private Room (Online.tsx).
 type Screen = 'home' | 'play' | 'game' | 'settings' | 'online' | 'quick' | 'setup' | 'trophies' | 'wardrobe' | 'league' | 'intro';
-type PopupKind = 'continue' | 'account';
+type PopupKind = 'newgame' | 'account';
 
 /**
  * The room in an invite link. PLAN-107 (ON-02): it is read once, as the app opens, and taken out of the address, so it
@@ -321,7 +322,8 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
       notice={saveNotice}
       tab={homeTab}
       onTab={(t) => { if (t !== homeTab) fx.tap(); setHomeTab(t); }}
-      onContinue={(slot) => { setContSlot(slot); open('continue'); }}
+      onContinue={resume}
+      onNewGame={(slot) => { setContSlot(slot); open('newgame'); }}
       onPlay={() => go('play')}
       // PLAN-124: the Custom match card's ways start as the Play page's do, and the online screens come back to Home.
       onQuick={() => { setFrom('home'); go('quick'); }}
@@ -342,10 +344,10 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
   return (
     <>
       {body}
-      {popup === 'continue' && continuing && (
-        <Popup title="Continue" onClose={close}>
-          <ContinueBody mode={continuing.mode} day={continuing.day} days={continuing.days} stalls={continuing.stalls} cash={continuing.cash}
-            onResume={() => { close(); resume(contSlot); }}
+      {popup === 'newgame' && continuing && (
+        <Popup title="New game" onClose={close}>
+          <StartOverBody mode={continuing.mode} day={continuing.day} days={continuing.days} stalls={continuing.stalls} cash={continuing.cash}
+            onKeep={() => { fx.tap(); close(); }}
             onStartOver={() => {
               // PLAN-120: only this mode's game ends; then the place that starts a game of this mode.
               clearGame(contSlot); putGame(contSlot, null); close();
@@ -373,7 +375,7 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
   const [replay, setReplay] = useState(false);
   const stats = loadStats();
   // The phone's own reduced-motion setting: then the game's switch shows on (the phone's setting wins).
-  const phoneStill = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const phone = phoneStill();
   const upd = (p: Partial<Settings>) => {
     const n = { ...st, ...p };
     setSt(n);
@@ -389,9 +391,9 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
           <Toggle on={st.haptics} set={(v) => upd({ haptics: v })} title="Vibration" text="A small buzz when you buy." />
           {/* PLAN-123: "Fast" speeds up every move on the table and the computers' turns (motion.ts setBaseSpeed), so it
               is named for what it does; Reduced motion is the game's own switch beside the phone's setting. */}
-          <Toggle on={st.fast} set={(v) => upd({ fast: v })} title="Fast play" text="Moves and computer turns go quicker." />
-          <Toggle on={st.still || phoneStill} set={(v) => { upd({ still: v }); setStill(v); }} title="Reduced motion"
-            text={phoneStill ? 'On in your phone\'s settings: nothing slides across the table.' : 'Nothing slides across the table: each change shows at once.'} />
+          {/* REP-140 B-15: the in-game menu has the same two switches, in the same words (settingWords.ts). */}
+          <Toggle on={st.fast} set={(v) => upd({ fast: v })} title={FAST_PLAY.title} text={FAST_PLAY.text} />
+          <Toggle on={st.still || phone} set={(v) => { upd({ still: v }); setStill(v); }} title={REDUCED_MOTION.title} text={REDUCED_MOTION.text(phone)} />
           <Toggle on={st.music} set={(v) => { upd({ music: v }); setMusic(v); }} title="Music" text="A gentle market tune." />
           <Toggle on={st.reactions} set={(v) => upd({ reactions: v })} title="Show reactions" text="Emoji and short lines other players send in online games." />
           <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share anonymous stats" text="Helps fix crashes and balance the game. No names or IDs are sent." />

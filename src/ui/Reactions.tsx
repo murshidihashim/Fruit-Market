@@ -162,7 +162,7 @@ export function ReactPicker({ client, onClose }: { client: OnlineClient; onClose
         <div class="rx-grid line">
           {lines.map((r) => <button type="button" class="rx-choice" disabled={!ready} onClick={() => send(r.id)}>{r.show}</button>)}
         </div>
-        <p class="small muted rx-note">{ready ? 'Everyone in the room sees it over your seat.' : 'One reaction every 2 seconds.'}</p>
+        <p class="small muted rx-note">{ready ? 'Everyone in the room sees it over your stall.' : 'One reaction every 2 seconds.'}</p>
       </Popup>
     </div>
   );

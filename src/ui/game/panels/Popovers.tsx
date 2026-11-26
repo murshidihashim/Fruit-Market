@@ -11,10 +11,13 @@ import { priorityNote, priorityWouldReturn } from '../evening';
 import { FullScreenButton } from '../../FullScreenButton';
 import { TrapBox, useFocusTrap } from '../../focusTrap';
 import { Wardrobe } from '../../Wardrobe';
+import { HowTo } from '../../HowTo';
+import { setBaseSpeed, setStill } from '../../motion';
+import { FAST_PLAY, REDUCED_MOTION, phoneStill } from '../../settingWords';
 import { useRef, useState } from 'preact/hooks';
 import type { GameState } from '../../../engine/game';
 import { usePopFrom } from '../popMotion';
-import { loadSettings, saveSettings } from '../../store';
+import { loadSettings, saveSettings, type Settings } from '../../store';
 import { Toggle } from '../../Toggle';
 import type { GameController } from '../useGameController';
 
@@ -72,8 +75,14 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
   const [wardrobe, setWardrobe] = useState(false);
   // ON-08: online, Home first asks whether to leave the match.
   const [leaving, setLeaving] = useState(false);
-  // S19: the sound switch, as in Settings.
+  // S19: the sound switch, as in Settings. REP-140 B-15: Fast play and Reduced motion too, the same settings as the
+  // Settings screen, each taking effect at once; and How to play, which opens over the game and closes back to it.
   const [sound, setSound] = useState(() => loadSettings().sound);
+  const [fast, setFast] = useState(() => loadSettings().fast);
+  const [still, setStillOn] = useState(() => loadSettings().still);
+  const [howto, setHowto] = useState(false);
+  const phone = phoneStill();
+  const setting = (patch: Partial<Settings>) => saveSettings({ ...loadSettings(), ...patch });
   const closeMenu = () => { setLeaving(false); c.setMenu(false); };
   const unsent = unsentChoice(c.s, c.myBidTurn);
   // `actor`: the stall this phone plays for now (online its own seat, which in the evening need not be `active`).
@@ -142,6 +151,7 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
 
 
   {wardrobe && onWear && <div class="wd-overlay"><Wardrobe onBack={() => setWardrobe(false)} onChange={onWear} /></div>}
+  {howto && <div class="wd-overlay ht-overlay" role="dialog" aria-modal="true" aria-label="How to play"><HowTo onDone={() => setHowto(false)} /></div>}
   {menu && (
     <div class="modal-bg" onClick={closeMenu}>
       {room && leaving ? (
@@ -162,7 +172,10 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
             : <p class="muted">Your game is saved automatically.</p>}
           {unsent && <p class="gm-warn">{unsent}</p>}
           <button class="btn primary wide" onClick={closeMenu}>{room ? 'Back to the match' : 'Resume'}</button>
-          <Toggle on={sound} set={(v) => { const st = loadSettings(); saveSettings({ ...st, sound: v }); setSound(v); }} title="Sound" text="Coins, cards and cheers." />
+          <Toggle on={sound} set={(v) => { setting({ sound: v }); setSound(v); }} title="Sound" text="Coins, cards and cheers." />
+          <Toggle on={fast} set={(v) => { setting({ fast: v }); setFast(v); setBaseSpeed(v); }} title={FAST_PLAY.title} text={FAST_PLAY.text} />
+          <Toggle on={still || phone} set={(v) => { setting({ still: v }); setStillOn(v); setStill(v); }} title={REDUCED_MOTION.title} text={REDUCED_MOTION.text(phone)} />
+          <button class="btn wide" data-a="menu-howto" onClick={() => { setMenu(false); setHowto(true); }}>How to play</button>
           <FullScreenButton />
           {onWear && <button class="btn wide" onClick={() => { setMenu(false); setWardrobe(true); }}>Wardrobe</button>}
           <button class="btn wide" onClick={room ? () => setLeaving(true) : onExit}>Home</button>

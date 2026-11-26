@@ -265,7 +265,9 @@
 .wc-kind span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .wc-body { display: flex; gap: 10px; padding: 9px; }
 .wc-main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.wc-ttl { font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; }
+.wc-ttl { font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; overflow-wrap: break-word; }
+/* REP-140 B-07: on the narrowest phones a title's longest word (SUPERFOOD, INSPECTOR, BREAKDOWN) fits beside the picture */
+@media (max-width: 359px) { .wc-ttl { font-size: 1.125rem; } }
 .wc .wc-txt { margin: 0; line-height: 1.3; }
 .wc-foot { flex: none; padding: 6px 9px; background: var(--x-kraft); text-align: center; font: 800 0.5625rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
 .wc-dots { display: flex; flex-wrap: wrap; gap: 5px; }
@@ -447,3 +449,11 @@
 #app .tkt .ev-pop.drawing .wc-flip .wc-flip-back { transform: none; }
 #app .tkt .ev-pop.drawing .wc-flip .wc-flip-face { transform: rotateY(180deg); }
 #app .tkt .ev-pop:focus { outline: none; }
+/* REP-140 B-05: over the translucent backdrop the morning's parts make one solid card: no gap between them, and each
+   part (the dawn rows, the notes, the lorry, tomorrow) on paper, so the table under it never shows through. The event
+   card keeps its own faces (it turns over); the lorry's ink edge sits on the event card's. */
+#app .tkt .event-sheet.ev-pop .morning-card { gap: 0; }
+#app .tkt .event-sheet.ev-pop .morning-card > :is(.dw, .tk-unload) { background: var(--tk-paper); }
+#app .tkt .event-sheet.ev-pop .morning-card > .tk-unload { gap: 0; }
+#app .tkt .event-sheet.ev-pop .morning-card > .tk-unload > .tk-note { padding: 6px 9px; }
+#app .tkt .event-sheet.ev-pop .morning-card > .wc-flip + .tk-unload { margin-top: -3px; }

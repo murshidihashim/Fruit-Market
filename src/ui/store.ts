@@ -1,11 +1,13 @@
 // Local persistence: settings, stats, saved games (one per mode, PLAN-120), daily challenge records.
 import type { FavourId } from '../engine/data';
 import type { GameConfig, GameState } from '../engine/game';
-import { AI_VERSION, RULES_VERSION } from '../net/protocol';
+import { AI_VERSION, NAME_MAX, RULES_VERSION } from '../net/protocol';
 import { profileChanged } from './changed';
 
-/** `reactions` (PLAN-112): show the preset reactions other players send in an online room (off: none are shown). */
-export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean; music: boolean; analytics: boolean; reactions: boolean; still: boolean }
+/** `reactions` (PLAN-112): show the preset reactions other players send in an online room (off: none are shown).
+ *  REP-140 B-15: the old `tips` field is gone (nothing read it; the coach is turned off with Skip tutorial and back on
+ *  with Settings' Replay the tutorial). */
+export interface Settings { sound: boolean; haptics: boolean; fast: boolean; music: boolean; analytics: boolean; reactions: boolean; still: boolean }
 export interface Stats { played: number; wins: number; bestCash: number; totalSold: number }
 export interface DailyRecord { [date: string]: number }
 
@@ -32,11 +34,13 @@ function write(key: string, value: unknown) {
 /**
  * The settings on this phone. S11 (PLAN-110): the Freshness patterns switch is gone (the letters F, O, S and G already
  * tell the boxes apart); settings saved while it was there still load, and the old value is dropped. PLAN-112: settings
- * saved before "Show reactions" load with it on (each missing field takes its default).
+ * saved before "Show reactions" load with it on (each missing field takes its default). REP-140 B-15: so is the unused
+ * `tips` field.
  */
 export function loadSettings(): Settings {
-  const st: Settings & { patterns?: boolean } = read<Settings & { patterns?: boolean }>(K.settings, { sound: true, haptics: true, fast: false, tips: true, music: false, analytics: true, reactions: true, still: false });
+  const st: Settings & { patterns?: boolean; tips?: boolean } = read<Settings & { patterns?: boolean; tips?: boolean }>(K.settings, { sound: true, haptics: true, fast: false, music: false, analytics: true, reactions: true, still: false });
   delete st.patterns;
+  delete st.tips;
   return st;
 }
 export const saveSettings = (s: Settings) => write(K.settings, s);
@@ -151,9 +155,10 @@ export function loadGame(slot: SaveSlot): GameState | null {
     write(slotKey(slot), null);
     return null;
   }
-  // Saves from before v1.2 were the bare game (rules version 2, the same rules as now).
-  if (looksLikeGame(data) && data.config && slotOf(data.config) === slot) return data;
-  notices.push(`Your unfinished ${what} couldn't be read, so it was cleared.`);
+  // Saves from before v1.2 were the bare game, played under rules version 2. REP-140 C-05: the rules have changed many
+  // times since, so such a game is set aside like any game saved under older rules.
+  const bare = looksLikeGame(data) && !!data.config && slotOf(data.config) === slot;
+  notices.push(bare ? `Your unfinished ${what} used older rules and could not be continued.` : `Your unfinished ${what} couldn't be read, so it was cleared.`);
   write(slotKey(slot), null);
   return null;
 }
@@ -218,6 +223,11 @@ export function loadName(): string {
     return '';
   }
 }
+/**
+ * REP-140 B-17: a name as the room server will keep it (server/names.ts tidy: NFKC, one space between words, at most
+ * NAME_MAX), so the name box shows what others will see and the server never cuts it. Ends are trimmed when it is saved.
+ */
+export const fitName = (n: string): string => n.normalize('NFKC').replace(/\s+/g, ' ').slice(0, NAME_MAX);
 /** What the game uses when the name field was left blank. */
 export const nameOrDefault = (n: string, fallback = 'You') => n.trim() || fallback;
 export function saveName(n: string) {
