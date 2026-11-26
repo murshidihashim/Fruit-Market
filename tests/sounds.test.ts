@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { autoplay } from '../src/engine/ai';
 import { RIVALS } from '../src/engine/data';
@@ -123,20 +122,8 @@ describe('the sounds a player chose', () => {
     expect([times('bell_brass'), times('bell_bicycle'), times('coin_till'), times('coin_abacus')]).toEqual([0, 0, 0, 0]);
   });
 
-  it('the game rings the bell through that setter, every time the bell is shown', () => {
-    const src = readFileSync('src/ui/game/useGameController.ts', 'utf8');
-    const setter = src.slice(src.indexOf('const setBell = (open: BellShow) => {'), src.indexOf('showBell(open);'));
-    expect(setter).toContain('if (open !== null && !bellUp.current) fx.bell();');
-    expect(setter).toContain('bellUp.current = open !== null;');
-    // the bell is shown by the bell's script and the rush's script, both given that setter, and by the setter itself
-    expect(src).toContain('await bellRings(next, setBell);');
-    expect(src).toMatch(/await reveal\(next, viewer, setShow, setBell\b/);
-    expect(src.match(/\bshowBell\(/g)?.length).toBe(1);
-    // and the coins of the rush land with fx.coin (animator.tsx), the sound the player chose
-    const anim = readFileSync('src/ui/game/animator.tsx', 'utf8');
-    // PLAN-123: once a payment has been shown (by its coin, or by Skip first) it is not shown again, sound included
-    expect(anim).toMatch(/onLand: k \? undefined : \(\) => \{\s*if \(!once\(saleKey\(card, b, row\.player\)\)\) return;\s*fx\.coin\(\);\s*pay\(row\.player, row\.paid\);/);
-  });
+  // The game rings the bell through one setter, which the bell's script and the rush's are both given:
+  // beat-player.test.ts 'the bell's one sound'. Each payment's coin sounds once (the test above counts one per payment).
 });
 
 describe('the look message', () => {

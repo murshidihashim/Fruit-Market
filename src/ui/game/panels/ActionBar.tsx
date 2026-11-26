@@ -13,7 +13,7 @@ import { canUndo } from '../turn';
 import type { GameController } from '../useGameController';
 
 export function ActionBar({ c, pl, limit, picker, online }: { c: GameController; pl: Player | undefined; limit: number; picker: number; online: boolean }) {
-  const { s, busy, night, active, activeHuman, votedMe, waitingFor, humansNotVoted, humansMissingBids, eveningWaits, freeFruit, turnStart } = c;
+  const { s, busy, night, active, activeHuman, votedMe, waitingFor, humansNotVoted, humansMissingBids, eveningWaits, freeFruit, point } = c;
   // Rules 18: a stall with no ripe fruit takes no stocking or pricing turn, so its player was never asked.
   const nothingRipe = !!s.players[c.viewer] && count(s.players[c.viewer].stock, undefined, true) === 0;
   // REP-133 A-01: on a shared phone the next person's buttons wait for their hand-over (the bar keeps its room).
@@ -50,7 +50,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   // S9 (PLAN-110): what can still be bought is the smaller of the day's pieces and the shelf's free spaces.
   const room = pl ? Math.max(0, shelfSize(pl) - count(pl.stock)) : 0;
   const more = Math.min(Math.max(0, limit - bought), room);
-  const after = turnStart.current?.after;
+  const after = point?.after;
   return (
     <footer class="actionbar">
       {!quiet && <div class="hint-bar">{beat}</div>}
@@ -62,7 +62,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
         <>
           {/* S3 (DEC-120): Undo takes back purchases only. After a favour card it says so: it goes back to just after the
               card, which stays played. */}
-          <button class={`btn ghost ${after ? 'undo-after' : ''}`} aria-label={after ? `Undo purchases after ${FAVOURS[after].title}` : 'Undo purchases'} disabled={!canUndo(turnStart.current, s, active, online)} onClick={c.undo}>↶{after && <small>after {FAVOURS[after].title}</small>}</button>
+          <button class={`btn ghost ${after ? 'undo-after' : ''}`} aria-label={after ? `Undo purchases after ${FAVOURS[after].title}` : 'Undo purchases'} disabled={!canUndo(point, s, active, online)} onClick={c.undo}>↶{after && <small>after {FAVOURS[after].title}</small>}</button>
           {/* A free fruit to pick is said on the Done button itself: a hint between the two buttons used to push Done
               along and make it narrower, and they keep their places the whole turn. */}
           <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free piece' : room === 0 ? 'shelf full' : `${more} more allowed`}</small></button>

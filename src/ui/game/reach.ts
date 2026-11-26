@@ -114,6 +114,7 @@ export function useReach(ref: MutableRef<HTMLElement | null>, up: ReachUp, down:
     }
     // As the sheet leaves: its picture slides off above the rows it lay over (see liftOff).
     return () => { watch?.disconnect(); liftOff(game); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- measured as the sheet comes onto the table, then watched by the ResizeObserver until it leaves
   }, []);
 }
 

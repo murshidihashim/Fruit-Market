@@ -15,6 +15,9 @@ export default tseslint.config(
     plugins: { 'react-hooks': hooks },
     rules: {
       'react-hooks/rules-of-hooks': 'error',
+      // REP-140 A-02: every hook lists what it reads. Where leaving one out is on purpose (a ref stands in for state, or
+      // an effect runs on one change only), the line says so in an eslint-disable comment with its reason.
+      'react-hooks/exhaustive-deps': 'error',
       eqeqeq: ['error', 'always'],
       'no-var': 'error',
       'prefer-const': 'error',

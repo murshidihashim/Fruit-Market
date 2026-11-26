@@ -3,21 +3,35 @@
 // away; online every person decides at the same time, a stall that is done says so on its box, and the bar says who
 // the evening is still waiting for once you have said Lights out. When several Priority cards are played the screens
 // say who buys first and whose card goes back.
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { computersEvening } from '../src/engine/ai';
 import {
-  activePlayer, buyUpgrade, emptyStock, endEvening, finishReveal, newGame, playFavour, publicView,
+  activePlayer, buyUpgrade, canPlayFavour, emptyStock, endEvening, finishReveal, newGame, playFavour, publicView,
   type GameState, type PlayerConfig,
 } from '../src/engine/game';
 import { toStaticHtml } from '../src/ui/cards';
 import { playedFavours } from '../src/ui/game/dayBeats';
 import { eveningWaitLine, priorityBackLine, priorityNote, priorityWouldReturn } from '../src/ui/game/evening';
 import { waitsForPerson } from '../src/ui/game/turn';
-import { eveningAside } from '../src/ui/game/useGameController';
+import { computerStep, eveningAside } from '../src/ui/game/stepKind';
+import { moves } from '../src/ui/game/animator';
+import { FAVOURS, UPGRADES } from '../src/engine/data';
 import { EveningPanel } from '../src/ui/panel';
-import { rivalNote } from '../src/ui/table';
+import { FavourPopView } from '../src/ui/game/panels/Popovers';
+import { Stalls, rivalNote } from '../src/ui/table';
+
+/** The labels put up over the stalls (anim.ts tag), as the evening's beat makes them. */
+const labels = vi.hoisted((): { at: string; text: string; cls: string }[] => []);
+vi.mock('../src/ui/anim', async (original) => {
+  const real = await original<typeof import('../src/ui/anim')>();
+  return { ...real, tag: (at: string | string[], text: string, cls = '') => { labels.push({ at: String(at), text, cls }); return real.tag(at, text, cls); } };
+});
+
+// The stalls' boxes redraw themselves when a held-back total changes (hooks); a still picture needs none of that.
+vi.mock('../src/ui/cashShown', async (original) => ({ ...(await original<typeof import('../src/ui/cashShown')>()), useCashShown: () => undefined }));
+vi.mock('../src/ui/stockShown', async (original) => ({ ...(await original<typeof import('../src/ui/stockShown')>()), useStockShown: () => undefined }));
 import { passEvening } from './stall-step';
 
 const read = (f: string) => readFileSync(f, 'utf8');
@@ -61,20 +75,37 @@ describe('a solo evening: the computers first, together, then the person straigh
     expect(s.day).toBe(4);
   });
 
-  it('the controller takes the computers\' evening without a pause and in one step; the night is a step of its own', () => {
-    const src = read('src/ui/game/useGameController.ts');
-    expect(src).toContain("const next = computersEvening(cur, (p) => cur.players[p].kind === 'ai') ?? aiStep(cur);");
-    // The evening's branch comes before the pause that rivals take in the other steps.
-    expect(src.indexOf("if (s.phase === 'evening') {\n      const cur = sRef.current;")).toBeLessThan(src.indexOf('void A.pause((A.isFast()'));
+  it('the controller takes the computers\' evening in one step; the night is a step of its own', () => {
+    expect(computerStep(open)).toEqual(shown);
+    // (without a pause: controller.test.ts 'the computers decide the evening as it opens, without a pause')
+    expect(computerStep(computerStep(open)!)).toBeNull();
   });
 
-  it('each stall has one label: a stall that built and played cards names its cards on the upgrade\'s label', () => {
-    const anim = read('src/ui/game/animator.tsx');
-    expect(anim).toContain('if (builtNow) jobs.push(built(i, pl.upgrades[pl.upgrades.length - 1], cards));');
-    expect(anim).toContain('if (!builtNow) {');
-    const beats = read('src/ui/game/dayBeats.tsx');
-    expect(beats).toContain("const label = A.tag(`p${p}`, `${also ? `${also} · ` : ''}Built: ${d.title}`, 'upgrade');\n  fitTag(label, p);");
+  it('each stall has one label: a stall that built and played cards names its cards on the upgrade\'s label', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('matchMedia', () => ({ matches: true }));
+    vi.stubGlobal('requestAnimationFrame', (cb: () => void) => setTimeout(cb, 0));
+    try {
+      labels.length = 0;
+      const done = moves(open, shown, 0);
+      await vi.runAllTimersAsync();
+      await done;
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+    }
+    const at = labels.map((x) => x.at);
+    expect(new Set(at).size).toBe(at.length);
+    // Ali played Priority and Gossip in the step; if Ali also built, the cards are named on the upgrade's label
+    const ali = labels.find((x) => x.at === 'p1')!;
+    const built = shown.players[1].upgrades.length > open.players[1].upgrades.length;
+    expect(ali.text).toBe(built ? `${FAVOURS.priority.title} · ${FAVOURS.gossip.title} · Built: ${UPGRADES[shown.players[1].upgrades[shown.players[1].upgrades.length - 1]].title}` : `${FAVOURS.priority.title} · ${FAVOURS.gossip.title}`);
+    expect(ali.cls).toBe(built ? 'upgrade' : 'favour');
+    // every stall that built has its one label
+    for (const p of [1, 2, 3]) if (shown.players[p].upgrades.length > open.players[p].upgrades.length) expect(labels.filter((x) => x.at === `p${p}` && x.cls === 'upgrade')).toHaveLength(1);
     // Labels over several stalls at once keep to their own stall's width (on two lines if need be).
+    const anim = read('src/ui/game/animator.tsx');
+    const beats = read('src/ui/game/dayBeats.tsx');
     expect(anim).toContain('if (evening) fitTag(t, i);');
     expect(beats).toContain("el.style.maxWidth = `${Math.max(72, Math.floor(r.width))}px`;");
   });
@@ -87,9 +118,14 @@ describe('online: everyone at once', () => {
   it('a stall\'s box says whether it is still deciding or its lights are out', () => {
     expect(rivalNote(done1, 1, false)).toBe('closed');
     expect(rivalNote(done1, 2, true)).toBe('deciding…');
-    const src = read('src/ui/table.tsx');
-    // (PLAN-123: while a stall's purchases travel it is the one drawn as buying, tableShown.ts heldBuyer)
-    expect(src).toContain("const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && (heldBuyer() ?? s.order[s.turn]) === p;");
+    // the stalls' row as Ana sees it: Bo has said Lights out, Cy is still deciding
+    const row = toStaticHtml(h(Stalls, { s: done1, viewer: 0, boards: {}, open: null, onOpen: () => undefined, onClose: () => undefined, off: [] }));
+    // each stall's box is one button: its own words, and drawn active while it is still deciding
+    const box = (p: number) => { const at = row.lastIndexOf('<button', row.indexOf(`data-a="p${p}"`)); return row.slice(at, row.indexOf('</button>', at)); };
+    expect(box(1)).toContain('closed');
+    expect(box(1)).not.toMatch(/deciding…|class="[^"]*\bactive\b/);
+    expect(box(2)).toContain('deciding…');
+    expect(box(2)).toMatch(/class="[^"]*\bactive\b/);
   });
 
   it('a person is waited for until they say Lights out, whoever else is deciding', () => {
@@ -101,12 +137,8 @@ describe('online: everyone at once', () => {
   it('the bar names who the evening is still waiting for, only once you have said Lights out', () => {
     expect(eveningWaitLine('Ana and Cy')).toBe('Lights out. Waiting for Ana and Cy');
     expect(eveningWaitLine('')).toBe('Lights out');
-    const bar = read('src/ui/game/panels/ActionBar.tsx');
-    expect(bar).toContain("{quiet && s.phase === 'evening' && !activeHuman && (online");
-    expect(bar).toContain('eveningWaitLine(waitingFor(eveningWaits))');
-    const ctl = read('src/ui/game/useGameController.ts');
-    expect(ctl).toContain("const eveningWaits = s.phase === 'evening' ? live.filter((i) => eveningOpen(s, i)) : [];");
-    expect(ctl).toContain("(s.phase === 'evening' ? seat !== null && eveningOpen(s, seat) : active === seat && !secret)");
+    // the bar itself, and who is waited for: table-layout.test.ts 'once you have said Lights out, the bar names who the
+    // evening is still waiting for' and 'a person decides until they say Lights out'
   });
 
   it('another stall\'s choice is drawn at once while you are still deciding; your own is played as a beat', () => {
@@ -121,10 +153,18 @@ describe('online: everyone at once', () => {
   });
 
   it('the evening sheet and the opened card act for this phone\'s own seat', () => {
-    const game = read('src/ui/Game.tsx');
-    expect(game).toContain('const evP = c.actor;');
-    expect(game).toContain('<EveningSheet key={`ev-${s.day}-${evP}`} s={s} p={evP}');
-    expect(read('src/ui/game/panels/Popovers.tsx')).toContain('const why = canPlayFavour(s, actor, cardInfo);');
+    // the sheet: table-layout.test.ts 'the evening sheet is this stall's own'
+    // the card opened from the hand says why it cannot be played for this seat, not for the stall whose turn it is
+    const held = structuredClone(done1);
+    held.players[1].favours = ['priority'];
+    held.players[2].favours = ['priority'];
+    const mine = toStaticHtml(h(FavourPopView, { s: held, actor: 1, idx: 0, onPlay: () => {}, onClose: () => {} }));
+    const why = canPlayFavour(held, 1, 0);
+    expect(why).not.toBeNull();
+    expect(mine).toContain(`<p class="cd-pop-why">${why}</p>`);
+    expect(mine).not.toContain('>Play</button>');
+    const theirs = toStaticHtml(h(FavourPopView, { s: held, actor: 2, idx: 0, onPlay: () => {}, onClose: () => {} }));
+    expect(theirs).toContain('>Play</button>');
   });
 });
 
@@ -171,7 +211,13 @@ describe('Priority played by several stalls: the screens say so', () => {
   });
 
   it('the opened Priority card says, beside Play, when it would only go back', () => {
-    const pop = read('src/ui/game/panels/Popovers.tsx');
-    expect(pop).toContain("{!why && id === 'priority' && priorityWouldReturn(s, actor) && <p class=\"cd-pop-why\">{priorityNote(s, actor)}</p>}");
+    const s = playFavour(base, 0, 0);
+    const card = (p: number) => toStaticHtml(h(FavourPopView, { s, actor: p, idx: 0, onPlay: () => {}, onClose: () => {} }));
+    // Cy is later in the line-up: playing it now would only send it back
+    expect(priorityWouldReturn(s, 2)).toBe(true);
+    expect(card(2)).toContain(`<p class="cd-pop-why">${priorityNote(s, 2)}</p>`);
+    expect(card(2)).toContain('>Play</button>');
+    // Bo is earlier: it would count, and nothing is said under the card
+    expect(card(1)).not.toContain(priorityNote(s, 1)!);
   });
 });

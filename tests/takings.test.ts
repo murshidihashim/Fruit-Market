@@ -8,8 +8,9 @@ import { dayLedger, standing, tonightLine } from '../src/engine/story';
 import { LANES } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import {
-  TIGHTEST, TakingsView, closer, extras, rushOver, shelfTonight, stallRows, takingsRows, type Fitting, type TakingsRow,
+  TIGHTEST, TakingsView, closer, extras, rushOver, shelfTonight, stallRows, type Fitting,
 } from '../src/ui/game/panels/SalesSummary';
+import { takingsRows, type TakingsRow } from '../src/ui/game/dayWords';
 import { tonightWord } from '../src/ui/game/tonight';
 
 // The day's takings (PLAN-085; the approved Takings board): the ledger's lines, the list of stalls, the favour card

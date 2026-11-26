@@ -187,6 +187,7 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
       onDone();
     })();
     return () => { alive = false; A.resetHurry(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- the stamps land once, as the results open (from the summary counted then)
   }, []);
 
   const base = stampsToReach(level);
@@ -343,6 +344,102 @@ function RewardBox({ fresh, sum, avatar, show }: { fresh: Look[]; sum: GameSumma
   );
 }
 
+/** The places at this table: every stall as a tile with its awning, portrait and cash, in finishing order. */
+function Podium({ s, owner, named, medals, lookOfSeat }: { s: GameState; owner: number; named: boolean; medals: string[]; lookOfSeat: (i: number) => LookSet | undefined }) {
+  const order = ranking(s);
+  const place = places(s);
+  const cols = order.length <= 4 ? order.length : 3;
+  return (
+    <ol class="jp-pods podium" style={{ '--n': cols }} aria-label="Places at this table">
+      {order.map((i) => {
+        const pl = s.players[i];
+        const look = lookOfSeat(i);
+        const sub = titleOf(look) ?? (pl.kind === 'ai' ? `${LEVEL_WORD[pl.level ?? 'normal']} computer` : '');
+        const you = i === owner && !named;
+        const name = you ? 'You' : pl.name;
+        return (
+          <li class={`jp-pod ${you ? 'me' : ''} ${place[i] === 1 ? 'first' : ''}`}
+            title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}`}>
+            <span class="jp-sr">{`${medals[i]}: ${name}${sub ? `, ${sub}` : ''}, $${pl.cash}`}</span>
+            <i class="jp-pl" aria-hidden="true">{place[i]}</i>
+            <Awning p={i} look={look} thin />
+            <span class="jp-pod-face" aria-hidden="true"><FramedFace who={shownAvatar(s.players, i)} size={place[i] === 1 ? 46 : 38} look={look} /></span>
+            <b class="jp-pod-nm" aria-hidden="true">{name}</b>
+            {look?.stamp && <span class="sbk-stamp" aria-hidden="true">Sold out</span>}
+            <strong class="jp-pod-cs" aria-hidden="true">${pl.cash}</strong>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/**
+ * The results' buttons, in words (PLAN-091, PLAN-113, PLAN-114, PLAN-118): the main button ("Rematch"; the Daily
+ * market's "Home", played once a day; a League stage's Next stage when it was cleared, else Retry; the Sprint's Try
+ * again), the line over it that says what it starts (online, the room's own line about who is waiting replaces it), and
+ * Retry's full name for a cleared League stage.
+ */
+export function resultsButtons(s: GameState, online: boolean, cleared: boolean): { main: string; what: string; retry: string } {
+  const league = s.config.league;
+  const sprint = !!s.config.sprint;
+  const retry = league !== undefined && league < LEAGUE.length ? `Retry stage ${league + 1}` : 'Retry';
+  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : retry) : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
+  const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? leagueNext(league, cleared) : 'Rematch: same stalls, same length, a new market';
+  return { main, what, retry };
+}
+
+/** Shares the result with the phone's share sheet; with none (a computer) the link is copied and `said` says whether
+ *  it was (REP-140 B-18). */
+async function shareResult(text: string, said: (words: string) => void): Promise<void> {
+  if (navigator.share) {
+    try { await navigator.share({ text, url: location.origin }); } catch { /* the share sheet was closed: nothing to say */ }
+    return;
+  }
+  said(await copyText(`${text} ${location.origin}`) ? LINK_COPIED : NOT_COPIED);
+}
+
+/** The game's last best customers not yet met, and the like: "Nearly there" (stamps.ts closeLines). */
+function nearlyThere(avatar: string | undefined): CloseLine[] {
+  const snap = snapshot();
+  const met = new Set(customersServed(snap));
+  return closeLines(snap, (k) => lookOf(k).title, CUSTOMER_CARDS.map((c) => c.name).filter((k) => !met.has(k)), avatar);
+}
+
+/** The headline and the line under it: who won, and by how much. PLAN-113: the headline says where you finished when
+ *  you did not win ("Kiki wins · You are 3rd"). `champSeat`: the stall the page celebrates. */
+export function resultsHead(s: GameState, owner: number, named: boolean, words: ReturnType<typeof finishWords>): { headline: string; margin: string; champSeat: number } {
+  const order = ranking(s);
+  const place = places(s);
+  const champSeat = words.win ? owner : order[0];
+  const second = order.length > 1 && !words.shared ? order[1] : -1;
+  const gap = second >= 0 ? s.players[champSeat].cash - s.players[second].cash : 0;
+  const margin = gap > 0 ? `By $${gap} over ${second === owner && !named ? 'you' : s.players[second].name}.` : words.margin;
+  const headline = words.win || named || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
+  return { headline, margin, champSeat };
+}
+
+/** The foot of the results: the line over the main button (`rematchNote`: online, the room's own line), the main button,
+ *  Share, a cleared League stage's Retry, Home, the reaction button, and what Share did. */
+function ResultsActs({ note, rematchNote, main, sent, onRematch, onShare, retry, onExit, react, said }: {
+  note: string; rematchNote: boolean; main: string; sent?: boolean; onRematch: () => void; onShare: () => void;
+  retry: { label: string; go: () => void } | null; onExit: (() => void) | null; react?: ComponentChildren; said: string | null;
+}) {
+  return (
+    <div class="sbk-acts jp-acts">
+      {rematchNote ? <p class="rematch-note"><b>{note}</b></p> : note && <p class="jp-what">{note}</p>}
+      <button class="sbk-btn jp-main" disabled={sent} onClick={onRematch}>{main}</button>
+      <div class="jp-two">
+        <button class="jp-sec" data-a="share" onClick={onShare}>Share</button>
+        {retry && <button class="jp-sec" data-a="stage-retry" onClick={retry.go} aria-label={retry.label}>Retry</button>}
+        {onExit && <button class="jp-sec" onClick={onExit}>Home</button>}
+        {react}
+      </div>
+      {said && <p class="jp-said" role="status" data-a="share-said">{said}</p>}
+    </div>
+  );
+}
+
 export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, rematchSent, online, onPlayAs, react, onSprint }: {
   s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean;
   /** PLAN-118: a Market League stage again, the same stage (offered beside Next stage when the stage was cleared). */
@@ -362,56 +459,31 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
   const [sum] = useState(() => finishGame(s, owner, !!online));
   // New looks are handed out after the game is counted, so a level reached or a tier earned counts too.
   const [newLooks] = useState(() => syncLooks());
-  const [close] = useState<CloseLine[]>(() => {
-    const snap = snapshot();
-    const met = new Set(customersServed(snap));
-    return closeLines(snap, (k) => lookOf(k).title, CUSTOMER_CARDS.map((c) => c.name).filter((k) => !met.has(k)), s.players[owner]?.avatar);
-  });
+  const [close] = useState<CloseLine[]>(() => nearlyThere(s.players[owner]?.avatar));
   const [landed, setLanded] = useState(!sum);
   const cleared = sum?.cleared ?? false;
   const order = ranking(s);
-  const place = places(s);
   // REP-140 B-14: Pass & Play names the players in the count (headline, margin, places, the deciding moment, share).
   const named = namedResults(s, online);
   const words = finishWords(s, owner, named);
-  const win = words.win;
-  const champSeat = win ? owner : order[0];
+  const { headline, margin, champSeat } = resultsHead(s, owner, named, words);
   const recap = gameRecap(s, owner);
   const league = s.config.league;
   // Offline, the person's stall shows what they have on now; online every stall shows what the room was told.
   const lookOfSeat = (i: number): LookSet | undefined => (!online && i === owner ? worn() : s.players[i].look);
-  const second = order.length > 1 && !words.shared ? order[1] : -1;
-  const gap = second >= 0 ? s.players[champSeat].cash - s.players[second].cash : 0;
-  const margin = gap > 0 ? `By $${gap} over ${second === owner && !named ? 'you' : s.players[second].name}.` : words.margin;
   const nudge = !online && !s.config.daily && league === undefined && onPlayAs ? close.find((c) => c.avatar && c.name) : undefined;
-  // PLAN-113: the headline says where you finished when you did not win ("Kiki wins · You are 3rd").
-  const headline = win || named || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
   const sprint = !!s.config.sprint;
   // REP-140 A-06: the mode's name is modes.ts's ("Sprint", "Market League, stage 3", "Online").
   const modeName = resultsLabel(s.config, !!online);
   const mode = modeName ? ` · ${modeName}` : '';
   // REP-140 B-18: with no share sheet (a computer), the link is copied and the page says so, or says it could not be.
   const [shareSaid, setShareSaid] = useState<string | null>(null);
-  const share = async () => {
-    const text = `Fruit Market: ${words.mine} with $${s.players[named ? champSeat : owner].cash} after ${s.config.days} days.`;
-    if (navigator.share) {
-      try { await navigator.share({ text, url: location.origin }); } catch { /* the share sheet was closed: nothing to say */ }
-      return;
-    }
-    setShareSaid(await copyText(`${text} ${location.origin}`) ? LINK_COPIED : NOT_COPIED);
-  };
+  const share = () => shareResult(`Fruit Market: ${words.mine} with $${s.players[named ? champSeat : owner].cash} after ${s.config.days} days.`, setShareSaid);
   // A tap on the page (not on a button) hurries the stamps.
   const hurry = (e: MouseEvent) => { if (!landed && !(e.target as Element).closest?.('button')) A.hurryUp(); };
-  // The board's words (PLAN-091): "Rematch"; and "Home" (the owner, 2026-11-13; the board said "Main menu"). The Daily market is played once a day, so its main button
-  // goes back to the main menu.
-  // PLAN-118: a League stage's results offer Retry for the same stage; Next stage comes first when it was cleared.
-  const retry = league !== undefined && league < LEAGUE.length ? `Retry stage ${league + 1}` : 'Retry';
-  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : retry) : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
-  // PLAN-113: one line over the big button says what it starts (online, the room's own line about who is waiting).
-  // PLAN-114: the Sprint's Try again plays the same Sprint from the start; the best score of the day counts.
-  const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? leagueNext(league, cleared) : 'Rematch: same stalls, same length, a new market';
+  // The board's words: "Rematch" and "Home" (the owner, 2026-11-13; the board said "Main menu").
+  const { main, what, retry } = resultsButtons(s, !!online, cleared);
   const myLook = lookOfSeat(owner);
-  const cols = order.length <= 4 ? order.length : 3;
   return (
     <section class="sbk sbk-res results jp-res" onClick={hurry}>
       <div class="sbk-in" style="flex: 1 0 auto">
@@ -426,27 +498,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
 
         {/* PLAN-123: the places at this table, apart from any board's (the Daily market and the Sprint have their own) */}
         {order.length > 1 && <span class="sbk-lab jp-pods-lab">Places at this table</span>}
-        <ol class="jp-pods podium" style={{ '--n': cols }} aria-label="Places at this table">
-          {order.map((i) => {
-            const pl = s.players[i];
-            const look = lookOfSeat(i);
-            const sub = titleOf(look) ?? (pl.kind === 'ai' ? `${LEVEL_WORD[pl.level ?? 'normal']} computer` : '');
-            const you = i === owner && !named;
-            const name = you ? 'You' : pl.name;
-            return (
-              <li class={`jp-pod ${you ? 'me' : ''} ${place[i] === 1 ? 'first' : ''}`}
-                title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}`}>
-                <span class="jp-sr">{`${words.medals[i]}: ${name}${sub ? `, ${sub}` : ''}, $${pl.cash}`}</span>
-                <i class="jp-pl" aria-hidden="true">{place[i]}</i>
-                <Awning p={i} look={look} thin />
-                <span class="jp-pod-face" aria-hidden="true"><FramedFace who={shownAvatar(s.players, i)} size={place[i] === 1 ? 46 : 38} look={look} /></span>
-                <b class="jp-pod-nm" aria-hidden="true">{name}</b>
-                {look?.stamp && <span class="sbk-stamp" aria-hidden="true">Sold out</span>}
-                <strong class="jp-pod-cs" aria-hidden="true">${pl.cash}</strong>
-              </li>
-            );
-          })}
-        </ol>
+        <Podium s={s} owner={owner} named={named} medals={words.medals} lookOfSeat={lookOfSeat} />
 
         {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
         {league !== undefined && cleared && onSprint && <button type="button" class="jp-sec jp-to-sprint" data-a="league-sprint" onClick={onSprint}>{LEAGUE_TO_SPRINT}</button>}
@@ -481,17 +533,8 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           )}
         </div>
 
-        <div class="sbk-acts jp-acts">
-          {rematchNote ? <p class="rematch-note"><b>{rematchNote}</b></p> : what && <p class="jp-what">{what}</p>}
-          <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
-          <div class="jp-two">
-            <button class="jp-sec" data-a="share" onClick={share}>Share</button>
-            {league !== undefined && cleared && onRetry && <button class="jp-sec" data-a="stage-retry" onClick={onRetry} aria-label={retry}>Retry</button>}
-            {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
-            {react}
-          </div>
-          {shareSaid && <p class="jp-said" role="status" data-a="share-said">{shareSaid}</p>}
-        </div>
+        <ResultsActs note={rematchNote || what} rematchNote={!!rematchNote} main={main} sent={rematchSent} onRematch={onRematch} onShare={share}
+          retry={league !== undefined && cleared && onRetry ? { label: retry, go: onRetry } : null} onExit={!s.config.daily || sprint ? onExit : null} react={react} said={shareSaid} />
       </div>
     </section>
   );

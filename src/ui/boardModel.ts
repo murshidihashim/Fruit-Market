@@ -1,7 +1,7 @@
 // Pure helpers for the table: how the market board and the stall chips are laid out.
 // Kept free of Preact so they can be unit-tested against the engine's rules.
 import {
-  FARMER_CARDS, FRUIT, FRUITS, ORDER_BOOK_BONUS, ORDER_CARDS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, slotLife, stageAt,
+  FARMER_CARDS, FRUIT, FRUITS, ORDER_BOOK_BONUS, ORDER_CARDS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, stageAt,
   type EventCard, type FarmerCard, type FruitId, type Stage, type Want,
 } from '../engine/data';
 import {
@@ -25,27 +25,13 @@ export function shownColumn(s: GameState, f: FruitId): Slot[] {
   return marketColumn(s, f).filter((c) => c.stage !== 'unripe' || deliveredGreen(f) || c.n > 0);
 }
 
-/** How long a fruit in this slot still has, in the words shown on its chip. */
-export function lifeLabel(f: FruitId, pos: number): string {
-  return slotLife(f, pos);
-}
-
 /** Fruit in the order of the table board's lanes: shortest life first (blueberry 3 days ... apple 6). Drawing order
  *  only: the engine's own order (FRUITS) is untouched. */
 export const LANES: FruitId[] = ['blueberry', 'watermelon', 'mango', 'apple'];
 
-/** A shop's stock as chips: one per filled slot, grouped by fruit, freshest first. */
-export function stockChips(stock: Record<FruitId, number[]>): { f: FruitId; chips: Slot[] }[] {
-  return FRUITS.map((f) => ({
-    f,
-    chips: stock[f].map((n, pos) => ({ pos, stage: stageAt(f, pos), n })).filter((c) => c.n > 0).reverse(),
-  }));
-}
-
 // ---------- demand vs supply ----------
 
 export interface Pulse { f: FruitId; demand: number; more: boolean; supply: number }
-export type Mood = 'none' | 'open' | 'good' | 'war';
 
 /**
  * Fruit customers want today vs ripe fruit sitting in all shops. `more`: a walk-in still face down may want more of
@@ -66,19 +52,6 @@ export function pulse(s: GameState): Pulse[] {
     return { f, demand, more: backs.some((c) => c.wants.some((w) => w.fruit === f)), supply };
   });
 }
-
-/** none: nobody wants it; open: wanted and nobody has it; good: enough orders; war: more stock than orders. */
-export function mood({ demand, supply }: Pulse): Mood {
-  return demand === 0 ? 'none' : supply === 0 ? 'open' : supply <= demand ? 'good' : 'war';
-}
-
-/**
- * The demand legend's words for each colour. The bar counts every order for the fruit, whoever's fruit they would take,
- * so it speaks of orders, not buyers.
- */
-export const MOOD_WORDS: Record<Exclude<Mood, 'none'>, string> = {
-  good: 'enough orders: prices stay high', war: 'more fruit than orders: price war', open: 'nobody has any yet',
-};
 
 export function wantText({ demand, more }: Pulse): string {
   return demand ? `${demand}${more ? '+' : ''}` : more ? '?' : '0';
@@ -211,14 +184,6 @@ export function orderWanted(s: GameState, p: number, f: FruitId): number {
   const o = orderDueFor(s, p);
   if (!o || o.fruit !== f) return 0;
   return s.players[p].stock[f].some((n, pos) => n > 0 && orderTakesPos(f, pos)) ? o.qty : 0;
-}
-
-/**
- * Pieces of this fruit wanted today from stall `p`: by customers who would buy at least one of yours, and (S2) on its
- * due day by the standing order `p` holds. What "Auto load" fills the crate up to.
- */
-export function stallWanted(s: GameState, p: number, f: FruitId): number {
-  return customersWanted(s, p, f) + orderWanted(s, p, f);
 }
 
 /**

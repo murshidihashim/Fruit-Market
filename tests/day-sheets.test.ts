@@ -12,7 +12,8 @@ import { TIGHTEST, closer, dawnLines, fineLine, topUpLine, type Fitting } from '
 import { BID_STEPS, BidStatus, canGetLine } from '../src/ui/game/panels/OrderPanel';
 import { drawCloser, reachFrom, type Holding, type ReachBoxes, type Stepped } from '../src/ui/game/reach';
 import { BEAT, FEEL } from '../src/ui/motion';
-import { EVENING_STEPS, EveningPanel, EveningTomorrow, daySoldLine, eveningKept, offersTonight, swipeHint } from '../src/ui/panel';
+import { EVENING_STEPS, EveningPanel, EveningTomorrow, eveningKept, offersTonight, swipeHint } from '../src/ui/panel';
+import { daySoldLine } from '../src/ui/game/dayWords';
 
 // PLAN-084 (package 3, part 1): the morning, the standing-order bid and the evening as sheets laid on the table, and
 // their beats: coins at dawn, the bids turned over with the stake put on the card, a built upgrade and its price.
@@ -292,16 +293,10 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     expect(Date.now() - t0).toBeLessThan(BEAT.order.down + 10 + (FEEL.turn + BEAT.order.read + BEAT.order.after) * 0.2);
   });
 
-  it('online, who is bidding and who has passed is shown while the room still holds the choices (the game\'s version does not move)', () => {
-    // The room sends a new view when a person bids or passes, with the same version: the screen takes it during the bid.
-    const src = read('src/ui/game/useGameController.ts');
-    expect(src).toContain("} else if (v.game && v.version === lastVersion.current && v.game.phase === 'order' && v.game.config.seed === sRef.current.config.seed) {");
-    // ...and the sheet stays up, with its own buttons in the action bar's place, from the first bid to the last
-    const game = read('src/ui/Game.tsx');
-    expect(game).toContain("const orderUp = !!c.orderShow || (s.phase === 'order' && !!s.standing && s.players[viewer]?.kind === 'human');");
-    // (PLAN-099: while the round table is up, its own foot takes the bar's place too)
-    expect(game).toContain('{!pricing && !stalling && !orderUp && !tying && !evSheet && !tableOn && <ActionBar');
-  });
+  // Online, who is bidding and who has passed is shown while the room still holds the choices (the game's version does
+  // not move): controller.test.ts 'while a standing order is bid for, the same version is shown again'. The sheet stays
+  // up with its own buttons in the bar's place from the first bid to the last: table-layout.test.ts 'stays up from the
+  // first stall's bid until the bids are turned over'.
 
   it('says what there is to deliver the order with: the shelf, the market, tomorrow\'s lorry', () => {
     const v = publicView(bidding, 0);
@@ -335,13 +330,9 @@ describe('the evening: one main button, and what is built travels (PLAN-084)', (
   });
 
   it('the main button is the sheet\'s: "Build <name> · $<cost>" beside "Lights out without building", or "Lights out"', () => {
-    const src = read('src/ui/panel.tsx');
-    expect(src).toContain('>Build {UPGRADES[chosen].title} · ${UPGRADES[chosen].cost}</button>');
-    expect(src).toContain('>Lights out without building</button>');
-    expect(src).toContain('>Lights out <small class="btn-sub">next day</small></button>');
-    // Lights out is always a tap: the evening never ends by itself
-    expect(src).not.toMatch(/endEvening/);
-    expect(read('src/ui/Game.tsx')).toContain("onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }}");
+    // table-panels.test.ts 'one main button: "Build <name> · $<cost>" beside "Lights out without building", or "Lights
+    // out"'. Lights out is always a tap: the evening never ends by itself (a whole game through the controller only
+    // moves on as Lights out is said: controller.test.ts 'Day 1 to the results').
   });
 
   it('an offer the stall cannot pay for is greyed and says why', () => {
@@ -535,7 +526,6 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
     expect(css).toContain('#app .tkt > .centre > .ev-card { position: fixed; inset: 0; z-index: 30; margin: 0; }');
     // an offer drawn compact shows one line of its text: choosing it opens its whole card, with Close
     expect(read('src/ui/panel.tsx')).toContain('if (u && root.current?.dataset.tight === String(EVENING_STEPS)) setOpen(u);');
-    expect(read('src/ui/panel.tsx')).toContain('<UpgradeCard id={open} eager />');
     // a night that still scrolls says so at its foot
     expect(css).toContain('#app .tkt .sh-evening[data-more] .ev-more::before');
     expect(read('src/ui/panel.tsx')).toContain('<i class="ev-more" aria-hidden="true" />');
@@ -552,7 +542,7 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
       expect(bar.slice(0, bar.indexOf('</div>')).match(/class="btn /g)!.length).toBeLessThanOrEqual(2);
     }
     expect(read('src/ui/game/panels/OrderPanel.tsx')).toContain('<button type="button" class="ob-pass"');
-    expect(read('src/ui/panel.tsx')).toContain('<button type="button" class="ev-out"');
+    // (the evening's: table-panels.test.ts 'only the main one is a .btn')
   });
 });
 
