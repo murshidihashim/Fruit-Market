@@ -434,7 +434,10 @@
 #app .tkt .rt-sheet > .pp-lock .btn {
   all: unset; box-sizing: border-box; height: 52px; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
   background: var(--tk-ink); color: var(--tk-yel); font: 400 1.1875rem/1 var(--tk-disp); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;
+  touch-action: manipulation; opacity: var(--go-press, 1);
 }
+/* PLAN-131: pressed, the moment a finger lands */
+.tkt .rt-sheet > .pp-lock .btn:active:not(:disabled) { --go-press: 0.8; }
 #app .tkt .rt-sheet > .pp-lock .btn small { all: unset; font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.08em; color: var(--tk-paper); }
 #app .tkt .rt-sheet > .pp-lock .btn:disabled { opacity: 0.45; cursor: default; }
 /* drawn closer: 1, less air and lower rows (40 px); 2, lower still (38 px) and a lower button; 3, the Favoured Trade
@@ -458,8 +461,11 @@
    is moved or redrawn. */
 #app .tkt .rt-sheet .ds-st {
   all: unset; flex: none; width: 40px; min-height: 40px; display: grid; place-items: center; cursor: pointer;
-  background: var(--tk-ink); color: var(--tk-yel); font: 400 1.25rem/1 var(--tk-disp); position: relative;
+  background: var(--st-bg, var(--tk-ink)); color: var(--st-fg, var(--tk-yel)); font: 400 1.25rem/1 var(--tk-disp); position: relative;
+  touch-action: manipulation;
 }
+/* PLAN-131: pressed, the moment a finger lands (the colours swap; nothing moves) */
+.tkt .rt-sheet .ds-st:active:not(:disabled) { --st-bg: var(--tk-yel); --st-fg: var(--tk-ink); }
 .tkt .rt-sheet .ds-st::before { content: ''; position: absolute; top: -2px; bottom: -2px; left: 0; right: 0; }
 .tkt .rt-sheet .ds-dial > .ds-st:first-child::before { left: -2px; }
 .tkt .rt-sheet .ds-dial > .ds-st:last-child::before { right: -2px; }

@@ -1,0 +1,54 @@
+{
+  "id": "PLAN-131",
+  "title": "Taps on iPhone: the price buttons answer every tap",
+  "problem": "On iPhone Safari the pricing sheet's buttons feel slow and sometimes miss a tap. Safari ignores the page's no-zoom setting and its unprefixed user-select, so a quick second tap is taken as a double tap (a zoom, or selecting the button's own sign) and no press is sent; the − and + also show no pressed look. A tap itself is cheap (about 20 ms with the processor slowed 4x), so the game's own work is not the cause.",
+  "scope": [
+    "Say on the whole page that a double tap is not a zoom (touch-action: manipulation), and on the − and + and Ring the bell themselves",
+    "Stop text being selected on iPhone (Safari's -webkit-user-select and no long-press call-out); boxes you type in stay selectable",
+    "A pressed look for the − and + of the prices and of the crate, and for Ring the bell, the moment a finger lands"
+  ],
+  "exclusions": [
+    "No change to the rules, the computer players, the online messages or saves",
+    "No new dependency",
+    "Not published: the preview and the live game change only on the owner's word"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": "To run"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks), with the new browser style check",
+      "result": "NOT RUN",
+      "evidence": "To run"
+    },
+    {
+      "id": "T3",
+      "text": "On an iPhone in Safari: ten quick taps on + and − change the price ten times, and the button shows pressed",
+      "result": "NOT RUN",
+      "evidence": "No Safari or iPhone is available in this session; for the owner on the preview"
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-27: \"the pricing button is laggy especially on iphone/safari, sometimes it doesnt register clicks, fix this\"",
+    "date": "2026-11-27"
+  },
+  "delivery": "in progress",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-138"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
