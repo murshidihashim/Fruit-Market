@@ -214,13 +214,6 @@ export const COLOURS: Colour[] = [
 /** A stall colour's hex by its id, or null. */
 export const colourHex = (id: string | undefined): string | null => COLOURS.find((x) => x.id === id)?.hex ?? null;
 
-/** Every stall colour is free for everyone. */
-export const colourUnlocked = (_c: Colour) => true;
-export const loadColour = (): string | null => {
-  const id = readJson<string | null>(COLOUR_KEY, null);
-  const c = COLOURS.find((x) => x.id === id);
-  return c && colourUnlocked(c) ? c.hex : null;
-};
 export const saveColour = (id: string) => writeJson(COLOUR_KEY, id);
 
 // ---------- things an account also keeps ----------
@@ -258,5 +251,5 @@ export function saveGranted(ids: unknown) {
 
 /** Forgets everything an account keeps on this device (used when signing out, so the next person starts fresh). */
 export function clearProgress() {
-  try { for (const k of [ACH_KEY, LADDER_KEY, COLOUR_KEY, LOOKS_KEY, WORN_KEY, SETS_KEY, COUNTS_KEY, GRANTED_KEY]) localStorage.removeItem(k); } catch { /* ignore */ }
+  try { for (const k of [ACH_KEY, LADDER_KEY, COLOUR_KEY, LOOKS_KEY, WORN_KEY, SETS_KEY, COUNTS_KEY, GRANTED_KEY]) localStorage.removeItem(k); } catch { /* storage blocked: nothing was kept on this device to forget */ }
 }

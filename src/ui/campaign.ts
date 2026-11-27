@@ -74,11 +74,28 @@ const noWaste = (g: GameState, me: number): boolean => (g.players[me]?.stats.spo
 /** First place (a shared first place counts, as it always has in the League). */
 const won = (g: GameState, me: number): boolean => winners(g).includes(me);
 const isOrder = (name: string): boolean => ORDER_CARDS.some((o) => o.name === name);
-/** The price this stall won a standing order at, from the game's log; null when it did not win one. */
-function orderWon(g: GameState, me: number, title: string): number | null {
-  const head = `${g.players[me]?.name} won the standing order for ${title} at $`;
-  const line = g.log.find((x) => x.startsWith(head));
-  return line ? Number.parseInt(line.slice(head.length), 10) : null;
+/**
+ * The seat that won a standing order (by its client's name and title) and its bid; null when nobody won it. REP-140
+ * C-03: decided by seat, never by name alone, so a player named like a rival is not given the rival's order. The log
+ * gives the bid and the winner's name; the order's own line in the history gives the holder's seat (rules 18: only the
+ * holder is offered the order, whenever it has any of the fruit out). With no such line, the name decides only when no
+ * other stall has it.
+ */
+function orderWinner(g: GameState, client: string, title: string): { seat: number; price: number } | null {
+  const tail = ` won the standing order for ${title} at $`;
+  const line = g.log.find((x) => x.includes(tail));
+  if (!line) return null;
+  const at = line.lastIndexOf(tail);
+  const price = Number.parseInt(line.slice(at + tail.length), 10);
+  const held = lines(g).find((l) => l.name === client && l.offers.length > 0);
+  const named = g.players.flatMap((p, i) => (p.name === line.slice(0, at) ? [i] : []));
+  const seat = held ? held.offers[0].player : named.length === 1 ? named[0] : -1;
+  return seat < 0 ? null : { seat, price };
+}
+/** The price this stall won a standing order at; null when it did not win it. */
+function orderWon(g: GameState, me: number, client: string, title: string): number | null {
+  const w = orderWinner(g, client, title);
+  return w && w.seat === me ? w.price : null;
 }
 /** This stall delivered every piece of a standing order (by its client's name). */
 const deliveredInFull = (g: GameState, me: number, name: string): boolean =>
@@ -166,7 +183,7 @@ const FIRST_SIX: Stage[] = [
       { id: 'ho_full', text: 'Deliver every piece of the order', met: (g, me) => deliveredInFull(g, me, RESORT) },
       // REP-133 A-05: $8, not $9: on the stage's set-up both rivals bid $9 and a tie goes to the poorer stall, so $9
       // could not be won. A goal change only.
-      { id: 'ho_bid', text: 'Win the order at $8 a piece or more', met: (g, me) => (orderWon(g, me, RESORT_TITLE) ?? 0) >= 8 },
+      { id: 'ho_bid', text: 'Win the order at $8 a piece or more', met: (g, me) => (orderWon(g, me, RESORT, RESORT_TITLE) ?? 0) >= 8 },
     ],
     retired: ['ho_win'],
   },
@@ -304,17 +321,20 @@ const NEXT_SIX: Stage[] = [
       { stars: ['rc_margin'], text: 'Won at a good price and delivered in full. That is a contract.' },
       { text: 'You delivered the order in full. Well played.' },
     ],
-    clear: { id: 'rc_clear', text: 'Deliver the whole order at $6 a piece or more', met: (g, me) => (orderWon(g, me, PIES_TITLE) ?? 0) >= 6 && deliveredInFull(g, me, PIES) },
+    clear: { id: 'rc_clear', text: 'Deliver the whole order at $6 a piece or more', met: (g, me) => (orderWon(g, me, PIES, PIES_TITLE) ?? 0) >= 6 && deliveredInFull(g, me, PIES) },
     mastery: [
-      { id: 'rc_margin', text: 'Win the order at $7 a piece or more', met: (g, me) => (orderWon(g, me, PIES_TITLE) ?? 0) >= 7 },
+      { id: 'rc_margin', text: 'Win the order at $7 a piece or more', met: (g, me) => (orderWon(g, me, PIES, PIES_TITLE) ?? 0) >= 7 },
       { id: 'rc_first', text: 'Finish first', met: won },
     ],
   },
   {
     title: 'Rescue the Stall', rivals: [{ idx: 4, level: 'normal' }, { idx: 7, level: 'normal' }], days: 4, seed: 15, marketDays: false,
+    // REP-140 C-01: the Soft piece is an apple, not a watermelon. On this seed no day-1 customer takes a Soft
+    // watermelon, so it always spoiled and "Let no fruit spoil" could not be met; Postman Pip (Bargain) takes a Soft
+    // apple on day 1. Still four pieces: a Soft apple, two Okay apples and an Okay watermelon.
     setup: {
       events: { 2: 'pasarMalam' }, off: SHORT, cash: [5, 16, 16],
-      shelf: [{ apple: [0, 2, 0, 0, 0, 0], watermelon: [1, 1, 0, 0] }],
+      shelf: [{ apple: [1, 2, 0, 0, 0, 0], watermelon: [0, 1, 0, 0] }],
     },
     lesson: 'Old stock first: sell what is about to spoil, and let the hawker take what nobody buys. Then rebuild.',
     pic: { kind: 'event', id: 'pasarMalam' },

@@ -1,0 +1,98 @@
+{
+  "id": "PLAN-130",
+  "title": "Audit fixes (REP-140): everything that needs no rule change",
+  "problem": "The audit of live 1.31.5 (REP-140) found one League star that can never be earned, start buttons below the fold, wrong words in Pass & Play and the online lobbies, small-phone and accessibility gaps, and code that is hard to change safely.",
+  "scope": [
+    "Player fixes: C-01 (stage 11's spoil star made possible by its starting stock), C-03 (order stars by seat, not name), C-05 (pre-1.2 saves get the older-rules notice), C-06 (rulebook example), B-01, B-02, B-04, B-05, B-07, B-12 to B-21",
+    "Accessibility and small phones: B-03, B-06, B-08, B-09, B-10, B-11",
+    "Cleanup with no player change: A-03, A-04, A-07, A-09, A-10, A-11 (records)",
+    "Foundations: A-01 (behaviour tests in place of source-text tests), A-02 (split the controller and the long screen functions), A-05 (merge the layered styles), A-06 (one source for mode names and keys), A-08 (load rarely used screens on demand), C-04 (a faster night)"
+  ],
+  "exclusions": [
+    "C-02, Nest Egg in the Sprint: a balance change to a mode the board replays; left for the owner's choice",
+    "No change to the game rules, RULES_VERSION, the computer players, the online messages or the save envelope; old saves keep loading",
+    "No new dependency",
+    "Not published: the preview and the live game change only on the owner's word"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "PASS",
+      "evidence": "On 6b24168: records OK, palette, lint (hook dependencies now an error everywhere), types, 1430 passed in 137 files, none skipped, build OK. Wave 1 alone (2e85c13): 1373 passed."
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "FAIL",
+      "evidence": "On 6b24168 every step passed (solo playthrough with the new table, layout and style checks; League; Pass & Play; online with a leaver; public room; Quick Match of 2 and 4; Sprint; four players; reconnect 5 cycles), leaks 0. Only the performance budget failed on this shared machine (longest task 307 and 236 ms against 200; the game screen opened in 254 ms against 350). The build before wave 2 failed it here in 8 of 9 runs today (up to 488 ms); CI, where it normally passes at about 63 ms, decides it on the preview."
+    },
+    {
+      "id": "T3",
+      "text": "Each REP-140 finding in scope checked on screen or by a test at 390x844, 360x640 and 320x568",
+      "result": "PASS",
+      "evidence": "Wave 1 helpers' before and after screens at the three sizes and 1280 (session evidence p130/P and p130/X), a keyboard-only game, and new tests (league-stars, home-flow, online-words, results-pass-play, share, name-limit, a11y-130, stage-words, worker-routes, app-parts). What is still open is listed in REP-141 section 4."
+    },
+    {
+      "id": "T4",
+      "text": "Stage 11's 'Let no fruit spoil' met in computer test games, and no other star lost",
+      "result": "PASS",
+      "evidence": "Met in 63% of test games (0% before); stage clear rates unchanged; tests/league-stars.test.ts"
+    },
+    {
+      "id": "T5",
+      "text": "Style merge and code split: screens unchanged against the visual baseline",
+      "result": "PASS",
+      "evidence": "Helpers' pixel comparisons (T1 235 game moments, at most 9 px of picture noise; T2 21 menu screens 0.00%; S 1,089 screens, noise only). An independent random walk through the game (48 new walks, 100 steps each, at 320, 360, 390 and 1280) compared every element's drawn style and box with the build before wave 2: no differences after the fixes, apart from margins with identical boxes and Rush timing (Rush length measured equal, within 25 ms). The walk first found 4 style changes and 1 focus change, all fixed. Engine: 814 seeded games give identical states and logs; every animation call in a whole game is the same."
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-26, after REP-140: \"fix everything which doesnt require a rule change\"",
+    "date": "2026-11-26"
+  },
+  "delivery": "implemented",
+  "release": "1.32.0",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-140",
+    "REP-141"
+  ],
+  "decisions": [
+    "DEC-137"
+  ],
+  "changes": {
+    "added": [
+      "In-game menu: Fast play, Reduced motion and How to play",
+      "Keyboard focus rings and keyboard play throughout the game; customer cards open from the keyboard and have spoken names",
+      "Link copied / Could not copy after sharing"
+    ],
+    "changed": [
+      "Start and Next buttons stay in view on the Sprint and Daily intros, the League and How to play",
+      "On the smallest phones the table fits the screen and only the market scrolls; tips no longer cover buttons",
+      "Larger small text and higher contrast",
+      "Quick Match and Private Room explain when computers join; Pass & Play results name the players",
+      "Continue goes straight back in; New game asks Keep my game or Start over",
+      "Home needs about 30% less script before it shows; the game and rarely used pages load in the background",
+      "A signed-in player's saved name is tidied the same way as in online rooms (one space between words, wide letters made plain)"
+    ],
+    "fixed": [
+      "League stage 11's 'Let no fruit spoil' star can be earned (it could not before), so the 42-star trophy can be won",
+      "An order star goes to the right seat when a player shares a rival shopkeeper's name",
+      "A save from before version 1.2 shows the older-rules notice",
+      "How to play's sale example matches the rulebook (Hadi Hammer)",
+      "The sales pop-up fits at 320 wide; the event pop-up is solid; long event names wrap; long names wrap"
+    ],
+    "removed": [
+      "The switched-off guided first sale and other unused code and styles"
+    ]
+  },
+  "playerNotes": [
+    "League stage 11's 'Let no fruit spoil' star can now be earned, so every trophy can be won",
+    "Start and Next buttons stay on screen on small phones; the table fits the smallest phones",
+    "Fast play, Reduced motion and How to play are in the in-game menu",
+    "Better for keyboards and screen readers: focus rings, customer cards you can open, larger text and stronger contrast",
+    "Clearer words in Quick Match, Private Room and Pass & Play results",
+    "Less to download before Home appears: the game and rarely used pages load in the background"
+  ]
+}

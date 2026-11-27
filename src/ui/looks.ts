@@ -4,18 +4,33 @@
 // or granted by the server; `syncLooks` hands out any that are owed, so it also works for players who earned trophies
 // before a look existed.
 import { CHARACTER_AVATARS } from '../engine/data';
+import type { GameConfig } from '../engine/game';
 import { tierById } from './achievements';
 import { colourHex, colourId, loadGranted, loadLooks, loadWorn, saveColour, saveLooks, saveWorn, snapshot } from './progress';
 import { placeOf } from './stamps';
-import { LOOKS, colourOf, lookById, partsOf, slotIsPublic, stallOf, type Look, type LookSet, type Slot } from '../net/looks';
+import { LOOKS, colourOf, lookById, partsOf, slotIsPublic, type Look, type LookSet, type Slot } from '../net/looks';
 import type { Snapshot } from './achievements';
 
 export { LOOKS, SLOTS, lookById, type Look, type LookKind, type Slot } from '../net/looks';
 
+/** REP-140 A-06: the shopkeeper chosen last is kept under this key, read and written only here. */
+const AVATAR_KEY = 'fm.avatar';
+
+/** The shopkeeper key kept on this phone, as it was kept ('' when there is none, or storage is blocked). */
+export const storedAvatar = (): string => {
+  try { return localStorage.getItem(AVATAR_KEY) ?? ''; } catch { return ''; }
+};
+
 /** The shopkeeper this phone's player last chose (the first one until they choose). */
 export const myAvatar = (): string => {
-  try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
+  const a = storedAvatar();
+  return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0];
 };
+
+/** Keeps the shopkeeper just chosen (a set-up, an online room or an account), so Home and the next game show it. */
+export function saveAvatar(avatar: string): void {
+  try { localStorage.setItem(AVATAR_KEY, avatar); } catch { /* storage blocked: the shopkeeper is not remembered for next time */ }
+}
 
 /**
  * The picture shown for a seat. In the Daily market and the Market League the person has no shopkeeper (the perk is
@@ -29,6 +44,13 @@ export function shownAvatar(players: { avatar: string; kind: string }[], seat: n
   const mine = myAvatar();
   return !taken.has(mine) ? mine : CHARACTER_AVATARS.find((a) => !taken.has(a)) ?? mine;
 }
+
+/**
+ * REP-140 B-04: the picture a game set-up will show for a seat at the table (shownAvatar on the set-up's own players),
+ * so a Home card or an intro shows the face you get in the game, never a rival's.
+ */
+export const setupAvatar = (cfg: Pick<GameConfig, 'players'>, seat = 0): string =>
+  shownAvatar(cfg.players.map((p) => ({ avatar: p.avatar ?? '', kind: p.kind })), seat);
 
 /** The awning colour a player chose, as a colour value, or null when they chose none (the seat's colour then shows). */
 export const chosenColour = (look: LookSet | undefined): string | null => colourHex(colourOf(look));
@@ -110,4 +132,3 @@ export function toggleLook(id: string): LookSet {
 
 /** Shopkeeper pieces on show, as names the portrait painter knows. */
 export const wornParts = (w: LookSet = worn()): string[] => partsOf(w);
-export const wornStall = (w: LookSet = worn()): { roof?: string; trim?: string; prop?: string } => stallOf(w);

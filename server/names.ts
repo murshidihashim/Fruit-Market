@@ -1,7 +1,7 @@
 // Player-name policy for anything other people can see (online rooms, the daily leaderboard).
 // Names are cleaned, then checked against a small blocklist and a list of reserved names.
 // The lists are deliberately short; extend them as reports come in.
-import { NAME_MAX } from '../src/net/protocol';
+import { tidyName } from '../src/net/nameText';
 
 /** Fragments that are never innocent, so they're blocked anywhere in a name ("xXshitXx"). */
 const BLOCKED_ANYWHERE = ['fuck', 'shit', 'cunt', 'nigg', 'whore', 'slut', 'porn', 'bitch', 'asshole', 'retard', 'hitler', 'killyourself', 'motherf'];
@@ -27,12 +27,9 @@ export function squash(name: string): string {
     .replace(/[^a-z]/g, '');
 }
 
-/** Strips control characters and markup, trims, and limits the length. */
-export function tidy(raw: unknown): string {
-  if (typeof raw !== 'string') return '';
-  // eslint-disable-next-line no-control-regex -- stripping control characters on purpose
-  return raw.normalize('NFKC').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
-}
+/** Strips control characters and markup, trims, and limits the length. REP-140 A-06: the one cleaning the phone uses
+ *  too (src/net/nameText.ts). */
+export const tidy = tidyName;
 
 /** Why a name isn't allowed, or null if it's fine. */
 export function nameProblem(name: string): string | null {

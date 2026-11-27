@@ -89,11 +89,6 @@ export function tileArt(deck: DeckId): string {
   return `${BASE}tiles/${TILE_FILES[deck]}.svg`;
 }
 
-/** Any character's picture: a customer, a guest or a shopkeeper (by avatar key). Null when no art exists. */
-export function characterArt(who: string): string | null {
-  return customerArt(who) ?? guestArt(who) ?? shopBadge(who);
-}
-
 // ---------- focus points ----------
 // Where the subject is in each picture, as percentages of its width and height. A frame narrower or flatter than the
 // picture is cropped round this point (CSS object-position), so the face or the subject stays in view. Checked in

@@ -1,16 +1,13 @@
 // PLAN-113: the price practice on the Quick match wait. A small puzzle on this phone only (nothing goes to the room):
 // one real customer card, one line of it, and one rival stall's price. The answer follows the rush's own buying rule
 // (RULES.md, "The bell" and "The rush"): a customer buys from the cheapest offer that is fresh enough for its price,
-// and pays at most the card price for Fresh, $1 less for Okay and $2 less for Soft. Your pieces are always Fresh here,
+// and pays at most the card price for Fresh, less for Okay and Soft (stageWords.ts stageLess, from the engine's data:
+// $1 and $2 under rules 20). Your pieces are always Fresh here,
 // so the right price is the highest one that is still the cheapest fresh-enough offer. A tie is never the answer: who
 // wins a tie depends on the pieces' age, the Haggler and the buying order, which the puzzle does not show.
-import { CUSTOMER_CARDS, FRUIT, RIVALS, acceptsStage, lookOf, prefOf, type FruitId, type Pref, type Stage } from '../engine/data';
+import { CUSTOMER_CARDS, FRUIT, RIVALS, acceptsStage, lookOf, prefOf, type FruitId, type Pref } from '../engine/data';
 import { TIE_ORDER } from './rulesText';
-
-export type Ripe = Exclude<Stage, 'unripe'>;
-/** Dollars off the card price at each freshness (the same for every fruit: FRUIT[f].drop). */
-export const STAGE_OFF: Record<Ripe, number> = { fresh: 0, okay: 1, notso: 2 };
-export const STAGE_WORD: Record<Ripe, string> = { fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
+import { STAGE_WORD, stageLess, type Ripe } from './stageWords';
 
 /** What the rival stall shows in the puzzle. */
 export type Kind = 'over' | 'undercut' | 'fresh';
@@ -30,14 +27,14 @@ export interface PracticeRound {
   answer: number;
 }
 
-/** The most this customer pays for a piece at this freshness, or -1 if they will not take it at all. */
-export function topPrice(pref: Pref, max: number, stage: Ripe): number {
-  return acceptsStage(pref, stage) ? max - STAGE_OFF[stage] : -1;
+/** The most this customer pays for a piece of fruit `f` at this freshness, or -1 if they will not take it at all. */
+export function topPrice(pref: Pref, max: number, stage: Ripe, f: FruitId): number {
+  return acceptsStage(pref, stage) ? max - stageLess(stage, f) : -1;
 }
 
 /** Would the customer buy this offer at all (fresh enough, and at or under the top price for its freshness)? */
-export function sells(pref: Pref, max: number, stage: Ripe, price: number): boolean {
-  return price >= 1 && price <= topPrice(pref, max, stage);
+export function sells(pref: Pref, max: number, stage: Ripe, price: number, f: FruitId): boolean {
+  return price >= 1 && price <= topPrice(pref, max, stage, f);
 }
 
 /** The puzzle numbered `n` (any whole number: the wait shows 0, 1, 2 …). `mine` is your shopkeeper, who is never the
@@ -65,7 +62,7 @@ export function practiceRound(n: number, mine = ''): PracticeRound {
     else { stage = 'okay'; price = max; }
     if (price < 1) { kind = 'over'; stage = 'fresh'; price = max + 1; }
   }
-  const answer = sells(pref, max, stage, price) ? price - 1 : max;
+  const answer = sells(pref, max, stage, price, line.fruit) ? price - 1 : max;
   const options = kind === 'undercut' ? [answer - 1, answer, price] : [answer - 1, answer, answer + 1];
   return { who: card.name, fruit: line.fruit, qty: line.qty, max, pref, rival: { name: rv.name, avatar: rv.avatar, price, stage }, kind, options, answer };
 }
@@ -83,7 +80,7 @@ export function practiceQuestion(r: PracticeRound): string {
 export function practiceVerdict(r: PracticeRound, price: number): { right: boolean; text: string } {
   const name = lookOf(r.who).title;
   const rv = r.rival;
-  const rivalSells = sells(r.pref, r.max, rv.stage, rv.price);
+  const rivalSells = sells(r.pref, r.max, rv.stage, rv.price, r.fruit);
   if (price > r.max) return { right: false, text: `$${price} is over ${name}'s top price of $${r.max}. No sale.` };
   if (rivalSells && price > rv.price) return { right: false, text: `${rv.name}'s $${rv.price} is cheaper, so ${name} buys there first.` };
   if (rivalSells && price === rv.price) {
@@ -96,7 +93,7 @@ export function practiceVerdict(r: PracticeRound, price: number): { right: boole
   return {
     right: true,
     text: acceptsStage(r.pref, rv.stage)
-      ? `Right. An ${STAGE_WORD[rv.stage]} piece sells for $${topPrice(r.pref, r.max, rv.stage)} at most, so ${rv.name} cannot sell at $${rv.price}. $${r.max} sells.`
+      ? `Right. An ${STAGE_WORD[rv.stage]} piece sells for $${topPrice(r.pref, r.max, rv.stage, r.fruit)} at most, so ${rv.name} cannot sell at $${rv.price}. $${r.max} sells.`
       : `Right. ${name} will not take ${STAGE_WORD[rv.stage]} fruit, so ${rv.name} cannot sell. $${r.max} sells.`,
   };
 }

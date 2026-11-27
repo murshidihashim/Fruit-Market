@@ -1,7 +1,7 @@
 // Anonymous usage counters and crash lines, sent to our own server in small batches.
 // No IDs, names or device details: only event names like "game_end:win" and short error messages.
 // Players can switch it off in Settings ("Share anonymous stats").
-import { anySave, loadSettings } from '../ui/store';
+import { anySave, hasStats, loadSettings } from '../ui/store';
 import { serverBase } from './client';
 import { activeBucket, dayKey, daysBetween, isoWeek } from './cohort';
 
@@ -28,7 +28,7 @@ export function trackOnce(key: string, name: string, detail?: string | number) {
   try { sent = JSON.parse(localStorage.getItem('fm.sent') ?? '[]') as string[]; } catch { /* start fresh */ }
   if (sent.includes(key)) return;
   sent.push(key);
-  try { localStorage.setItem('fm.sent', JSON.stringify(sent.slice(-200))); } catch { /* ignore */ }
+  try { localStorage.setItem('fm.sent', JSON.stringify(sent.slice(-200))); } catch { /* storage full or blocked: the event may be counted again on a later visit */ }
   track(name, detail);
 }
 
@@ -40,7 +40,7 @@ export function trackCohort(today = dayKey()) {
   try {
     let install = localStorage.getItem('fm.install');
     if (!install) {
-      const veteran = localStorage.getItem('fm.stats') !== null || anySave(); // PLAN-120: a save in any mode's slot, or the old single save
+      const veteran = hasStats() || anySave(); // PLAN-120: a save in any mode's slot, or the old single save
       install = veteran ? 'legacy' : today;
       localStorage.setItem('fm.install', install);
       if (!veteran) track('install_week', isoWeek(today));
@@ -72,6 +72,7 @@ export function flush() {
   const blob = new Blob([body], { type: 'text/plain' });
   try {
     if (typeof navigator !== 'undefined' && navigator.sendBeacon?.(url, blob)) return;
+    // The counts are best effort: a send that fails (offline, blocked) is dropped.
     void fetch(url, { method: 'POST', body: blob, keepalive: true }).catch(() => {});
   } catch { /* offline: drop it */ }
 }

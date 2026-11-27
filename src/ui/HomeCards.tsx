@@ -24,12 +24,13 @@ import { CardZoom } from './cardZoom';
 import { LEAGUE, picName, stageByNo, stageStars, starGoals } from './campaign';
 import { FruitSvg } from './fruitIcons';
 import { Icon, PropSprite, RoofBand } from './icons';
-import { myAvatar, worn } from './looks';
+import { myAvatar, setupAvatar, worn } from './looks';
 import { crateUrl } from './marketArt';
 import { C } from './palette';
-import { nextTrophy } from './League';
+import { nextTrophy } from './leagueTrophy';
 import { MODE_REASON, WAYS, leagueEcho } from './playMenu';
-import { leagueStage, myStars } from './progress';
+import { HOME_MODES, type HomeMode } from './modes';
+import { leagueConfig, leagueStage, myStars } from './progress';
 import { stageGoal, stageRivals } from './progressView';
 import { waitingGame, type WaitingGame } from './paused';
 import { FramedFace, PriceTag, myColour, shownAvatar, stallName } from './stampCard';
@@ -112,14 +113,10 @@ export function YourStall({ next, buttons }: { next: string | null; buttons: Sta
 
 /* ---------- the modes: the tabs, the remembered choice ---------- */
 
-/** PLAN-124: the four modes of the Market tab, each with its save slot (Custom match is the "play" slot). */
-export type HomeMode = 'custom' | 'league' | 'daily' | 'sprint';
-export const MODES: { id: HomeMode; slot: SaveSlot; tab: string; name: string }[] = [
-  { id: 'custom', slot: 'play', tab: 'Custom', name: 'Custom match' },
-  { id: 'league', slot: 'league', tab: 'League', name: 'Market League' },
-  { id: 'daily', slot: 'daily', tab: 'Daily', name: 'Daily market' },
-  { id: 'sprint', slot: 'sprint', tab: 'Sprint', name: 'Sprint' },
-];
+/** PLAN-124: the four modes of the Market tab, each with its save slot (Custom match is the "play" slot); their names
+ *  are modes.ts's (REP-140 A-06). */
+export const MODES = HOME_MODES;
+export type { HomeMode };
 const MODE_KEY = 'fm.homeMode';
 const isMode = (v: unknown): v is HomeMode => MODES.some((m) => m.id === v);
 /** The tab chosen in this visit (it outlives Home while another screen is open). */
@@ -279,7 +276,7 @@ function LeagueCard() {
       <div class="jh-lgpic">
         <CardArt class="jh-lgart" src={picSrc(st.pic)} alt={picName(st.pic)} w={300} h={170} eager />
         <span class="jh-lgvs" aria-hidden="true">
-          <FramedFace who={myAvatar()} size={28} look={worn()} /><i>vs</i>
+          <FramedFace who={setupAvatar(leagueConfig(sel, '', ''))} size={28} look={worn()} /><i>vs</i>
           {stageRivals(st).map((r) => <span class="jh-round"><Face who={r.avatar} size={24} /></span>)}
         </span>
       </div>
@@ -300,7 +297,8 @@ export function useDailyBoard(today: string): BoardResult | null {
 
 /** The first morning of a Daily-style game: its first customer as a small card that opens whole on a tap, and the lorry. */
 function FirstMorning({ cfg, children }: { cfg: GameConfig; children: ComponentChildren }) {
-  const first = useMemo(() => newGame(cfg), [cfg.seed, cfg.daily, cfg.sprint]);
+  // The card's set-up is made once a day by its card (DailyCard, SprintCard), so the first morning is too.
+  const first = useMemo(() => newGame(cfg), [cfg]);
   const who = firstCustomer(first);
   const e = first.event;
   return (
@@ -319,7 +317,7 @@ function FirstMorning({ cfg, children }: { cfg: GameConfig; children: ComponentC
 function DayRivals({ cfg }: { cfg: GameConfig }) {
   return (
     <span class="jh-vs jh-dvs" role="img" aria-label={rivalsLine(cfg)}>
-      <span class="jh-me"><FramedFace who={myAvatar()} size={44} look={worn()} /></span><i>vs</i>
+      <span class="jh-me"><FramedFace who={setupAvatar(cfg)} size={44} look={worn()} /></span><i>vs</i>
       {cfg.players.filter((pl) => pl.kind === 'ai').map((pl) => <span class="jh-round"><Face who={pl.avatar ?? ''} size={36} /></span>)}
     </span>
   );
@@ -377,9 +375,10 @@ export function HeroCard(p: HeroProps & { mode: HomeMode }) {
 /**
  * PLAN-124: the one big button for the chosen mode. Play opens the mode's own start (the Play page, the League screen,
  * the Daily intro or the Sprint intro); with a game of that mode waiting it is Continue, with the mode, day and cash
- * under it, and a smaller New game beside it goes where Play would. Each keeps the mode's `data-a` hook.
+ * under it, and a smaller New game beside it. Each keeps the mode's `data-a` hook. REP-140 B-20: Continue goes straight
+ * into the game; New game first asks, as starting over ends the waiting game (`onNew`), then goes where Play would.
  */
-export function PlayButton({ mode, games, onPlay, onContinue }: { mode: HomeMode; games: Partial<Record<SaveSlot, GameState>>; onPlay: () => void; onContinue: (slot: SaveSlot) => void }) {
+export function PlayButton({ mode, games, onPlay, onContinue, onNew }: { mode: HomeMode; games: Partial<Record<SaveSlot, GameState>>; onPlay: () => void; onContinue: (slot: SaveSlot) => void; onNew: (slot: SaveSlot) => void }) {
   const m = MODES.find((x) => x.id === mode)!;
   const w = waitingGame(games[m.slot] ?? null);
   const hook = m.slot;
@@ -389,7 +388,7 @@ export function PlayButton({ mode, games, onPlay, onContinue }: { mode: HomeMode
       <button class="jh-go jh-cont" data-a={`continue-${m.slot}`} onClick={() => onContinue(m.slot)}>
         <PlayIcon /><span><b>Continue</b><small>{continueWords(w)}</small></span>
       </button>
-      <button class="jh-new" data-a={hook} aria-label={`New game, ${m.name}`} onClick={onPlay}>New game</button>
+      <button class="jh-new" data-a={hook} aria-label={`New game, ${m.name}`} onClick={() => onNew(m.slot)}>New game</button>
     </div>
   );
 }

@@ -13,7 +13,7 @@ import { Gazette, TradingCard } from './cards';
 import { CardZoom } from './cardZoom';
 import { firstCustomer, rivalsLine, shortDate } from './dailyCard';
 import { PlayIcon, useDailyBoard, waitWords } from './HomeCards';
-import { myAvatar, worn } from './looks';
+import { setupAvatar, worn } from './looks';
 import { MODE_REASON, leagueEcho } from './playMenu';
 import { leagueStage } from './progress';
 import { waitingGame } from './paused';
@@ -22,6 +22,7 @@ import { bestLine, useSprintBoards } from './Sprint';
 import { loadSprintBest } from './sprintStore';
 import { loadDaily } from './store';
 import './home-cards.css';
+import { kindName } from './modes';
 
 export type DailyKind = 'daily' | 'sprint';
 
@@ -49,7 +50,7 @@ export function introWords(kind: DailyKind, today: string): { title: string; len
   const twist = dailyTwist(today);
   if (kind === 'sprint') {
     return {
-      title: 'Sprint', length: `${cfg.days} days · ${stalls} stalls`,
+      title: kindName('sprint'), length: `${cfg.days} days · ${stalls} stalls`,
       // PLAN-123 (preview finding 7): the perk you pick changes your start (Nest Egg is $5 more), so the words say what is
       // the same for everyone: the market and the perks on offer; and that "no twist" still has the regular event cards.
       goal: `A short market: end ${cfg.days} days with the most cash. Everyone gets the same market today and the same perks to pick from.`,
@@ -59,7 +60,7 @@ export function introWords(kind: DailyKind, today: string): { title: string; len
     };
   }
   return {
-    title: 'Daily market', length: `${cfg.days} days · ${stalls} stalls`,
+    title: kindName('daily'), length: `${cfg.days} days · ${stalls} stalls`,
     goal: `The same market for everyone today: the same customers, lorry and events. End ${cfg.days} days with the most cash.`,
     how: [`${cfg.days} days, ${stalls} stalls. ${rivalsLine(cfg)}`, `Today's twist: ${twist.title}. ${twist.text}`],
     score: ['Ranked by final cash, then by fruit sold.', 'Your best today counts on today\'s board.'],
@@ -68,8 +69,8 @@ export function introWords(kind: DailyKind, today: string): { title: string; len
 }
 
 export function DailyIntro(p: DailyIntroProps) {
-  const cfg = p.kind === 'sprint' ? sprintConfig(p.today, 'You') : dailyConfig(p.today, 'You');
-  const first = useMemo(() => newGame(cfg), [p.kind, p.today]);
+  const cfg = useMemo(() => (p.kind === 'sprint' ? sprintConfig(p.today, 'You') : dailyConfig(p.today, 'You')), [p.kind, p.today]);
+  const first = useMemo(() => newGame(cfg), [cfg]);
   const who = firstCustomer(first);
   const e = first.event;
   const words = introWords(p.kind, p.today);
@@ -106,7 +107,7 @@ export function DailyIntro(p: DailyIntroProps) {
                 <span class="jh-iwho">{who ? lookOf(who.name).title : e ? e.title : ''}</span>
                 <span class="jh-lb">Your rivals</span>
                 <span class="jh-ifaces">
-                  <FramedFace who={myAvatar()} size={34} look={worn()} /><i aria-hidden="true">vs</i>
+                  <FramedFace who={setupAvatar(cfg)} size={34} look={worn()} /><i aria-hidden="true">vs</i>
                   {rivals.map((r) => <span class="jh-round" title={r.name}><Face who={r.avatar ?? ''} size={34} /></span>)}
                 </span>
                 {mine && <span class="jh-imine">{mine}</span>}
@@ -119,16 +120,17 @@ export function DailyIntro(p: DailyIntroProps) {
             <div><span class="jh-lb">Retries</span><p>{words.retry}</p></div>
           </section>
           <div class="jh-igo">
-            {w ? (
-              <>
-                <button class="jp-go" data-a="intro-continue" onClick={p.onContinue}><PlayIcon /><span class="ji-cont">Continue<small>{waitWords(w)}</small></span></button>
-                <button class="jh-go2 jh-c2" data-a="intro-start" onClick={p.onStart}>Start again</button>
-              </>
-            ) : <button class="jp-go" data-a="intro-start" onClick={p.onStart}><PlayIcon />Start</button>}
+            {w && <button class="jh-go2 jh-c2" data-a="intro-start" onClick={p.onStart}>Start again</button>}
             <button class="jh-go2 jh-c2" onClick={p.onBack}>Back</button>
           </div>
         </div>
       </main>
+      {/* REP-140 B-01: the main action stays at the foot of the screen, in view without scrolling */}
+      <footer class="jp-foot">
+        {w
+          ? <button class="jp-go" data-a="intro-continue" onClick={p.onContinue}><PlayIcon /><span class="ji-cont">Continue<small>{waitWords(w)}</small></span></button>
+          : <button class="jp-go" data-a="intro-start" onClick={p.onStart}><PlayIcon />Start</button>}
+      </footer>
     </div>
   );
 }

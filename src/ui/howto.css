@@ -2,28 +2,31 @@
    and above Home's bottom bar), drawn with the table's own pieces. Colours from the palette (exchange.css --x-...,
    styles.css --fresh/--okay/--notso/--unripe). Wider rows (cards, upgrades) scroll inside themselves. */
 
-/* the frame: the page list across the top, a tight slide, Back and Next */
-.howto .ht-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 8px; margin: 0; scrollbar-width: none; }
+/* the frame: the page list across the top, a tight slide, Back and Next. REP-140 B-01 and B-16: the page list and Back /
+   Next sit outside the scrolling slide, so both stay in view on every page at every size. */
+.howto .ht-tabs {
+  flex: none; display: flex; gap: 6px; overflow-x: auto; margin: 0 auto; width: 100%; max-width: 560px; box-sizing: border-box; scrollbar-width: none;
+  padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
+}
+.howto .ht-foot { flex: none; border-top: 2px solid var(--x-ink); background: var(--x-cream); }
+.howto.tk-page .ht-foot .row2 {
+  margin: 0 auto; max-width: 560px; box-sizing: border-box; padding: 8px max(14px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+}
 .howto .ht-tabs::-webkit-scrollbar { display: none; }
 .howto .ht-tabs button {
   flex: none; min-height: 32px; padding: 0 10px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink);
   box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer;
 }
 .howto .ht-tabs button.on { background: var(--x-ink); color: var(--x-mustard); }
-#app .howto.tk-page .slide { padding: 12px 14px; }
-#app .howto.tk-page .slide h2 { margin: 0 0 6px; font-size: 1.375rem; }
 #app .howto.tk-page .slide > p { margin: 0 0 8px; font-size: 0.9375rem; line-height: 1.4; }
-#app .howto.tk-page .row2 { margin-top: 10px; }
 
 .howto .ht-h3 { margin: 10px 0 6px; padding-bottom: 4px; border-bottom: 2px solid var(--x-ink); font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-ink); }
 .howto .ht-btn { min-height: 38px; padding: 0 12px; font-size: 0.8125rem; }
-#app .howto.tk-page .btn.ht-btn-s { min-height: 28px; padding: 0 8px; font-size: 0.6875rem; letter-spacing: 0.04em; }
 #app .howto.tk-page .slide > .ht-small { font-size: 0.8125rem; color: var(--x-slate); }
 /* styles.css sets every <b> on this page in ink; on a card a <b> takes its block's own colour (a customer card's price
    tag is mustard on ink) */
 .howto .cd b:not(.cd-tag), .howto .tkc b { color: inherit; }
 /* ticket-ui.css greys every <small> on a page; on a card a <small> keeps its block's colour */
-#app .howto.tk-page .cd small, #app .howto.tk-page .tkc small { color: inherit; }
 .howto .cd-tag { color: var(--x-mustard); }
 
 /* a freshness letter and a piece */
@@ -86,7 +89,7 @@
 .ht-turn.on { box-shadow: inset 0 0 0 3px var(--x-ink), 0 0 0 3px var(--x-mustard); transform: translateY(-2px); }
 .ht-turn.on .ht-turn-pic img { filter: none; }
 .ht-turn.on > b { background: var(--x-mustard); }
-#app .howto.tk-page .slide .ht-turns > .ht-turn-say { margin: 0; min-height: 2.7em; font-size: 0.8125rem; line-height: 1.35; }
+.howto.tk-page .slide .ht-turns > .ht-turn-say { margin: 0; min-height: 2.7em; font-size: 0.8125rem; line-height: 1.35; }
 #app .howto.tk-page .slide > .ht-length { margin: 10px 0 0; font-weight: 700; text-align: center; }
 
 /* ---------- 2 fruit and freshness: the Wholesale Market board, freshest box at the top ---------- */
@@ -187,7 +190,7 @@
 
 /* ---------- lorry and event: two rows of cards to swipe ---------- */
 .ht-swipe-s { margin-bottom: 0; padding-bottom: 4px; }
-#app .howto.tk-page .slide > h2 + .ht-h3 { margin-top: 2px; }
+.howto.tk-page .slide > h2 + .ht-h3 { margin-top: 2px; }
 #app .howto.tk-page .slide > .ht-h3 + .ht-small { margin-bottom: 6px; line-height: 1.35; }
 .ht-swipe-s .ht-swipe-c { --card-w: 110px; }
 
@@ -226,7 +229,6 @@
 .ht-go { display: block; width: 100%; margin: 8px 0 0; }
 
 /* the (i) at a page's top right, and the cards it and the fruit lanes open */
-#app .howto.tk-page .slide { position: relative; }
 .howto .ht-info {
   position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
   background: var(--x-mustard); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 italic 1rem/1 var(--f-label);
@@ -244,7 +246,6 @@
 .ht-fruitcard tbody th { display: flex; align-items: center; gap: 5px; font-weight: 700; }
 .ht-fruitcard td { font-variant-numeric: tabular-nums; }
 .ht-fruitcard footer { margin: 0 12px; padding: 6px 8px; background: var(--x-cream); font: 700 0.8125rem/1.35 var(--f-label); }
-.ht-infocard .ht-accept { margin: 0 12px; width: calc(100% - 24px); }
 .ht-lane-ico { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--x-paper); box-shadow: inset 0 0 0 1.5px var(--x-ink); }
-.ht-infocard .ht-accept { table-layout: auto; font-size: 0.6875rem; }
+.ht-infocard .ht-accept { margin: 0 12px; width: calc(100% - 24px); table-layout: auto; font-size: 0.6875rem; }
 .ht-infocard .ht-accept th, .ht-infocard .ht-accept td { padding: 6px 4px; }

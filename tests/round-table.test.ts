@@ -3,7 +3,6 @@
 // open clockwise from this stall's, the Favoured Trade question is asked in the middle, the rush starts at the same
 // table, the pricing sheet leaves every seat in view, and the hand-over hides the last person's crate.
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { aiActFor } from '../src/engine/ai';
 import { RIVALS } from '../src/engine/data';
@@ -13,10 +12,10 @@ import { toStaticHtml } from '../src/ui/cards';
 import { dayStep, type DayNow } from '../src/ui/game/daySheet';
 import { PreView, RushView } from '../src/ui/game/panels/RushTable';
 import { LOWEST_CRATE, TABLE, middleOf, rushCards, seatOrder, tableLay, tableMin, type Place } from '../src/ui/game/rush';
-import { crateFit, preTable, tableSeats, type PreFacts, type TableFacts, type TableSeat, type TableStep } from '../src/ui/game/tableNow';
+import { afterRush, crateFit, preTable, tableSeats, type PreFacts, type TableFacts, type TableSeat, type TableStep } from '../src/ui/game/tableNow';
 import { holdRush, releaseRush } from '../src/ui/rushShown';
+import { HandOver } from '../src/ui/game/panels/HandOver';
 
-const read = (f: string) => readFileSync(f, 'utf8');
 
 /** A game of `n` stalls (seat 0 a person, played here by the computer) up to the first state `stop` accepts. */
 function play(n: number, seed: number, stop: (s: GameState) => boolean): GameState {
@@ -210,10 +209,8 @@ describe('the rush starts at the same table', () => {
     // the bell is still drawn, going, and the bell's tags fade where the rush's tag for the fruit wanted will show
     expect(first).toContain('<div class="rt-bell " aria-hidden="true">');
     expect(first).toContain('class="rt-tags fade');
-    // one element all through: the round table is drawn by one section, before the rush and in it
-    const src = read('src/ui/game/panels/RushTable.tsx');
-    expect(src.match(/<section /g)).toHaveLength(1);
-    expect(src).toContain("const first = !!a && a.n === 1 && a.stage === 'in';");
+    // one element all through, before the rush and in it: scripts/smoke.cjs with scripts/table-checks.cjs ("the round table was drawn
+    // again as a new element")
   });
 
   it('after the last customer the crates stay, with what is left in them, until the takings', () => {
@@ -221,7 +218,12 @@ describe('the rush starts at the same table', () => {
     const p = preTable(v, 0, pre('bell', { left: v.players.map(() => ({})) }));
     expect(p.after).toBe(true);
     expect(p.seats.every((x) => x.look === 'open' && x.pieces.length === 0 && x.tags.length === 0)).toBe(true);
-    expect(read('src/ui/game/panels/RushTable.tsx')).toContain("const after = !a && step === 'bell' && s.phase === 'reveal' && rushedOn.current === s.day;");
+    // when the round table shows it: after the rush has been played today, at the bell's step, with no customer up
+    expect(afterRush(false, 'bell', v, v.day)).toBe(true);
+    expect(afterRush(true, 'bell', v, v.day)).toBe(false);
+    expect(afterRush(false, 'bell', v, v.day - 1)).toBe(false);
+    expect(afterRush(false, 'tie', v, v.day)).toBe(false);
+    expect(afterRush(false, 'bell', { ...v, phase: 'evening' }, v.day)).toBe(false);
   });
 });
 
@@ -260,6 +262,12 @@ describe('the pricing sheet leaves every seat in view', () => {
   });
 });
 
+/** Two people at one phone, at the stocking step. */
+function handOverGame(): GameState {
+  const s = newGame({ players: [0, 1].map((i) => ({ name: RIVALS[i].name, kind: 'human' as const, avatar: RIVALS[i].avatar })), days: 8, unripe: true, upgrades: true, events: true, seed: 4 });
+  return { ...s, phase: 'buy' };
+}
+
 describe('the hand-over hides the last person\'s crate', () => {
   const now = (x: Partial<DayNow>): DayNow => ({ phase: 'stall', busy: false, myTurn: false, opened: false, mine: true, bell: null, rung: false, rush: false, done: false, ...x });
 
@@ -269,12 +277,12 @@ describe('the hand-over hides the last person\'s crate', () => {
         expect(dayStep(now({ phase, myTurn, busy, opened, mine: false }))).toBeNull();
       }
     }
-    const game = read('src/ui/Game.tsx');
-    const handoff = game.slice(game.indexOf('if (c.needHandoff) {'), game.indexOf("if (s.phase === 'over') {"));
-    expect(handoff).toContain('tableWas.current = false;');
-    expect(handoff).not.toMatch(/RushTable|DaySheet|rt-crate/);
-    expect(handoff).toContain('return (');
+    // the hand-over screen is the whole screen, and holds nothing of the table (no crate, no price tag)
+    const s = handOverGame();
+    const html = toStaticHtml(h(HandOver, { s, p: 1, mine: null, onTap: () => {} }));
+    expect(html.startsWith('<div class="handoff">')).toBe(true);
+    expect(html).not.toMatch(/rt-crate|rush-table|sh-day|rt-tg|\$\d/);
     // the table is drawn for the person who holds the phone: the next person's own crate only once they have taken it
-    expect(read('src/ui/game/useGameController.ts')).toContain('if (!online && activeHuman && (!multi || handedTo === active)) lastViewer.current = active;');
+    // (controller.test.ts 'the table stays drawn for the person holding the phone until it is handed on')
   });
 });

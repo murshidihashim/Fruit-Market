@@ -32,22 +32,8 @@
 }
 #app .tkt > .rush-table.leaving { pointer-events: none; animation: rt-out calc(var(--mk, 1) * var(--t-sheet-out)) cubic-bezier(0.4, 0, 1, 1) both; }
 /* a very short screen, where the table scrolls (styles.css): the stage fills the screen, so its buttons stay in reach */
-@media (max-height: 639px) and (max-width: 899px), (max-height: 559px) {
+@media (max-height: 479px), (min-width: 900px) and (max-height: 559px) {
   #app .tkt > .rush-table { position: fixed; max-width: 520px; margin: 0 auto; }
-}
-
-/* ---------- the customer row stays at the top, above the table ---------- */
-#app .tkt:has(> .rush-table) > .street-wrap { position: relative; z-index: 9; }
-
-/* ---------- the customer's place in the row: they are at the stalls ---------- */
-#app .tkt .street > .cust.rush-away { visibility: visible; }
-#app .tkt .street > .cust.rush-away > * { visibility: hidden; }
-#app .tkt .street > .cust.rush-away::after {
-  content: var(--rt-at, "") "\A at the stalls"; white-space: pre-line;
-  /* PLAN-123: drawn, not read aloud: the table itself is announced as "The rush: customer 1 of 2" (it was said twice) */
-  content: var(--rt-at, "") "\A at the stalls" / "";
-  position: absolute; inset: 0; display: grid; place-items: center; padding: 4px; text-align: center;
-  border: 2px dashed var(--x-lamp-off); color: var(--tk-slate); font: 800 0.5rem/1.3 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
 }
 
 /* ---------- the stage ---------- */
@@ -58,7 +44,7 @@
 #app .tkt .rt-to line.first { stroke-width: 3.5; stroke-dasharray: none; }
 /* the lines show once the tags have turned to the customer's fruit, and fade as the customer leaves */
 #app .tkt .rt-to { animation: rt-in calc(var(--mk, 1) * var(--t-rush-rows)) ease both; }
-#app .tkt .rush-table.st-in .rt-to { visibility: hidden; }
+.tkt .rush-table.st-in .rt-to { visibility: hidden; }
 #app .tkt .rush-table.st-out .rt-to { opacity: 0; transition: opacity calc(var(--mk, 1) * var(--t-sheet-out)) ease; }
 
 /* ---------- the customer in the middle ---------- */
@@ -70,7 +56,7 @@
 /* the number (or "Guest", "Standing order") and the name run on as one line of words, two at most */
 #app .tkt .rt-hd {
   flex: none; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; padding: 5px 6px 0; border-bottom: 5px solid var(--tk-ink);
-  background: var(--tk-ink); color: var(--tk-paper); font: 800 0.5625rem/1.15 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase;
+  background: var(--tk-ink); color: var(--tk-paper); font: 800 0.6875rem/1.15 var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase;
 }
 #app .tkt .rt-hd b { margin-right: 4px; color: var(--tk-yel); }
 #app .tkt .rt-pic { flex: none; height: 84px; overflow: hidden; border-bottom: 2px solid var(--tk-ink); background: var(--tk-tint); }
@@ -89,15 +75,15 @@
 #app .tkt .rt-dots.many i { width: 8px; height: 8px; border-width: 1px; }
 #app .tkt .rt-max { flex: none; margin-left: auto; font: 400 0.9375rem/1 var(--tk-disp); white-space: nowrap; }
 #app .tkt .rt-w.done .rt-max { opacity: 0.4; }
-#app .tkt .rt-w.done::after { content: '✓'; flex: none; width: 12px; text-align: center; font: 800 0.8125rem/1 var(--tk-txt); color: var(--c-0e9a58); }
+.tkt .rt-w.done::after { content: '✓'; flex: none; width: 12px; text-align: center; font: 800 0.8125rem/1 var(--tk-txt); color: var(--c-0e9a58); }
 #app .tkt .rt-ft {
   flex: none; display: flex; align-items: center; gap: 3px; padding: 3px 6px 5px; color: var(--tk-slate);
-  font: 800 0.5rem/1.15 var(--tk-txt); letter-spacing: 0.03em; text-transform: uppercase;
+  font: 800 0.6875rem/1.15 var(--tk-txt); letter-spacing: 0; text-transform: uppercase;
 }
 #app .tkt .rt-ft span { min-width: 0; margin-left: 2px; }
 #app .tkt .rt-lamp {
-  flex: none; width: 12px; height: 12px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); font: 800 0.5rem/1 var(--tk-txt);
+  flex: none; width: 14px; height: 14px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); font: 800 0.6875rem/1 var(--tk-txt);
 }
 #app .tkt .rt-lamp.off { background: none; color: var(--c-6b6f7a); box-shadow: inset 0 0 0 1px var(--c-6b6f7a); }
 
@@ -110,9 +96,14 @@
     width calc(var(--mk, 1) * var(--t-table-glide)) cubic-bezier(.3, 0, .2, 1), height calc(var(--mk, 1) * var(--t-table-glide)) cubic-bezier(.3, 0, .2, 1);
 }
 #app .tkt .rt-crate > .tb-awn { margin: 0; }
-#app .tkt .rt-who { flex: none; display: flex; align-items: center; gap: 4px; min-width: 0; padding: 2px 5px 0; font: 800 0.5625rem/1 var(--tk-txt); white-space: nowrap; }
+#app .tkt .rt-who { flex: none; display: flex; align-items: center; gap: 4px; min-width: 0; padding: 2px 5px 0; font: 800 0.6875rem/1 var(--tk-txt); white-space: nowrap; }
 #app .tkt .rt-who .xf { flex: none; box-shadow: 0 0 0 1.5px var(--tk-ink); }
-#app .tkt .rt-who b { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* REP-140 B-17: a name too long for one line takes two beside the face (two lines are no taller than the face), so
+   "Uncle Benny" reads in full at six stalls instead of "Uncle Be…" */
+#app .tkt .rt-who b {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; white-space: normal;
+}
 /* the crate: every piece the stall has out, five to a row, each with its freshness letter; "+3" for those not drawn.
    A piece leaves as a customer takes it. While a fruit is being bought the crate's other fruit is greyed. */
 #app .tkt .rt-box {
@@ -127,8 +118,8 @@
   position: absolute; right: 0; bottom: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--tk-paper);
   box-shadow: inset 0 0 0 1px var(--tk-ink); color: var(--tk-ink); font: 800 0.34375rem/8px var(--tk-txt); text-align: center;
 }
-#app .tkt .rt-box em { display: grid; place-items: center; font: 800 0.5rem/1 var(--tk-txt); }
-#app .tkt .rt-empty { grid-column: 1 / -1; color: var(--tk-slate); font: 800 0.5rem/14px var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
+#app .tkt .rt-box em { display: grid; place-items: center; font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: -0.02em; }
+#app .tkt .rt-empty { grid-column: 1 / -1; color: var(--tk-slate); font: 800 0.6875rem/14px var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase; }
 /* the price tag for the fruit being bought, and what became of the offer or why it cannot sell beside it */
 #app .tkt .rt-tagrow { flex: none; height: 25px; display: flex; align-items: center; gap: 4px; padding: 0 4px 2px; animation: rt-in calc(var(--mk, 1) * var(--t-rush-rows)) ease both; }
 /* the price tag, cut like the printed game's tag: its outline is drawn round the cut shape, point included */
@@ -143,19 +134,23 @@
 /* up to two lines (a tie's reason is the longest) */
 #app .tkt .rt-say {
   flex: 1 1 auto; min-width: 0; max-height: 100%; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
-  color: var(--tk-slate); font: 800 0.5rem/1.15 var(--tk-txt); letter-spacing: 0.01em; text-transform: uppercase;
+  color: var(--tk-slate); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0;
 }
 #app .tkt .rt-badge {
   position: absolute; top: -11px; right: -8px; z-index: 2; padding: 4px 5px; background: var(--tk-ink); color: var(--tk-yel);
-  font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
+  font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase;
 }
 /* the crate that sells first; one that cannot sell to this customer (over their price, a freshness they will not take);
    one without the fruit, or not in a standing order */
 #app .tkt .rt-crate.first { background: var(--tk-yel); box-shadow: 0 0 0 3px var(--tk-yel), 0 0 0 5px var(--tk-ink); }
 #app .tkt .rt-crate.first .rt-say { color: var(--tk-ink); }
-#app .tkt .rt-crate.over { opacity: 0.55; }
+/* B-11 (PLAN-130): such a crate fades its awning, face and pieces, as before; its words (the name, its price, why it
+   cannot sell, "Empty") keep 4.5:1 or more (fading the whole crate took them to 1.9:1). Its price is grey. */
+#app .tkt .rt-crate:is(.over, .none, .off) > .tb-awn, #app .tkt .rt-crate:is(.over, .none, .off) > .rt-who .xf, #app .tkt .rt-crate:is(.over, .none, .off) > .rt-box > :not(.rt-empty, .dim) {
+  opacity: 0.5; transition: opacity calc(var(--mk, 1) * var(--t-rush-rows)) ease;
+}
 #app .tkt .rt-crate.over .rt-tag { color: var(--c-6b6f7a); }
-#app .tkt .rt-crate.none, #app .tkt .rt-crate.off { opacity: 0.45; border-style: dashed; }
+#app .tkt .rt-crate.none, #app .tkt .rt-crate.off { border-style: dashed; border-color: var(--tk-slate); }
 /* what a stall was paid, as its first coin lands: in the corner where its place in the line was */
 #app .tkt .rt-plus {
   position: absolute; top: -11px; right: -8px; z-index: 3; padding: 3px 5px; border: 2px solid var(--tk-ink);
@@ -200,19 +195,19 @@
 #app .tkt .rush-table.close .rt-w { height: 22px; }
 #app .tkt .rush-table.close .rt-dots i { width: 9px; height: 9px; }
 #app .tkt .rush-table.close .rt-dots.many i { width: 7px; height: 7px; }
+/* !important: an awning carries its height in its own style attribute (icons.tsx RoofBand), which only !important outranks */
 #app .tkt .rush-table.close .rt-crate > .tb-awn { height: 5px !important; }
-#app .tkt .rush-table.close .rt-who { padding-top: 1px; font-size: 0.5625rem; }
+#app .tkt .rush-table.close .rt-who { padding-top: 1px; font-size: 0.6875rem; }
 #app .tkt .rush-table.close .rt-tagrow { height: 22px; }
-#app .tkt .rush-table.close .rt-tag { padding-top: 3px; padding-bottom: 3px; }
 /* the marks stay clear of the customer between the columns */
 #app .tkt .rush-table.close .rt-badge { top: -8px; right: -3px; }
 #app .tkt .rush-table.close .rt-plus { top: -8px; right: -3px; }
-#app .tkt .rush-table.close .rt-tag { font-size: 0.8125rem; }
+#app .tkt .rush-table.close .rt-tag { padding-top: 3px; padding-bottom: 3px; font-size: 0.8125rem; }
 /* A short screen: the result line and the buttons a little smaller. Set by the screen's height and not by the close
    form, because the stage's own size decides that form: the line and the buttons must not change the stage's size. */
 @media (max-height: 700px) {
   #app .tkt .rt-line { height: 70px; margin-top: 4px; font-size: 0.6875rem; }
-  #app .tkt .rt-line.long { font-size: 0.625rem; }
+  #app .tkt .rt-line.long { font-size: 0.6875rem; }
   #app .tkt .rt-foot { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
   #app .tkt .rt-foot button, #app .tkt .rt-foot > .rt-room, #app .tkt .rt-foot > .rt-hint { height: 48px; min-height: 48px; }
 }
@@ -244,13 +239,13 @@
 }
 #app .tkt .rt-word {
   position: absolute; top: -8px; right: 4px; z-index: 3; padding: 3px 5px 2px; background: var(--tk-ink); color: var(--tk-yel);
-  font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; pointer-events: none;
+  font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; pointer-events: none;
   transition: opacity calc(var(--mk, 1) * var(--t-bell-lid)) ease, transform calc(var(--mk, 1) * var(--t-bell-lid)) cubic-bezier(.4, 0, 1, 1);
   /* a new word ("filling…" to "ready", "3 out" to "pricing…" to "sealed") fades in where the last one stood */
   animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease backwards;
 }
 #app .tkt .rt-word.busy { color: var(--tk-paper); }
-#app .tkt .rt-word.off { opacity: 0; transform: translateY(-8px); }
+.tkt .rt-word.off { opacity: 0; transform: translateY(-8px); }
 #app .tkt .rt-crate.me { background: var(--tk-tint); }
 
 /* ---------- price tags on a crate: every fruit's tag before the rush ----------
@@ -272,13 +267,13 @@
 #app .tkt .rt-tgf b { font: inherit; }
 /* face down: the tag's back, the same size as its face */
 #app .tkt .rt-tg.down .rt-tgf { background: var(--tk-ink) repeating-linear-gradient(135deg, transparent 0 3px, var(--x-ink-2) 3px 6px); }
-#app .tkt .rt-tg.down .x-fruit { opacity: 0; }
+.tkt .rt-tg.down .x-fruit { opacity: 0; }
 #app .tkt .rt-tgb { display: block; width: 14px; }
 /* a price another stall asks too is marked; Favoured Trade played on it stamps it (the stamp waits until the card lands) */
 #app .tkt .rt-tg.tie .rt-tgf { background: var(--tk-yel); }
-#app .tkt .rt-tg .ds-stamp { right: -8px; top: -11px; width: 16px; height: 16px; font-size: 0.4375rem; }
+#app .tkt .rt-tg .ds-stamp { right: -9px; top: -12px; width: 20px; height: 20px; font-size: 0.6875rem; letter-spacing: -0.04em; }
 #app .tkt .rt-tags.small { gap: 3px; }
-#app .tkt .rt-tags.small .rt-tgf { height: 15px; padding: 0 3px 0 7px; clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font-size: 0.625rem; }
+#app .tkt .rt-tags.small .rt-tgf { height: 15px; padding: 0 3px 0 7px; clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font-size: 0.6875rem; }
 #app .tkt .rt-tags.small .rt-tgf .x-fruit { width: 9px; height: 9px; }
 #app .tkt .rt-tags.small .rt-tgb { width: 12px; }
 /* as the first customer comes in, the tags of the bell fade; the tag for the fruit being bought shows in its place */
@@ -288,6 +283,7 @@
    One line under its face and name: its squares or pieces; a crate with price tags (your own while you price) has its
    pieces beside its name and its tags in that line. */
 #app .tkt .rt-crate.low { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto minmax(0, 1fr); }
+/* !important: an awning carries its height in its own style attribute (icons.tsx RoofBand), which only !important outranks */
 #app .tkt .rt-crate.low > .tb-awn { grid-column: 1 / -1; height: 5px !important; }
 #app .tkt .rt-crate.low > .rt-who { grid-column: 1; grid-row: 2; padding-top: 1px; }
 #app .tkt .rt-crate.low > .rt-box {
@@ -306,7 +302,12 @@
 #app .tkt .rt-crate[data-fit] .rt-pc i { width: 7px; height: 7px; font-size: 0.3125rem; line-height: 7px; }
 #app .tkt .rt-crate[data-fit] .rt-pc.back .rt-sq { width: 12px; height: 12px; }
 #app .tkt .rt-crate[data-fit] .rt-tags { gap: 2px 3px; padding-bottom: 2px; }
-#app .tkt .rt-crate[data-fit] .rt-tgf { height: 15px; padding: 0 3px 0 7px; clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font-size: 0.625rem; }
+#app .tkt .rt-crate[data-fit] .rt-tgf { height: 15px; padding: 0 3px 0 7px; clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font-size: 0.6875rem; }
+.tkt .rt-tg.tg-chalk:not(.down) .rt-tgf { outline: 1px dashed var(--c-1f272a); outline-offset: -3px; }
+.tkt .rt-tg.tg-star:not(.down) .rt-tgf { outline: 3px double var(--c-1f272a); outline-offset: -4px; }
+.tkt .rt-tg.tg-hand:not(.down) .rt-tgf {
+  border-radius: 0 4px 2px 0 / 0 2px 4px 0; box-shadow: inset 0 -2px 0 var(--c-1f272a);
+}
 #app .tkt .rt-crate[data-fit] .rt-tgf .x-fruit { width: 9px; height: 9px; }
 #app .tkt .rt-crate[data-fit='2'] .rt-box { grid-template-columns: repeat(auto-fill, 12px); grid-auto-rows: 12px; }
 #app .tkt .rt-crate[data-fit='2'] .rt-pc { width: 12px; height: 12px; }
@@ -344,36 +345,36 @@
 }
 #app .tkt .rt-ask .ds-tie-kind {
   flex: none; display: flex; flex-direction: column; gap: 3px; padding: 5px 7px; background: var(--tk-ink); color: var(--tk-paper);
-  font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase;
+  font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase;
 }
-#app .tkt .rt-ask .ds-tie-kind b { color: var(--tk-yel); font-size: 0.5625rem; }
+#app .tkt .rt-ask .ds-tie-kind b { color: var(--tk-yel); font-size: 0.6875rem; }
 #app .tkt .rt-ask .ds-tie-kind span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #app .tkt .rt-ask .ds-tie-body { display: flex; flex-direction: column; gap: 5px; padding: 6px 7px 7px; }
 #app .tkt .rt-ask .ds-tie-ttl { font: 400 0.8125rem/1.1 var(--tk-disp); text-transform: uppercase; }
-#app .tkt .rt-ask .ds-tie-line { display: flex; flex-direction: column; gap: 2px; padding: 4px 6px; background: var(--tk-kraft); font: 600 0.625rem/1.25 var(--tk-txt); }
+#app .tkt .rt-ask .ds-tie-line { display: flex; flex-direction: column; gap: 2px; padding: 4px 6px; background: var(--tk-kraft); font: 600 0.6875rem/1.25 var(--tk-txt); }
 #app .tkt .rt-ask .ds-tie-line.with { background: var(--tk-yel); }
-#app .tkt .rt-ask .ds-tie-line .ds-lab { font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
-#app .tkt .rt-ask .ds-tie-foot { margin: 0; color: var(--tk-slate); font: 600 0.5625rem/1.25 var(--tk-txt); }
+#app .tkt .rt-ask .ds-tie-line .ds-lab { font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; }
+#app .tkt .rt-ask .ds-tie-foot { margin: 0; color: var(--tk-slate); font: 600 0.6875rem/1.25 var(--tk-txt); }
 #app .tkt .rt-ask .ds-tie.theirs .ds-tie-foot { color: var(--tk-ink); font: 800 0.6875rem/1.2 var(--tk-txt); }
 /* the card's picture, as on mock-up A; not where the middle is narrow or the screen short */
-#app .tkt .rt-ask .ds-tie-art { flex: none; height: 54px; overflow: hidden; border-bottom: 2px solid var(--tk-ink); background: var(--tk-tint); }
+.tkt .rt-ask .ds-tie-art { flex: none; height: 54px; overflow: hidden; border-bottom: 2px solid var(--tk-ink); background: var(--tk-tint); }
 #app .tkt .rt-ask .ds-tie-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
-#app .tkt .rush-table.close .rt-ask .ds-tie-art { display: none; }
+.tkt .rush-table.close .rt-ask .ds-tie-art { display: none; }
 @media (max-height: 700px) {
   #app .tkt .rt-ask .ds-tie-art { display: none; }
 }
 /* a narrow middle (the close form on a small phone): the card's heading in one line, its small print goes */
-#app .tkt .rush-table.close .rt-ask .ds-tie.mine .ds-tie-foot { display: none; }
+.tkt .rush-table.close .rt-ask .ds-tie.mine .ds-tie-foot { display: none; }
 #app .tkt .rush-table.close .rt-ask .ds-tie-kind span { display: none; }
 #app .tkt .rush-table.close .rt-ask .ds-tie-body { gap: 4px; padding: 5px 6px 6px; }
 #app .tkt .rush-table.close .rt-ask .ds-tie-ttl { font-size: 0.75rem; }
 #app .tkt .rush-table.close .rt-ask .ds-tie-line { padding: 3px 5px; }
 
 /* ---------- the line under the table before the rush: the bell, or why a tied stall sells first ---------- */
-#app .tkt .rt-line .rt-bellsay { display: flex; align-items: center; gap: 10px; min-width: 0; animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
-#app .tkt .rt-line .rt-bellhead { display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
+.tkt .rt-line .rt-bellsay { display: flex; align-items: center; gap: 10px; min-width: 0; animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
+.tkt .rt-line .rt-bellhead { display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
 #app .tkt .rt-line .rt-bellhead svg { flex: none; }
-#app .tkt .rt-line .rt-why { animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
+.tkt .rt-line .rt-why { animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
 
 /* ---------- the foot before the rush: what the table waits for, or the asked stall's two buttons ---------- */
 #app .tkt .rt-foot > .rt-hint {
@@ -381,11 +382,11 @@
   color: var(--tk-slate); font: italic 400 0.875rem/1.2 var(--tk-txt); animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both;
 }
 #app .tkt .rt-foot > .ds-tie-lock { all: unset; flex: 1 1 auto; display: flex; flex-direction: row-reverse; gap: 6px; animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
-#app .tkt .rt-foot > .ds-tie-lock .btn {
+.tkt .rt-foot > .ds-tie-lock .btn {
   all: unset; box-sizing: border-box; flex: 1 1 0; height: 52px; display: grid; place-items: center; cursor: pointer; text-transform: uppercase;
   background: var(--tk-ink); color: var(--tk-yel); font: 400 1rem/1 var(--tk-disp); letter-spacing: 0.04em;
 }
-#app .tkt .rt-foot > .ds-tie-lock .btn.ghost { border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); }
+.tkt .rt-foot > .ds-tie-lock .btn.ghost { border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); }
 @media (max-height: 700px) {
   #app .tkt .rt-foot > .ds-tie-lock .btn, #app .tkt .rt-foot > .rt-hint { height: 48px; }
 }
@@ -403,11 +404,10 @@
   transition: transform calc(var(--mk, 1) * var(--t-sheet-out)) cubic-bezier(.4, 0, 1, 1);
 }
 @keyframes rt-sheet-in { from { transform: translateY(100%); } }
-#app .tkt .rt-sheet.gone { transform: translateY(100%); pointer-events: none; }
+.tkt .rt-sheet.gone { transform: translateY(100%); pointer-events: none; }
 #app .tkt .rt-sheet .ps-in { display: flex; flex-direction: column; gap: 5px; min-height: 0; flex: 0 1 auto; }
 #app .tkt .rt-sheet .ps-head { flex: none; display: flex; align-items: baseline; gap: 8px; color: var(--tk-slate); font: 600 0.6875rem/1 var(--tk-txt); }
 #app .tkt .rt-sheet .ps-head .ds-lab { color: var(--tk-ink); }
-#app .tkt .rt-sheet .ps-head .pp-info { align-self: center; margin-right: auto; width: 18px; height: 18px; font-size: 0.6875rem; }
 #app .tkt .rt-sheet .ps-rows { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 5px; overflow-y: auto; scrollbar-width: none; }
 #app .tkt .rt-sheet .ps-row { flex: none; display: flex; align-items: stretch; min-height: 44px; border: 2px solid var(--tk-ink); background: var(--tk-paper); }
 #app .tkt .rt-sheet .ps-info {
@@ -415,14 +415,13 @@
   font: 600 0.6875rem/1.15 var(--tk-txt);
 }
 #app .tkt .rt-sheet .ps-info .x-fruit { display: block; flex: none; }
-#app .tkt .rt-sheet .ps-info > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#app .tkt .rt-sheet .ps-info > span {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: normal; display: -webkit-box;
+  -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+}
 #app .tkt .rt-sheet .ds-out { gap: 4px; }
 #app .tkt .rt-sheet .ds-out b { font-size: 0.6875rem; }
 #app .tkt .rt-sheet .ds-dial { flex: none; display: flex; align-items: stretch; }
-#app .tkt .rt-sheet .ds-st {
-  all: unset; flex: none; width: 40px; min-height: 40px; display: grid; place-items: center; cursor: pointer;
-  background: var(--tk-ink); color: var(--tk-yel); font: 400 1.25rem/1 var(--tk-disp);
-}
 #app .tkt .rt-sheet .ds-st:disabled { background: var(--c-bdbebe); color: var(--c-2f3a3e); cursor: default; }
 #app .tkt .rt-sheet .ds-tag { position: relative; flex: none; width: 58px; display: grid; place-items: center; border-left: 2px solid var(--tk-ink); border-right: 2px solid var(--tk-ink); }
 #app .tkt .rt-sheet .ds-tag-face { font: 400 1.25rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; min-width: 0; }
@@ -457,16 +456,21 @@
    at the closest steps over half the 2 px between two rows as well, so two rows' areas meet and never overlap. The
    rows' scrolling box reaches 1 px past the rows there, so the first and last rows' areas are not cut off. Nothing
    is moved or redrawn. */
-#app .tkt .rt-sheet .ds-st { position: relative; }
-#app .tkt .rt-sheet .ds-st::before { content: ''; position: absolute; top: -2px; bottom: -2px; left: 0; right: 0; }
-#app .tkt .rt-sheet .ds-dial > .ds-st:first-child::before { left: -2px; }
-#app .tkt .rt-sheet .ds-dial > .ds-st:last-child::before { right: -2px; }
-#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ds-st::before { top: -3px; bottom: -3px; }
+#app .tkt .rt-sheet .ds-st {
+  all: unset; flex: none; width: 40px; min-height: 40px; display: grid; place-items: center; cursor: pointer;
+  background: var(--tk-ink); color: var(--tk-yel); font: 400 1.25rem/1 var(--tk-disp); position: relative;
+}
+.tkt .rt-sheet .ds-st::before { content: ''; position: absolute; top: -2px; bottom: -2px; left: 0; right: 0; }
+.tkt .rt-sheet .ds-dial > .ds-st:first-child::before { left: -2px; }
+.tkt .rt-sheet .ds-dial > .ds-st:last-child::before { right: -2px; }
+.tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ds-st::before { top: -3px; bottom: -3px; }
 #app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ps-rows { padding-block: 1px; margin-block: -1px; }
 /* the "i" beside the heading (18 px): 40 px to tap, over the heading's words and the top of the first row's words
    below it, and up only as far as the sheet's own edge */
-#app .tkt .rt-sheet .ps-head .pp-info { position: relative; }
-#app .tkt .rt-sheet .ps-head .pp-info::before { content: ''; position: absolute; top: -8px; bottom: -14px; left: -11px; right: -11px; }
+#app .tkt .rt-sheet .ps-head .pp-info {
+  align-self: center; margin-right: auto; width: 18px; height: 18px; font-size: 0.6875rem; position: relative;
+}
+.tkt .rt-sheet .ps-head .pp-info::before { content: ''; position: absolute; top: -8px; bottom: -14px; left: -11px; right: -11px; }
 @media (max-height: 700px) {
   #app .tkt .rt-sheet { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
   #app .tkt .rt-sheet > .pp-lock .btn { height: 48px; }
@@ -475,17 +479,4 @@
   #app .tkt .rt-sheet { padding-left: 8px; padding-right: 8px; }
   #app .tkt .rt-sheet .ds-st { width: 38px; }
   #app .tkt .rt-sheet .ds-tag { width: 54px; }
-}
-
-/* the first-game tip, while the round table is up, lies over the customers' tickets, which hold no control: the table
-   and its pricing sheet stay in reach (written to win over the day's sheet's own place for it, daysheet.css) */
-#app .game.gx.tkt.table-up > .coach, #app .game.gx.tkt.table-up > .coach.top,
-#app .game.gx.tkt.table-up.coach-row > .coach, #app .game.gx.tkt.table-up.coach-row > .coach.top {
-  grid-area: auto; grid-column: 1 / -1; grid-row: street; align-self: end; top: auto; bottom: 4px; margin: 0 auto;
-}
-
-/* ---------- reduced motion: every end state at once ---------- */
-@media (prefers-reduced-motion: reduce) {
-  #app .tkt .rt-crate, #app .tkt .rt-lid, #app .tkt .rt-word, #app .tkt .rt-bell, #app .tkt .rt-bell.on, #app .tkt .rt-sheet, #app .tkt .rt-tags.fade { transition: none; }
-  #app .tkt .rt-sheet, #app .tkt > .rush-table > .rt-bg, #app .tkt .rt-lines, #app .tkt > .rush-table > .rt-line, #app .tkt > .rush-table > .rt-foot { animation: none; }
 }

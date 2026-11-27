@@ -11,6 +11,7 @@ import { toStaticHtml } from '../src/ui/cards';
 import { introWords } from '../src/ui/DailyIntro';
 import { shortDate } from '../src/ui/dailyCard';
 import { PlayMenu, Shopfront, type ShopProps } from '../src/ui/Home';
+import { howTo } from '../src/ui/HowTo';
 import { MODES, resetModeVisit, saveMode, savedMode, startMode, waitWords } from '../src/ui/HomeCards';
 import { waitingGame } from '../src/ui/paused';
 import { leagueConfig } from '../src/ui/progress';
@@ -35,7 +36,7 @@ const DATE = '2026-11-22';
 const noop = () => undefined;
 const at = (g: GameState, day: number, cash: number): GameState => ({ ...g, day, players: g.players.map((p, i) => ({ ...p, cash: cash - i })) });
 const base = (games: Partial<Record<SaveSlot, GameState>>): ShopProps => ({
-  games, today: DATE, notice: null, tab: 'market', onTab: noop, onContinue: noop, onPlay: noop, onDaily: noop, onSprint: noop, onLeague: noop,
+  games, today: DATE, notice: null, tab: 'market', onTab: noop, onContinue: noop, onNewGame: noop, onPlay: noop, onDaily: noop, onSprint: noop, onLeague: noop,
   onQuick: noop, onPrivate: noop, onComputer: noop, onOnePhone: noop, onWardrobe: noop, onAccount: noop, onTrophies: noop, onSettings: noop,
 });
 const home = (games: Partial<Record<SaveSlot, GameState>>, extra: Partial<ShopProps> = {}) => toStaticHtml(h(Shopfront, { ...base(games), ...extra }));
@@ -167,6 +168,10 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
   it('the Daily card: the first customer, the lorry, the twist, your best or "Not played today", you against its rivals', () => {
     mem.set('fm.homeMode', 'daily');
     const html = home({});
+    // C-13 (REP-122): Home calls it the Daily market (its tab says "Daily"), never "today's market"
+    expect(html).toContain('<h2>Daily market</h2>');
+    expect(html).toContain('<b>Daily</b>');
+    expect(html).not.toMatch(/today['’]s market/i);
     expect(html).toContain(`<small>${shortDate(DATE)}</small>`);
     expect(html).toContain('jh-dcard');
     expect(html).toContain('Today\'s lorry brings');
@@ -196,7 +201,7 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
     expect(html).toContain('<b>Custom</b><small>Day 4</small>');
     expect(html).toContain('<b>Daily</b><small>Day 6</small>');
     expect(html).toContain('<b>League</b></button>');
-    // Continue for the chosen mode, and New game going where Play would (the Play page: the same "play" hook)
+    // Continue for the chosen mode, and New game (REP-140 B-20: it asks first, then goes where Play would; the same "play" hook)
     expect(html).toContain('data-a="continue-play"');
     expect(html).toContain('<b>Continue</b><small>Computer game · Day 4 of 10 · $23</small>');
     expect(html).toMatch(/<button class="jh-new" data-a="play" aria-label="New game, Custom match">New game<\/button>/);
@@ -264,6 +269,7 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
     const props = (games: Partial<Record<SaveSlot, GameState>>): ShopProps => ({
       ...base(games), onPlay: log('play-page'), onQuick: log('quick'), onPrivate: log('room'), onComputer: log('computer'), onOnePhone: log('phone'),
       onSettings: log('settings'), onTab: (t) => { called.push(`tab:${t}`); }, onContinue: (s) => { called.push(`continue:${s}`); },
+      onNewGame: (s) => { called.push(`new:${s}`); },
     });
     const tree = h(Shopfront, props({}));
     for (const a of ['way-quick', 'way-room', 'way-computer', 'way-phone', 'play', 'profile', 'settings']) find(tree, (pp) => pp['data-a'] === a)!.onClick();
@@ -273,7 +279,8 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
     const waiting = h(Shopfront, props({ play }));
     find(waiting, (pp) => pp['data-a'] === 'continue-play')!.onClick();
     find(waiting, (pp) => pp['data-a'] === 'play')!.onClick();
-    expect(called).toEqual(['continue:play', 'play-page']);
+    // REP-140 B-20: Continue goes into the game; New game asks first (App.tsx: StartOverBody), not straight to the Play page
+    expect(called).toEqual(['continue:play', 'new:play']);
   });
 });
 
@@ -299,7 +306,9 @@ describe('PLAN-124 Home, the Stall and Rules tabs', () => {
     expect(opened).toEqual(['book', 'wardrobe']);
   });
 
-  it('the Rules tab is How to play, inside the tab (no Close: the bar leaves it)', () => {
+  it('the Rules tab is How to play, inside the tab (no Close: the bar leaves it)', async () => {
+    // REP-140 A-08: How to play is loaded on demand; App opens the tab once its code is here (onDemand.tsx)
+    await howTo.load();
     const html = home({}, { tab: 'rules' });
     expect(html).toContain('class="jh-shell jh-on-rules"');
     expect(html).toContain('class="page howto tk-page howto-tab"');

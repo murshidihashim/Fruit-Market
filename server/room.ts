@@ -434,116 +434,148 @@ export class Room {
     this.broadcast();
   }
 
+  /** One message from a seated person: each kind goes to its own step below. */
   private dispatch(conn: Conn, seat: number, m: ClientMsg) {
+    switch (m.t) {
+      case 'character': return this.character(seat, m.avatar);
+      case 'confirm': return this.confirmPick(seat);
+      case 'look': return this.wear(seat, m.look);
+      case 'rename': return this.rename(seat, m.name);
+      case 'undo': return this.undo(conn, seat, m);
+      case 'ready': return this.setReady(seat, m.ready);
+      case 'config': return this.setConfig(seat, m.config);
+      case 'leave': return this.leave(seat);
+      case 'start': return this.start(seat, m.computers);
+      case 'rematch': return this.rematch(seat);
+      case 'continue': return this.continueVote(seat, m.v);
+      case 'act': return this.act(conn, seat, m);
+      default: return;
+    }
+  }
+
+  /** PLAN-102: shopkeepers are chosen after the host starts, first come, and can be changed until confirmed. */
+  private character(seat: number, avatar: string) {
     const d = this.d;
     const me = d.seats[seat];
-    switch (m.t) {
-      case 'character': {
-        // PLAN-102: shopkeepers are chosen after the host starts, first come, and can be changed until confirmed.
-        if (d.status !== 'picking' || me.confirmed) return;
-        if (!CHARACTER_AVATARS.includes(m.avatar)) throw new RuleError('Pick one of the eight shopkeepers');
-        if (d.seats.some((x, i) => i !== seat && x.avatar === m.avatar)) throw new RuleError('That shopkeeper is taken');
-        me.avatar = m.avatar;
-        d.version++;
-        return this.broadcast();
-      }
-      case 'confirm': {
-        if (d.status !== 'picking' || me.confirmed) return;
-        if (!me.avatar) throw new RuleError('Choose a shopkeeper first');
-        me.confirmed = true;
-        d.version++;
-        return this.pickedFor();
-      }
-      case 'look': {
-        // Looks are only for show, so they may change at any time, even mid-match.
-        const look = cleanLook(m.look);
-        if (Object.keys(look).length) me.look = look; else delete me.look;
-        const pl = d.game?.players[seat];
-        if (pl) { if (me.look) pl.look = { ...me.look }; else delete pl.look; d.version++; }
-        return this.broadcast();
-      }
-      case 'rename': {
-        if (d.status !== 'lobby') throw new RuleError('You can change your name in the lobby only');
-        me.name = clean(typeof m.name === 'string' ? m.name : '', me.name);
-        return this.broadcast();
-      }
-      case 'undo':
-        return this.undo(conn, seat, m);
-      case 'ready':
-        if (d.status !== 'lobby') return;
-        me.ready = !!m.ready;
-        return this.broadcast();
-      case 'config': {
-        if (d.quick) throw new RuleError(QUICK_STARTS);
-        if (d.status !== 'lobby' || !me.host) throw new RuleError('Only the host can change settings');
-        const c = m.config ?? ({} as RoomConfig);
-        const days = ([8, 10, 14] as const).includes(c.days) ? c.days : d.config.days;
-        const ai = Math.max(0, Math.min(MAX_SEATS - d.seats.length, Math.floor(Number(c.ai) || 0)));
-        d.config = { days, ai, unripe: !!c.unripe, upgrades: !!c.upgrades, events: !!c.events };
-        return this.broadcast();
-      }
-      case 'leave': {
-        if (d.status === 'picking') {
-          // Leaving while shopkeepers are chosen: the seat is given one and a computer will play it.
-          me.bot = true;
-          me.left = true;
-          me.offlineSince ??= this.io.now();
-          return this.pickedFor();
-        }
-        if (d.status === 'playing') {
-          // Leaving a match on purpose: a computer takes the seat straight away.
-          me.bot = true;
-          me.left = true;
-          me.offlineSince ??= this.io.now();
-          d.undo = undefined;
-          d.version++;
-          this.broadcast();
-          this.advance();
-          return;
-        }
-        if (d.status !== 'lobby') return;
-        this.removeSeat(seat);
-        return this.broadcast();
-      }
-      case 'start': {
-        if (d.quick) throw new RuleError(QUICK_STARTS);
-        if (d.status !== 'lobby' || !me.host) throw new RuleError('Only the host can start');
-        // PLAN-112: after the wait, the host may fill every empty seat with a computer and start, even alone. Their own
-        // tap counts as ready; everyone else in the room must still be ready and here.
-        const computers = m.computers === true;
-        if (computers && this.io.now() - d.createdAt < COMPUTERS_AFTER_MS) throw new RuleError('Wait a minute for players to join first.');
-        if (d.seats.length < 2 && !computers) throw new RuleError('Waiting for another player to join');
-        if (d.seats.some((s, i) => !s.ready && !(computers && i === seat))) throw new RuleError('Everyone needs to be ready first.');
-        const online = new Set(this.io.conns().map((c) => c.seat));
-        if (d.seats.some((_, i) => !online.has(i))) throw new RuleError('A player is disconnected');
-        if (computers) {
-          me.ready = true;
-          d.config = { ...d.config, ai: MAX_SEATS - d.seats.length };
-        }
-        // PLAN-102: everyone now chooses a shopkeeper; the match begins when every person has confirmed.
-        d.seats.forEach((x) => { x.avatar = ''; delete x.confirmed; });
-        d.status = 'picking';
-        d.version++;
-        return this.broadcast();
-      }
-      case 'rematch': {
-        if (d.status !== 'finished') return;
-        if (!d.rematch.includes(seat)) d.rematch.push(seat);
-        return this.tryRematch();
-      }
-      case 'continue': {
-        const g = d.game;
-        if (d.status !== 'playing' || !g || (g.phase !== 'morning' && g.phase !== 'reveal')) return;
-        if (!this.current(m.v)) return; // already moved on
-        if (!d.votes.includes(seat)) d.votes.push(seat);
-        if (!this.tryContinue()) this.broadcast();
-        return;
-      }
-      case 'act':
-        return this.act(conn, seat, m);
-      default:
-        return;
+    if (d.status !== 'picking' || me.confirmed) return;
+    if (!CHARACTER_AVATARS.includes(avatar)) throw new RuleError('Pick one of the eight shopkeepers');
+    if (d.seats.some((x, i) => i !== seat && x.avatar === avatar)) throw new RuleError('That shopkeeper is taken');
+    me.avatar = avatar;
+    d.version++;
+    return this.broadcast();
+  }
+
+  private confirmPick(seat: number) {
+    const d = this.d;
+    const me = d.seats[seat];
+    if (d.status !== 'picking' || me.confirmed) return;
+    if (!me.avatar) throw new RuleError('Choose a shopkeeper first');
+    me.confirmed = true;
+    d.version++;
+    return this.pickedFor();
+  }
+
+  /** Looks are only for show, so they may change at any time, even mid-match. */
+  private wear(seat: number, raw: unknown) {
+    const d = this.d;
+    const me = d.seats[seat];
+    const look = cleanLook(raw);
+    if (Object.keys(look).length) me.look = look; else delete me.look;
+    const pl = d.game?.players[seat];
+    if (pl) { if (me.look) pl.look = { ...me.look }; else delete pl.look; d.version++; }
+    return this.broadcast();
+  }
+
+  private rename(seat: number, name: unknown) {
+    const d = this.d;
+    const me = d.seats[seat];
+    if (d.status !== 'lobby') throw new RuleError('You can change your name in the lobby only');
+    me.name = clean(typeof name === 'string' ? name : '', me.name);
+    return this.broadcast();
+  }
+
+  private setReady(seat: number, ready: unknown) {
+    const d = this.d;
+    if (d.status !== 'lobby') return;
+    d.seats[seat].ready = !!ready;
+    return this.broadcast();
+  }
+
+  private setConfig(seat: number, config: RoomConfig | undefined) {
+    const d = this.d;
+    if (d.quick) throw new RuleError(QUICK_STARTS);
+    if (d.status !== 'lobby' || !d.seats[seat].host) throw new RuleError('Only the host can change settings');
+    const c = config ?? ({} as RoomConfig);
+    const days = ([8, 10, 14] as const).includes(c.days) ? c.days : d.config.days;
+    const ai = Math.max(0, Math.min(MAX_SEATS - d.seats.length, Math.floor(Number(c.ai) || 0)));
+    d.config = { days, ai, unripe: !!c.unripe, upgrades: !!c.upgrades, events: !!c.events };
+    return this.broadcast();
+  }
+
+  private leave(seat: number) {
+    const d = this.d;
+    const me = d.seats[seat];
+    if (d.status === 'picking') {
+      // Leaving while shopkeepers are chosen: the seat is given one and a computer will play it.
+      me.bot = true;
+      me.left = true;
+      me.offlineSince ??= this.io.now();
+      return this.pickedFor();
     }
+    if (d.status === 'playing') {
+      // Leaving a match on purpose: a computer takes the seat straight away.
+      me.bot = true;
+      me.left = true;
+      me.offlineSince ??= this.io.now();
+      d.undo = undefined;
+      d.version++;
+      this.broadcast();
+      this.advance();
+      return;
+    }
+    if (d.status !== 'lobby') return;
+    this.removeSeat(seat);
+    return this.broadcast();
+  }
+
+  private start(seat: number, withComputers: unknown) {
+    const d = this.d;
+    const me = d.seats[seat];
+    if (d.quick) throw new RuleError(QUICK_STARTS);
+    if (d.status !== 'lobby' || !me.host) throw new RuleError('Only the host can start');
+    // PLAN-112: after the wait, the host may fill every empty seat with a computer and start, even alone. Their own
+    // tap counts as ready; everyone else in the room must still be ready and here.
+    const computers = withComputers === true;
+    if (computers && this.io.now() - d.createdAt < COMPUTERS_AFTER_MS) throw new RuleError('Wait a minute for players to join first.');
+    if (d.seats.length < 2 && !computers) throw new RuleError('Waiting for another player to join');
+    if (d.seats.some((s, i) => !s.ready && !(computers && i === seat))) throw new RuleError('Everyone needs to be ready first.');
+    const online = new Set(this.io.conns().map((c) => c.seat));
+    if (d.seats.some((_, i) => !online.has(i))) throw new RuleError('A player is disconnected');
+    if (computers) {
+      me.ready = true;
+      d.config = { ...d.config, ai: MAX_SEATS - d.seats.length };
+    }
+    // PLAN-102: everyone now chooses a shopkeeper; the match begins when every person has confirmed.
+    d.seats.forEach((x) => { x.avatar = ''; delete x.confirmed; });
+    d.status = 'picking';
+    d.version++;
+    return this.broadcast();
+  }
+
+  private rematch(seat: number) {
+    const d = this.d;
+    if (d.status !== 'finished') return;
+    if (!d.rematch.includes(seat)) d.rematch.push(seat);
+    return this.tryRematch();
+  }
+
+  private continueVote(seat: number, v: unknown) {
+    const d = this.d;
+    const g = d.game;
+    if (d.status !== 'playing' || !g || (g.phase !== 'morning' && g.phase !== 'reveal')) return;
+    if (!this.current(v)) return; // already moved on
+    if (!d.votes.includes(seat)) d.votes.push(seat);
+    if (!this.tryContinue()) this.broadcast();
   }
 
   // ---------- choosing shopkeepers (PLAN-102) ----------

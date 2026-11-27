@@ -7,7 +7,6 @@ import { EventIcon, Face } from '../src/ui/art';
 import { toStaticHtml } from '../src/ui/cards';
 import { ART_COMING, customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
 import { CustomerChar, Street } from '../src/ui/table';
-import { CharacterPickView } from '../src/ui/CharacterPick';
 
 // The app shows the Great Fruit Exchange deck art (DEC-066) everywhere a character or event appears.
 const GUESTS = EVENT_CARDS.flatMap((e) => (e.extra ? [e.extra.name] : []));
@@ -54,19 +53,9 @@ describe('portraits (art.tsx Face)', () => {
   });
 });
 
-describe('choosing a shopkeeper (CharacterPick)', () => {
-  it('a swipe carousel of the eight shopkeeper cards (PLAN-063, redrawn in PLAN-083): the picked one in the middle, no tagline under it (DEC-087), the taken one stamped', () => {
-    const html = toStaticHtml(h(CharacterPickView, { value: RIVALS[1].avatar, taken: { [RIVALS[4].avatar]: 'Ann' } }));
-    expect(html.match(/class="cd cd-a cd-keeper/g)).toHaveLength(8);
-    for (const r of RIVALS) expect(html, r.name).toContain(shopScene(r.avatar)!);
-    expect(html).toContain('>Uncle Benny</strong>');
-    expect(html).toContain('Taken by Ann');
-    expect(html.match(/is-selected/g)).toHaveLength(1);
-    expect(html.match(/cp-card on/g)).toHaveLength(1);
-    // no tagline: the card says the name, the perk and its rule
-    expect(html).not.toContain('cp-quip');
+describe('the shopkeepers (DEC-087)', () => {
+  it('have no tagline: a shopkeeper\'s card says the name, the perk and its rule', () => {
     for (const r of RIVALS) expect(r.quip, r.name).toBe('');
-    expect(html.match(/aria-label="(Previous|Next) shopkeeper"/g)).toHaveLength(2);
   });
 });
 

@@ -7,97 +7,45 @@
    ===================================================================== */
 
 /* ---------- every pop-up box ---------- */
-#app .modal-bg { background: color-mix(in srgb, var(--x-ink) 62%, transparent); }
 #app .modal {
   gap: 10px; padding: 18px 16px 16px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink);
   box-shadow: inset 0 0 0 3px var(--x-ink), 0 10px 0 rgba(0, 0, 0, 0.18);
 }
-#app .modal h2, #app .modal h3 { margin: 0; font: 400 1.5rem/1.05 var(--f-display); letter-spacing: 0; text-transform: uppercase; color: var(--x-ink); text-shadow: none; }
-#app .modal p, #app .modal .muted, #app .modal small { color: var(--x-ink); }
+#app .modal .muted { color: var(--x-ink); }
 #app .modal .btn {
   min-height: 52px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
   font: 800 0.875rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
 }
 #app .modal .btn.primary { box-shadow: none; background: var(--x-ink); color: var(--x-mustard); font: 400 1.25rem/1.05 var(--f-display); letter-spacing: 0.02em; }
-#app .modal .btn.primary small, #app .modal .btn.primary .btn-sub { color: var(--x-paper); }
-#app .modal .btn:disabled { opacity: 0.45; }
-#app .modal .btn:active:not(:disabled) { transform: translateY(2px); }
-#app .modal .link-btn { min-height: 44px; color: var(--x-ink); font: 700 0.8125rem/1 var(--f-label); text-decoration: underline; text-underline-offset: 3px; }
 #app .modal .input {
   min-height: 48px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
   font: 600 1rem/1.2 var(--f-label);
 }
-#app .modal .input:focus { outline: 3px solid var(--x-mustard); outline-offset: 0; }
-#app .modal .popup-info { border: 0; border-radius: 0; background: var(--x-wood); }
-#app .modal .popup-opt small { font: 600 0.75rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; }
 
 /* the title row of a home pop-up, with a square close button */
-#app .popup-hd { padding-bottom: 10px; border-bottom: 3px solid var(--x-ink); }
 #app .popup .icon-btn {
   width: 44px; height: 44px; flex: none; border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
   font: 400 1.5rem/1 var(--f-label);
 }
 
-/* Play full screen? */
-#app .fs-ask { max-width: 360px; }
-
-/* ---------- New game ---------- */
-#app .setup-body .panel { padding: 12px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
-#app .setup-body .panel h3 {
-  display: block; margin: 0 0 8px; padding: 0; border: 0; background: none; font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--x-ink);
-}
-#app .setup-body .panel h3::before, #app .setup-body .panel h3::after { display: none; }
-#app .setup-body .panel h3.next { margin-top: 14px; }
-#app .setup-body .seg button, #app .setup-body .seat-tile {
-  border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
-  font: 800 0.8125rem/1.1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase;
-}
-#app .setup-body .seg button small { display: block; margin-top: 3px; font: 600 0.75rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--x-slate); }
-#app .setup-body .seg button.on { box-shadow: none; background: var(--x-ink); color: var(--x-mustard); }
-#app .setup-body .seg button.on small { color: var(--x-paper); }
-#app .setup-body .seat-tile .st-n { color: var(--x-slate); font-size: 0.75rem; }
-/* PLAN-116 (REP-133 B-15, B-07): a long name or level takes two lines rather than being cut off; Easy in a darker
-   green (5.7:1 on the paper; the bright green was 3.5:1). */
-#app .setup-body .seat-tile .st-k { font: 400 0.9375rem/1.1 var(--f-display); white-space: normal; overflow-wrap: anywhere; text-align: center; }
-#app .setup-body .seat-tile.lv-easy .st-k { color: var(--c-0a7443); }
-@media (max-width: 379px) {
-  #app .setup-body .seat-tile { padding: 6px 2px; letter-spacing: 0.02em; }
-  #app .setup-body .seat-tile .st-k { font-size: 0.8125rem; }
-  #app .setup-body .seat-tile .st-l { max-width: 100%; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
-}
-#app .setup-body .seat-tile .st-l { font-weight: 700; letter-spacing: 0.04em; color: var(--x-slate); }
-#app .setup-body .seat-tile.on { background: var(--x-mustard); }
-#app .setup-body .seat-tile.add { box-shadow: inset 0 0 0 2px var(--x-slate); color: var(--x-slate); background: transparent; }
-#app .setup-body .seat-sheet { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-wood); }
-#app .setup-body .seat-done, #app .setup-body .seat-remove { border-radius: 0; font-family: var(--f-label); font-weight: 800; }
-#app .setup-body .shop-total { font-weight: 700; }
-#app .popup .sticky-start { padding-top: 12px; background: linear-gradient(transparent, var(--x-paper) 35%); }
-
-/* the shopkeeper carousel: its arrows, hint and dots */
-#app .cp-arrow { border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper); color: var(--x-ink); font: 400 1.5rem/1 var(--f-label); }
-#app .cp-hint { color: var(--x-ink); }
-#app .cp-dots i { height: 8px; border-radius: 0; background: var(--x-wood-d); }
-#app .cp-dots i.on { background: var(--x-ink); }
-
 /* ---------- The Bell notice ---------- */
-#app .bell-notice { background: color-mix(in srgb, var(--x-ink) 62%, transparent); }
 #app .bell-notice .bn-card {
   gap: 0; padding: 0; border: 0; border-radius: 0; background: var(--x-paper); background-image: none; color: var(--x-ink);
   box-shadow: inset 0 0 0 3px var(--x-ink), 0 10px 0 rgba(0, 0, 0, 0.18); overflow: hidden;
 }
-#app .bell-notice .bn-pin { display: none; }
+.bn-ban {
+  position: absolute; top: -18px; left: 50%; transform: translateX(-50%) rotate(-2deg); white-space: nowrap;
+  padding: 4px 20px; background: var(--x-red-d); color: var(--x-paper); border: 2.5px solid var(--x-ink);
+  box-shadow: 0 3px 0 var(--x-ink); font: 900 1rem/1.2 var(--f-label); letter-spacing: 0.12em;
+}
 #app .bell-notice .bn-ban {
   position: static; transform: none; display: block; padding: 12px 14px; border: 0; box-shadow: none; background: var(--x-ink); color: var(--x-mustard);
   font: 400 1.5rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; white-space: normal;
 }
-#app .bell-notice .bn-rules { gap: 0; padding: 4px 14px 12px; }
 #app .bell-notice .bn-rules li {
   grid-template-columns: 30px minmax(0, 1fr); gap: 10px; min-height: 48px; padding: 6px 0; border: 0; border-bottom: 2px solid var(--x-ink); border-radius: 0;
   background: transparent; font: 700 0.875rem/1.3 var(--f-label);
 }
-#app .bell-notice .bn-rules li:last-child { border-bottom: 0; }
-#app .bell-notice .bn-badge { width: 30px; height: 30px; border: 0; border-radius: 0; background: var(--x-mustard); }
 #app .bell-notice .bn-card > .btn { margin: 0 14px 14px; width: auto; }
 
 /* ---------- today's news, full screen: in the middle of the screen ---------- */
@@ -107,84 +55,34 @@
 #app .tkt .event-sheet > :first-child { margin-top: auto; }
 #app .tkt .event-sheet > :last-child { margin-bottom: auto; }
 
-/* ---------- a customer's ticket, large: the freshness key under it ---------- */
-#app .tkt .tip-card-pop .tip-notes { display: flex; flex-direction: column; gap: 6px; }
-#app .tkt .tip-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin: 0; padding: 0; list-style: none; }
-#app .tkt .tip-legend li { display: inline-flex; align-items: center; gap: 5px; font: 700 0.8125rem/1 var(--f-label); color: var(--x-ink); }
-
 /* ---------- nightfall (PLAN-076): dusk falls over the market, then the night sits in the middle of the screen ---------- */
 #app .game.gx.tkt { transition: background-color calc(var(--mk, 1) * var(--t-sky)) ease; }
 /* --mk is the table's one speed (1 normal, lower is quicker) and the --t- lengths are named in motion.ts, so dusk keeps
    pace with the night's script and the lanes are in view before the pieces slide, on the fast setting and after a tap
    as well (PLAN-081; one speed for the whole table, PLAN-083). */
-#app .tkt > .centre > .tk-night { animation: tk-dusk calc(var(--mk, 1) * var(--t-dusk)) ease-in both; }
-#app .tkt > .centre > .tk-night > * { animation: tk-dusk-in calc(var(--mk, 1) * var(--t-rise)) calc(var(--mk, 1) * var(--t-rise-after)) ease-out both; }
-#app .tkt > .centre > .tk-night > :first-child { margin-top: auto; }
-#app .tkt > .centre > .tk-night > :last-child { margin-bottom: auto; }
 @keyframes tk-dusk { from { background-color: transparent; } to { background-color: var(--tk-ink); } }
 @keyframes tk-dusk-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) {
-  #app .game.gx.tkt { transition: none; }
-  #app .tkt > .centre > .tk-night, #app .tkt > .centre > .tk-night > * { animation: none; }
-}
 
 /* ---------- Settings, How to play and the pass-the-phone screen (S17, PLAN-110) ----------
    The square Market Ticket look of Home, the game and Trophies: the black bar with its back arrow, square boxes with
    an ink edge, one black button with mustard type, square switches and dots. Only the look changes here. */
-#app .page.tk-page { background: var(--x-paper); color: var(--x-ink); }
-#app .tk-page > .topbar {
-  min-height: 52px; box-sizing: border-box; gap: 8px; border: 0; box-shadow: none; background: var(--x-ink); color: var(--x-paper);
-  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
-}
-#app .tk-page > .topbar .icon-btn {
-  width: 44px; height: 44px; min-width: 44px; min-height: 44px; margin-left: -10px; display: grid; place-items: center; border: 0; border-radius: 0;
-  box-shadow: none; background: transparent; color: var(--x-paper); font: 400 1.375rem/1 var(--f-label);
-}
-#app .tk-page > .topbar .icon-btn:active { transform: none; }
-#app .tk-page > .topbar .day b { font: 400 1.125rem/1 var(--f-display); letter-spacing: 0; text-transform: uppercase; color: var(--x-paper); }
 #app .tk-page > .topbar > .muted {
   margin-left: auto; padding: 6px 8px; background: var(--x-mustard); color: var(--x-ink); font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.08em;
 }
-#app .tk-page .panel { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); color: var(--x-ink); }
-#app .tk-page .panel h3 {
-  display: block; margin: 0 0 8px; padding: 0 0 6px; border: 0; border-bottom: 2px solid var(--x-ink); background: none; text-shadow: none;
-  font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-ink);
-}
 /* PLAN-116 (REP-133 B-08): labels on these pages are 12 px or more */
-#app .tk-page .stats small, #app .tk-page .slide-part { font-size: 0.75rem; }
-#app .tk-page .panel h3::before, #app .tk-page .panel h3::after { display: none; }
+#app .tk-page .stats small { font-size: 0.75rem; }
 #app .tk-page .muted, #app .tk-page small, #app .tk-page .stats small { color: var(--x-slate); }
-#app .tk-page .btn {
-  min-height: 52px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
-  font: 800 0.875rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
-}
-#app .tk-page .btn.primary { box-shadow: none; background: var(--x-ink); color: var(--x-mustard); font: 400 1.25rem/1.05 var(--f-display); letter-spacing: 0.02em; }
-#app .tk-page .btn:disabled { opacity: 0.45; }
-#app .tk-page .btn:active:not(:disabled) { transform: translateY(2px); }
-#app .tk-page .stats b { font: 400 1.5rem/1.1 var(--f-display); }
 #app .tk-page .tk-done { margin: 4px 0 0; padding: 8px 10px; background: var(--x-mustard); color: var(--x-ink); font: 700 0.875rem/1.3 var(--f-label); }
 /* the switches: a square box; on, it fills with ink and the square knob moves across */
-#app .tk-page .toggle i, #app .modal .toggle i { width: 50px; height: 28px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
 #app .tk-page .toggle i::after, #app .modal .toggle i::after { top: 5px; left: 5px; width: 18px; height: 18px; border-radius: 0; background: var(--x-ink); }
-#app .tk-page .toggle input:checked + i, #app .modal .toggle input:checked + i { background: var(--x-ink); }
-#app .tk-page .toggle input:checked + i::after, #app .modal .toggle input:checked + i::after { left: 27px; background: var(--x-mustard); }
-#app .tk-page .toggle input:focus-visible + i, #app .modal .toggle input:focus-visible + i { outline: 3px solid var(--x-mustard); outline-offset: 2px; }
-#app .tk-page .toggle span b, #app .modal .toggle span b { font: 400 1rem/1.15 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
-/* How to play: the slide is a square ticket; the dots are squares; Back and Next are square buttons */
-#app .howto.tk-page .slide h2 { font: 400 1.5rem/1.05 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
-#app .howto.tk-page .slide-part { font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.1em; color: var(--x-ink); }
-#app .tk-page .dots span { width: 10px; height: 10px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
-#app .tk-page .dots span.on { width: 22px; background: var(--x-ink); }
-#app .howto.tk-page .day-strip li, #app .howto.tk-page .demo-ex { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); }
-#app .howto.tk-page .beat-n { border: 0; border-radius: 0; background: var(--x-ink); color: var(--x-mustard); font: 800 0.75rem/1 var(--f-label); }
 
 /* the pass-the-phone screen: the next person's name on a ticket, and one black button */
-#app .handoff { gap: 0; padding: 24px 16px; background: var(--x-ink); }
-#app .handoff .ho-card {
+.handoff { gap: 0; padding: 24px 16px; background: var(--x-ink); }
+.handoff .ho-card {
   width: 100%; max-width: 360px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 22px 16px 16px;
   background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink), 0 10px 0 color-mix(in srgb, var(--x-ink) 18%, transparent);
 }
-#app .handoff .ho-lab { font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.handoff .ho-lab { font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
 #app .handoff h2 { margin: 0; font: 400 1.75rem/1.05 var(--f-display); text-transform: uppercase; color: var(--x-ink); text-shadow: none; }
 #app .handoff p { margin: 0; font: 600 0.9375rem/1.35 var(--f-label); color: var(--x-ink); }
 #app .handoff .btn {
@@ -192,7 +90,7 @@
   font: 400 1.25rem/1.05 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase;
 }
 /* S8: the person's own day, waiting for them at the hand-over */
-#app .handoff .ho-own {
+.handoff .ho-own {
   width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; text-align: left;
   background: var(--x-wood); box-shadow: inset 0 0 0 2px var(--x-ink); font: 600 0.875rem/1.35 var(--f-label);
 }
@@ -200,26 +98,13 @@
 /* ---------- ON-14 (PLAN-110): a seat row in the lobby and the choosing step at 320 to 390 px ----------
    A long name wraps and shrinks first; the online dot and the READY tag keep their size inside the row. */
 #app .seat-row { min-width: 0; }
-#app .seat-row .seat-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
-#app .seat-row .sbk-seat-title { flex: 0 1 auto; min-width: 0; }
-#app .seat-row .dot { flex: none; }
-#app .seat-row .ready-tag { flex: none; white-space: nowrap; }
 #app .pick-away { margin: 6px 0 0; }
-/* S13 (PLAN-110): the Wardrobe's colour row at 320 px: the colours go under their name, which reads whole ("Not chosen") */
-@media (max-width: 339px) {
-  #app .sbk .sbk-slot:has(> .sbk-sws) { flex-wrap: wrap; row-gap: 6px; padding-top: 6px; padding-bottom: 6px; }
-  #app .sbk .sbk-slot > .sbk-sws { margin-left: 0; }
-}
-
 /* ---------- C-21 (PLAN-110): small words on the watermelon green and the apple red ----------
    Paper type on those colours is 3.5:1 and 4.0:1, under the 4.5:1 small type needs. The colours are the print kit's
    and stay as they are; in the app the words on a fruit's colour get a thin ink outline, so each letter stands on ink
    (16:1), and the app's own green tags and notes sit on the darker green the market's lane heads use (5.7:1). */
-#app :is(.ln-watermelon, .ln-apple):is(.cd-blk-f, .cd-want, .cd-ly-n, .wc-lt-n),
-#app .home.hm :is(.hm-ln.f-watermelon, .hm-ln.f-apple) {
+#app :is(.ln-watermelon, .ln-apple):is(.cd-blk-f, .cd-want, .cd-ly-n, .wc-lt-n) {
   text-shadow: -1px -1px 0 var(--x-ink), 1px -1px 0 var(--x-ink), -1px 1px 0 var(--x-ink), 1px 1px 0 var(--x-ink);
 }
 /* (a lorry's row for this table is ink on paper, and a number of nothing is faint on purpose: no outline on either) */
 #app :is(.ln-watermelon, .ln-apple):is(.cd-ly-n, .wc-lt-n):is(.nil, .on) { text-shadow: none; }
-#app .home.hm .hm-chip, #app .host-tag, #app .ready-tag.yes, #app .sbk .sbk-note.good, #app .sbk .sbk-rk.done .sbk-n { background: var(--c-0a7443); }
-

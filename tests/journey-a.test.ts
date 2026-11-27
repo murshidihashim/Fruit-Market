@@ -1,19 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { CUSTOMER_CARDS, RIVALS, acceptsStage, lookOf, prefOf } from '../src/engine/data';
+import { CUSTOMER_CARDS, FRUIT, RIVALS, acceptsStage, lookOf, prefOf } from '../src/engine/data';
+import { capAt } from '../src/engine/game';
 import { DEFAULT_CONFIG, MAX_SEATS, type PublicSeat } from '../src/net/protocol';
-import { practiceQuestion, practiceRound, practiceVerdict, sells, STAGE_OFF, type PracticeRound } from '../src/ui/practice';
+import { practiceQuestion, practiceRound, practiceVerdict, sells, type PracticeRound } from '../src/ui/practice';
 import { clock, leagueLine, quickLine, vsComputerConfig, waitLine } from '../src/ui/playMenu';
-import { seatChip } from '../src/ui/Online';
+import { seatChip } from '../src/ui/onlineWords';
 import { LEAGUE } from '../src/ui/progress';
 
 // PLAN-113, part A: the price practice on the Quick match wait, the Play menu's words, and the private room's chips.
 
 /** Who sells first, worked out from the rules on their own: the customer takes the cheapest offer that is fresh
- *  enough for its price; your piece is Fresh. 'tie' when both are fresh enough at the same price. */
+ *  enough for its price (the engine's capAt: the card price less the fruit's drop at that freshness); your piece is
+ *  Fresh. 'tie' when both are fresh enough at the same price. */
 function firstSeller(r: PracticeRound, mine: number): 'you' | 'rival' | 'tie' | 'nobody' {
   const youOk = mine >= 1 && mine <= r.max;
   const rv = r.rival;
-  const rivalOk = acceptsStage(r.pref, rv.stage) && rv.price <= r.max - STAGE_OFF[rv.stage];
+  const rivalOk = acceptsStage(r.pref, rv.stage) && rv.price <= capAt(r.fruit, FRUIT[r.fruit].ripe.lastIndexOf(rv.stage), r.max);
   if (!youOk) return rivalOk ? 'rival' : 'nobody';
   if (!rivalOk || mine < rv.price) return 'you';
   return mine === rv.price ? 'tie' : 'rival';
@@ -55,7 +57,7 @@ describe('the price practice (practice.ts)', () => {
   it('covers all three cases: a rival over the top price, a rival to undercut, a rival whose fruit is not fresh enough', () => {
     expect(new Set(rounds.map((r) => r.kind))).toEqual(new Set(['over', 'undercut', 'fresh']));
     const fresh = rounds.filter((r) => r.kind === 'fresh');
-    for (const r of fresh) expect(sells(r.pref, r.max, r.rival.stage, r.rival.price)).toBe(false);
+    for (const r of fresh) expect(sells(r.pref, r.max, r.rival.stage, r.rival.price, r.fruit)).toBe(false);
   });
 
   it('asks in plain words with the game\'s names', () => {

@@ -17,7 +17,7 @@ import type { ComponentChildren, FunctionComponent } from 'preact';
 import { isValidElement } from 'preact';
 import {
   BARROW_BUY, CHARACTER_TRAIT, CUSTOMER_CARDS, EVENT_CARDS, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, JUICE_TIP,
-  MAX_STALLS, MAX_UPGRADES, MIN_STALLS, ORDER_BOOK_BONUS, ORDER_LEAD, PREF_INFO, RIVALS, TRAITS, UPGRADES, lookOf, orderQty,
+  MAX_STALLS, MAX_UPGRADES, MIN_STALLS, ORDER_BOOK_BONUS, ORDER_LEAD, PREF_INFO, RIVALS, TRAITS, UPGRADES, acceptsStage, lookOf, orderQty,
   prefOf,
   type EventCard, type FarmerCard, type FavourDef, type FavourId, type FruitId, type OrderCard as OrderDef, type Pref, type Stalls,
   type UpgradeId,
@@ -30,6 +30,7 @@ import {
 } from './deckArt';
 import { cardChips, type Pay } from './eventChips';
 import { FruitSvg } from './fruitIcons';
+import { OKAY_LESS, SOFT_LESS } from './stageWords';
 
 /** Pixel sizes of the picture files in public/art-ticket (for width and height, so nothing jumps while loading). */
 export const ART_SIZE = {
@@ -78,10 +79,8 @@ export const ONE_LINE_MIN = 8;
 /** A title's size as a style (cards.css reads --ts). */
 const titleSize = (text: string, box: number, big: number, small: number) => ({ '--ts': fitTitle(text, box, big, small).size });
 
-/** Freshness a customer buys, as the three lamps of the legend: which are lit. */
-const BUYS: Record<Pref, { okay: boolean; soft: boolean }> = {
-  premium: { okay: false, soft: false }, everyday: { okay: true, soft: false }, bargain: { okay: true, soft: true },
-};
+/** Freshness a customer buys, as the three lamps of the legend: which are lit (the engine's own rule, acceptsStage). */
+const buys = (pref: Pref): { okay: boolean; soft: boolean } => ({ okay: acceptsStage(pref, 'okay'), soft: acceptsStage(pref, 'notso') });
 
 /**
  * PLAN-123: a customer type's legend in words, read from the same lamps the card lights, so what is said and what is
@@ -89,15 +88,12 @@ const BUYS: Record<Pref, { okay: boolean; soft: boolean }> = {
  * less, or Soft for $2 less." (It used to say "Okay fruit pays $1 less" on a Premium card, which takes no Okay fruit.)
  */
 export function prefWords(pref: Pref): string {
-  const b = BUYS[pref];
+  const b = buys(pref);
   const title = PREF_INFO[pref].title;
   if (!b.okay) return `${title}: Fresh only.`;
   if (!b.soft) return `${title}: Fresh, or Okay for $${OKAY_LESS} less. No Soft.`;
   return `${title}: Fresh, Okay for $${OKAY_LESS} less, or Soft for $${SOFT_LESS} less.`;
 }
-/** What Okay and Soft fruit pay less than Fresh (the same for every fruit: data.ts FRUIT.drop). */
-export const OKAY_LESS = FRUIT.apple.drop[1];
-export const SOFT_LESS = FRUIT.apple.drop[0];
 
 /** The pieces a card asks for, one dot each. */
 function Dots({ n, label }: { n: number; label: string }) {
@@ -111,7 +107,7 @@ export interface CardLine { fruit: FruitId; qty: number; max: number; done?: boo
 /** The one legend row of a customer card: Fresh, Okay at $1 less, Soft at $2 less; a freshness this customer will not
  *  buy is greyed out. */
 export function PrefLegend({ pref, class: cls }: { pref: Pref; class?: string }) {
-  const b = BUYS[pref];
+  const b = buys(pref);
   return (
     <div class={cx('cd-leg', cls)} role="img" aria-label={prefWords(pref)}>
       <span><i class="cd-lamp">F</i></span>

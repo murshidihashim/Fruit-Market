@@ -79,6 +79,15 @@ export function playedFavours(prev: GameState, next: GameState, p: number): Favo
 
 /** The upgrade the person has just asked to build, and where its offer lay on the screen (noted as Build is tapped). */
 let offer: { p: number; u: UpgradeId; box: A.Box } | null = null;
+/** The label over stall `i` for the favour cards it played in this step, named as the game says them aloud (its log),
+ *  never from the hand that held them: online a rival's hand is only stand-ins (PLAN-091). Rules 19: a computer's
+ *  evening is one step, so it may name several. 'A favour card' when nothing public names it; '' when none was played. */
+export function playedLabel(prev: GameState, next: GameState, i: number): string {
+  if (next.players[i].favours.length >= prev.players[i].favours.length) return '';
+  const played = playedFavours(prev, next, i);
+  return played.length ? played.map((id) => FAVOURS[id].title).join(' · ') : 'A favour card';
+}
+
 export function noteOffer(p: number, u: UpgradeId, box: A.Box | null) { offer = box ? { p, u, box } : null; }
 
 /** The standing order's bids on the table once they are in: face down ('in'), turned over ('up'), the stake on the card ('paid'). */
@@ -256,7 +265,8 @@ export async function firstToken(next: GameState): Promise<void> {
     const dur = moved ? length : A.FEEL.turn;
     if (el && frames && A.moveMs(dur) > 0) {
       const anim = el.animate(frames, { duration: A.moveMs(dur), easing: moved && next.day === 1 ? 'linear' : A.EASE.travel, fill: 'backwards' });
-      // A tap ends the wait (and so the move); the move ends by itself otherwise.
+      // A tap ends the wait (and so the move); the move ends by itself otherwise. (A cancelled animation rejects
+      // `finished`; the move is finished just below either way, so that is not an error.)
       await Promise.race([anim.finished.catch(() => undefined), A.wait(dur)]);
       anim.finish();
     }

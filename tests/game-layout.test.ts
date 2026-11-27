@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { FRUIT, FRUITS, RIVALS, lookOf } from '../src/engine/data';
 import { newGame, type GameState } from '../src/engine/game';
@@ -90,26 +89,6 @@ describe('today and tomorrow (table.tsx Street, Tomorrow)', () => {
   });
 });
 
-describe('the game screen grid (styles.css)', () => {
-  const css = readFileSync('src/ui/styles.css', 'utf8');
-  it('phones stack top bar, customers, market, stalls (PLAN-128: under the market), shelf and action bar, with only the market flexible', () => {
-    expect(css).toContain('grid-template-areas: "top" "net" "street" "mid" "rivals" "dock" "act";');
-    expect(css).toContain('grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;');
-  });
-  it('PLAN-128: the game table itself (ticket.css) has the same order, and the round table still lies from the market down', () => {
-    const tkt = readFileSync('src/ui/ticket.css', 'utf8');
-    expect(tkt).toContain('grid-template-areas: "top" "net" "street" "mid" "rivals" "dock" "act";');
-    expect(tkt).toContain('grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;');
-    expect(readFileSync('src/ui/rushTable.css', 'utf8')).toContain('grid-row: mid / act;');
-    // in the page too, the stalls come after the middle of the table and before your shelf
-    const page = readFileSync('src/ui/Game.tsx', 'utf8');
-    expect(page.indexOf('<Stalls ')).toBeGreaterThan(page.indexOf('<div class={`centre'));
-    expect(page.indexOf('<Stalls ')).toBeLessThan(page.indexOf('<MyStall '));
-  });
-  it('desktop has three columns: customers | market | rivals, shelf and the main button', () => {
-    expect(css).toContain('grid-template-areas: "top top top" "net net net" "street mid rivals" "street mid dock" "street mid act";');
-  });
-  it('the stocking and pricing buttons take the action bar\'s place', () => {
-    expect(css).toMatch(/\.gx > \.actionbar, \.gx > \.centre > \.pp-lock \{ grid-area: act; \}/);
-  });
-});
+// The game screen grid (one column of areas on a phone and on a wide screen, only the market's row flexible, the stalls
+// between the market and your shelf, the stocking and pricing buttons and the round table in their areas) is checked in
+// the browser, from the computed style, by scripts/layout-check.cjs during the solo playthrough (PLAN-130, A-05).
