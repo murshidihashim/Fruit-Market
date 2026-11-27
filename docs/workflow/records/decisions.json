@@ -3422,7 +3422,7 @@
         "evidence": "Owner, 2026-11-27: \"the pricing button is laggy especially on iphone/safari, sometimes it doesnt register clicks, fix this\"",
         "date": "2026-11-27"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-131",
       "reviewTrigger": "When the owner has tried it on an iPhone.",
       "reports": []
@@ -5020,6 +5020,10 @@
     {
       "at": "2026-11-27 18:39",
       "text": "Owner reported the pricing button laggy and missing taps on iPhone Safari and asked for a fix (DEC-138, PLAN-131). Cause found without an iPhone: the page never said a double tap is not a zoom, and body's user-select lacked Safari's prefix; a tap's own work measured about 20 ms with the processor slowed 4x."
+    },
+    {
+      "at": "2026-11-27 18:42",
+      "text": "PLAN-131 implemented (6c0dc61): npm run verify PASS (1434). Not tested on an iPhone or in Safari: none is available in this session. Owner: \"push it live after the fix\". Release 1.32.1 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy."
     }
   ]
 }

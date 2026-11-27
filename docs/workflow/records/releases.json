@@ -813,6 +813,16 @@
       "date": "2026-11-27",
       "commit": "8636dbd",
       "tagged": true
+    },
+    {
+      "version": "1.32.1",
+      "status": "candidate",
+      "plans": [
+        "PLAN-131"
+      ],
+      "notes": [
+        "On iPhone, every tap on the price buttons now counts, and the buttons show when they are pressed"
+      ]
     }
   ]
 }

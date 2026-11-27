@@ -16,14 +16,14 @@
     {
       "id": "T1",
       "text": "npm run verify",
-      "result": "NOT RUN",
-      "evidence": "To run"
+      "result": "PASS",
+      "evidence": "On 6c0dc61: records OK, palette, lint, types, 1434 passed in 138 files (4 new in tests/touch.test.ts), build OK"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks), with the new browser style check",
       "result": "NOT RUN",
-      "evidence": "To run"
+      "evidence": "Running locally; CI on the release pull request decides it"
     },
     {
       "id": "T3",
@@ -37,18 +37,25 @@
     "evidence": "Owner, 2026-11-27: \"the pricing button is laggy especially on iphone/safari, sometimes it doesnt register clicks, fix this\"",
     "date": "2026-11-27"
   },
-  "delivery": "in progress",
-  "release": "",
+  "delivery": "implemented",
+  "release": "1.32.1",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [],
   "decisions": [
     "DEC-138"
   ],
   "changes": {
-    "added": [],
+    "added": [
+      "A pressed look on − and + (prices and crate) and on Ring the bell"
+    ],
     "changed": [],
-    "fixed": [],
+    "fixed": [
+      "On iPhone, quick taps on the price buttons were delayed or lost",
+      "Text on the page could be selected by accident on iPhone"
+    ],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "On iPhone, every tap on the price buttons now counts, and the buttons show when they are pressed"
+  ]
 }
