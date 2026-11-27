@@ -798,7 +798,7 @@
     },
     {
       "version": "1.32.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-130"
       ],
@@ -809,6 +809,19 @@
         "Better for keyboards and screen readers: focus rings, customer cards you can open, larger text and stronger contrast",
         "Clearer words in Quick Match, Private Room and Pass & Play results",
         "Less to download before Home appears: the game and rarely used pages load in the background"
+      ],
+      "date": "2026-11-27",
+      "commit": "8636dbd",
+      "tagged": true
+    },
+    {
+      "version": "1.32.1",
+      "status": "candidate",
+      "plans": [
+        "PLAN-131"
+      ],
+      "notes": [
+        "On iPhone, every tap on the price buttons now counts, and the buttons show when they are pressed"
       ]
     }
   ]

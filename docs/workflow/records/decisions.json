@@ -3396,13 +3396,36 @@
         "evidence": "Owner, 2026-11-26, after REP-140: \"fix everything which doesnt require a rule change\"",
         "date": "2026-11-26"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-130",
       "reviewTrigger": "When the fixes are on the preview.",
       "reports": [
         "REP-140",
         "REP-141"
       ]
+    },
+    {
+      "id": "DEC-138",
+      "title": "Fix the price buttons' slow and missed taps on iPhone",
+      "question": "The pricing buttons are laggy on iPhone Safari and sometimes miss a tap. Fix it?",
+      "choice": "Yes, as PLAN-131: tell Safari a double tap is not a zoom, stop text selection on iPhone, and show the buttons pressed.",
+      "rationale": "Safari ignores the page's no-zoom setting and the unprefixed user-select, so quick taps become double taps and are lost. The fix is three small style changes and one listener; the rules are untouched.",
+      "impact": {
+        "player": "Every tap on − and + counts, at once, and the button shows it was pressed. Text can no longer be selected by accident on iPhone.",
+        "technical": "touch-action: manipulation on the page; -webkit-user-select on body; :active colours on the steppers; an empty touchstart listener.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-27: \"the pricing button is laggy especially on iphone/safari, sometimes it doesnt register clicks, fix this\"",
+        "date": "2026-11-27"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-131",
+      "reviewTrigger": "When the owner has tried it on an iPhone.",
+      "reports": []
     }
   ],
   "history": [
@@ -4989,6 +5012,18 @@
     {
       "at": "2026-11-27 07:45",
       "text": "Records correction: the branch's line \"2026-11-25 02:00\" (1.31.4 published, live bundle index-E-_sWjyy.js) had been merged into the middle of main's history, which CI's append-only check refused for release 1.32.0. It is moved out; the same publication is recorded in main's line of 2026-11-25 13:49."
+    },
+    {
+      "at": "2026-11-27 08:17",
+      "text": "1.32.0 published on the owner's word (\"push to live\"): pull request #40 passed CI (verify:full, E2E OK, performance budget OK at 60 ms) and merged as 8636dbd; Deploy LIVE game run 54 passed and tagged v1.32.0; the live game serves index-CKg8jn4W.js, the same as a local build of 8636dbd. PLAN-130 released."
+    },
+    {
+      "at": "2026-11-27 18:39",
+      "text": "Owner reported the pricing button laggy and missing taps on iPhone Safari and asked for a fix (DEC-138, PLAN-131). Cause found without an iPhone: the page never said a double tap is not a zoom, and body's user-select lacked Safari's prefix; a tap's own work measured about 20 ms with the processor slowed 4x."
+    },
+    {
+      "at": "2026-11-27 18:42",
+      "text": "PLAN-131 implemented (6c0dc61): npm run verify PASS (1434). Not tested on an iPhone or in Safari: none is available in this session. Owner: \"push it live after the fix\". Release 1.32.1 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy."
     }
   ]
 }

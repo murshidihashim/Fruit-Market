@@ -109,8 +109,11 @@
    across, 2 px past the outer side of each where a narrow phone draws them 40 px wide. Nothing is moved. */
 #app .tkt .sh-day .ds-st {
   all: unset; flex: none; width: 44px; min-height: 44px; display: grid; place-items: center; cursor: pointer;
-  background: var(--tk-ink); color: var(--tk-yel); font: 400 1.375rem/1 var(--tk-disp); position: relative;
+  background: var(--st-bg, var(--tk-ink)); color: var(--st-fg, var(--tk-yel)); font: 400 1.375rem/1 var(--tk-disp); position: relative;
+  touch-action: manipulation;
 }
+/* PLAN-131: pressed, the moment a finger lands (the colours swap; nothing moves) */
+.tkt .sh-day .ds-st:active:not(:disabled) { --st-bg: var(--tk-yel); --st-fg: var(--tk-ink); }
 .tkt .sh-day .ds-st::before { content: ''; position: absolute; top: -2px; bottom: -2px; left: 0; right: 0; }
 .tkt .sh-day .mini-step > .ds-st:first-child::before { left: -2px; }
 .tkt .sh-day .mini-step > .ds-st:last-child::before { right: -2px; }

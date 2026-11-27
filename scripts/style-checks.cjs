@@ -166,6 +166,18 @@ const PIECES = [
     '<div class="rush-table"><div class="rt-sheet"><div class="ps-in"><div class="ps-rows n2"><span class="ds-dial"><button type="button" class="ds-st">−</button><b class="ds-amt">3</b><button type="button" class="ds-st">+</button></span></div></div></div></div>', [
       ['.ds-st', '', 'width', '=', '38px'], ['.ds-dial > .ds-st:first-child', '::before', 'left', '=', '-2px'],
     ]],
+  // PLAN-131: iPhone Safari waits on, or swallows, a quick second tap unless the page says a double tap is not a zoom
+  ['tall', 'a quick second tap on − and +, or on Ring the bell, is a tap: no double-tap zoom on them or on anything round them',
+    '<div class="rush-table"><div class="rt-sheet"><div class="ps-in"><div class="ps-rows n2"><div class="ps-row"><span class="ds-dial"><button type="button" class="ds-st">−</button><span class="ds-tag"><span class="ds-tag-face">$4</span></span><button type="button" class="ds-st">+</button></span></div></div></div>'
+      + '<div class="pp-lock"><button type="button" class="btn primary big wide tk-go">Ring the bell</button></div></div></div>'
+      + '<div class="centre"><div class="mid-panel sh-day own"><div class="ds-rows"><div class="ds-row"><span class="mini-step"><button type="button" class="ds-st">+</button></span></div></div></div></div>', [
+      ['.rt-sheet .ds-st', '', 'touch-action', '=', 'manipulation'], ['.sh-day .ds-st', '', 'touch-action', '=', 'manipulation'],
+      ['.pp-lock .btn', '', 'touch-action', '=', 'manipulation'], ['.rt-sheet', '', 'touch-action', '=', 'manipulation'],
+      ['.ds-tag-face', '', 'touch-action', '=', 'manipulation'], ['.ds-tag-face', '', 'user-select', '=', 'none'],
+      // at rest the buttons are drawn as they were
+      ['.rt-sheet .ds-st', '', 'background-color', 'as', 'var(--tk-ink)'], ['.rt-sheet .ds-st', '', 'color', 'as', 'var(--tk-yel)'],
+      ['.sh-day .ds-st', '', 'background-color', 'as', 'var(--tk-ink)'], ['.pp-lock .btn', '', 'opacity', '=', '1'],
+    ]],
   ['tall', 'the stocking sheet\'s − and + are places to tap of 40 px at every step, without moving a row',
     ['', '1', '2', '3'].map((t) => `<div class="centre"><div class="mid-panel sh-day own"${t ? ` data-tight="${t}"` : ''} data-s="${t || 0}"><div class="ds-rows"><div class="ds-row">`
       + '<span class="mini-step"><button type="button" class="ds-st">−</button><b class="ds-amt">1</b><button type="button" class="ds-st">+</button></span></div></div></div></div>').join(''), [
