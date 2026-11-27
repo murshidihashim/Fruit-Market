@@ -1,12 +1,12 @@
 # Current state · Fruit Market
 
-Updated 2026-11-26 16:38 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-27 12:52 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live and preview:** 1.31.5 (main eb2d1ae, tagged v1.31.5, published 2026-11-25: the new How to play, PLAN-129), on 1.31.4 (table polish, PLAN-128), on 1.31.3 (the calmer game screen, PLAN-127), on 1.31.2 (price-tag icon, Shade Cloth shows your stock, no guided first sale; PLAN-126), on 1.31.1 (Desktop site note) and 1.31.0 (REP-139): the PLAN-123 polish pass, the Shopfront Home (PLAN-124), four modes with Quick Match up to 6 stalls and the one-page set-up (PLAN-125). Rules version 20, protocol 5, computer-player version 8.
 - **Working branch:** `ccr-608a8c5d-g7t4ma`, level with main plus records.
 - **Active package:** none in progress (PLAN-129 released in 1.31.5).
-- **Design study waiting on the owner (REP-140):** how to add planning and a varied early, middle and end. Recommended first step: the notice board (two known events), upgrades any evening and the empty Day 9; then three seasons, town fair ribbons, favours for sale. Nothing approved.
+- **Design study waiting on the owner (REP-140, REP-141):** the owner likes only D of REP-140 (favour cards sold each evening by secret bid). REP-141 lists eleven more mechanics that leave the day untouched; the owner is to say which he likes. Nothing approved.
 - **Left for later (REP-135 section 4):** expert stages easier than their base stages (RA-07); Ah Chen wins 42% of Sprints through the Charmer perk (RA-14); 16 empty stall-level rewards (levels 12 to 30); host lines after shared wins, stage 10 day count, Perk label contrast, Play menu punctuation, the Daily card's League line too frequent, weekly line "7 days" when 5 count, old-version message wording, reaction button below the fold at 320, small text in Wardrobe and Stamp book, How to play without the League or Sprint; game-table labels at 10 to 11 px; the print kit's tie wording.
 - **Next chapters:** League chapters of ten, each its own plan (REP-134 section 5).
 - **Commits:** author Murshidi Hashim, committer Claude, set per commit; run web checks and commits as separate commands.
