@@ -3422,7 +3422,7 @@
         "evidence": "Owner, 2026-11-27: \"the pricing button is laggy especially on iphone/safari, sometimes it doesnt register clicks, fix this\"",
         "date": "2026-11-27"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-131",
       "reviewTrigger": "When the owner has tried it on an iPhone.",
       "reports": []
@@ -5024,6 +5024,10 @@
     {
       "at": "2026-11-27 18:42",
       "text": "PLAN-131 implemented (6c0dc61): npm run verify PASS (1434). Not tested on an iPhone or in Safari: none is available in this session. Owner: \"push it live after the fix\". Release 1.32.1 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy."
+    },
+    {
+      "at": "2026-11-27 19:13",
+      "text": "1.32.1 published on the owner's word (\"push it live after the fix\"): pull request #41 passed CI and merged as 95e643b; Deploy LIVE game run 55 passed and tagged v1.32.1; the live game serves index-L_RyO_6-.js and index-0iFV3h86.css, the same as a local build of 95e643b, and the live stylesheet carries touch-action: manipulation and -webkit-user-select. PLAN-131 released. Its iPhone check (T3) is NOT RUN: it waits for the owner's own phone."
     }
   ]
 }

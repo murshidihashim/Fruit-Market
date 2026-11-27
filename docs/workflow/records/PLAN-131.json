@@ -22,14 +22,14 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks), with the new browser style check",
-      "result": "NOT RUN",
-      "evidence": "Running locally; CI on the release pull request decides it"
+      "result": "PASS",
+      "evidence": "CI on pull request #41 (head 8c9f07c): verify:full PASS, including the performance budget and the new browser style check. Locally every step passed with 0 leaks; only the performance budget failed on this shared machine (259 and 311 ms), as for every build here."
     },
     {
       "id": "T3",
       "text": "On an iPhone in Safari: ten quick taps on + and − change the price ten times, and the button shows pressed",
       "result": "NOT RUN",
-      "evidence": "No Safari or iPhone is available in this session; for the owner on the preview"
+      "evidence": "No Safari or iPhone is available in this session. In Chromium with touch emulation, 3 quick taps on − and on + each changed the price 3 times, and the pressed colours show. Published on the owner's word; the owner checks on an iPhone."
     }
   ],
   "approval": {
@@ -37,7 +37,7 @@
     "evidence": "Owner, 2026-11-27: \"the pricing button is laggy especially on iphone/safari, sometimes it doesnt register clicks, fix this\"",
     "date": "2026-11-27"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.32.1",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [],
