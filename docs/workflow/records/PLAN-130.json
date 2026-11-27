@@ -24,8 +24,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "FAIL",
-      "evidence": "On 6b24168 every step passed (solo playthrough with the new table, layout and style checks; League; Pass & Play; online with a leaver; public room; Quick Match of 2 and 4; Sprint; four players; reconnect 5 cycles), leaks 0. Only the performance budget failed on this shared machine (longest task 307 and 236 ms against 200; the game screen opened in 254 ms against 350). The build before wave 2 failed it here in 8 of 9 runs today (up to 488 ms); CI, where it normally passes at about 63 ms, decides it on the preview."
+      "result": "PASS",
+      "evidence": "On 6b24168 every step passed (solo playthrough with the new table, layout and style checks; League; Pass & Play; online with a leaver; public room; Quick Match of 2 and 4; Sprint; four players; reconnect 5 cycles), leaks 0. Only the performance budget failed on this shared machine (longest task 307 and 236 ms against 200; the game screen opened in 254 ms against 350). The build before wave 2 failed it here in 8 of 9 runs today (up to 488 ms); CI, where it normally passes at about 63 ms, decides it on the preview. CI on pull request #40 (head 8dadaa9): verify:full PASS, E2E OK, BUDGET OK (longest task 60 ms, game screen opened in 91 ms), leaks 0."
     },
     {
       "id": "T3",
@@ -51,7 +51,7 @@
     "evidence": "Owner, 2026-11-26, after REP-140: \"fix everything which doesnt require a rule change\"",
     "date": "2026-11-26"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.32.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [

@@ -3396,7 +3396,7 @@
         "evidence": "Owner, 2026-11-26, after REP-140: \"fix everything which doesnt require a rule change\"",
         "date": "2026-11-26"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-130",
       "reviewTrigger": "When the fixes are on the preview.",
       "reports": [
@@ -4989,6 +4989,10 @@
     {
       "at": "2026-11-27 07:45",
       "text": "Records correction: the branch's line \"2026-11-25 02:00\" (1.31.4 published, live bundle index-E-_sWjyy.js) had been merged into the middle of main's history, which CI's append-only check refused for release 1.32.0. It is moved out; the same publication is recorded in main's line of 2026-11-25 13:49."
+    },
+    {
+      "at": "2026-11-27 08:17",
+      "text": "1.32.0 published on the owner's word (\"push to live\"): pull request #40 passed CI (verify:full, E2E OK, performance budget OK at 60 ms) and merged as 8636dbd; Deploy LIVE game run 54 passed and tagged v1.32.0; the live game serves index-CKg8jn4W.js, the same as a local build of 8636dbd. PLAN-130 released."
     }
   ]
 }
