@@ -845,7 +845,7 @@
     },
     {
       "version": "1.34.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-133",
         "PLAN-134"
@@ -853,7 +853,10 @@
       "notes": [
         "Settings: \"Share anonymous stats\" is now \"Share game data\". With it on, finished games are kept without your name, to balance the game",
         "The game may ask once whether it can give your phone a random player number, to count your games together. Say no and nothing changes; Settings has \"Forget my data\""
-      ]
+      ],
+      "date": "2026-11-28",
+      "commit": "5285845",
+      "tagged": true
     }
   ]
 }
