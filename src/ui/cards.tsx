@@ -95,7 +95,7 @@ export function prefWords(pref: Pref): string {
   return `${title}: Fresh, Okay for $${OKAY_LESS} less, or Soft for $${SOFT_LESS} less.`;
 }
 
-/** PLAN-133: the pieces a customer wants, one picture of the fruit each (three apples wanted is three apples drawn).
+/** PLAN-135: the pieces a customer wants, one picture of the fruit each (three apples wanted is three apples drawn).
  *  It keeps the dots' class, so How to play still points at it for "how many". */
 function Pieces({ fruit, n, label }: { fruit: FruitId; n: number; label: string }) {
   return <span class="cd-dots cd-pcs" role="img" aria-label={label}>{Array.from({ length: n }, () => <FruitSvg id={fruit} size={22} alt="" />)}</span>;
@@ -432,7 +432,7 @@ export function OrderCard({ card, qty, due, bid, stake, class: cls }: {
     <article class={cx('cd', 'cd-a', 'cd-order', cls)}>
       <Head label="Standing order" right={<span>{due ?? `Due in ${ORDER_LEAD} days`}</span>} title={card.title} small={25} />
       <div class={`cd-want ${laneClass(card.fruit)}`}>
-        {/* PLAN-133: in a game, a picture of the fruit for each piece (each on its paper disc, so a blueberry shows on the
+        {/* PLAN-135: in a game, a picture of the fruit for each piece (each on its paper disc, so a blueberry shows on the
             blue band); the card as a definition keeps one picture and the sizes in words */}
         {qty !== undefined
           ? <span class="cd-dots cd-pcs" role="img" aria-label={piecesOf(qty, card.fruit)}>{Array.from({ length: qty }, () => <span class="cd-ic"><FruitSvg id={card.fruit} size={17} alt="" /></span>)}</span>

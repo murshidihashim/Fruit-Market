@@ -1,3 +1,4 @@
+import { cleanRecord, type MatchRecord } from '../src/net/matchRecord';
 import { describe, expect, it } from 'vitest';
 import { planPrices, planStall } from '../src/engine/ai';
 import { FRUITS, type FavourId } from '../src/engine/data';
@@ -41,6 +42,9 @@ class Harness implements RoomIO {
   randomInt(n: number) { return (this.n++ * 7919) % n; }
   setAlarm(at: number) { this.alarmAt = at; }
   destroy() { this.destroyed = true; }
+  /** PLAN-133: the match records the room handed to the store. */
+  records: MatchRecord[] = [];
+  record(r: MatchRecord) { this.records.push(r); }
   connect(id: string) { const c = new Client(id, this); this.list.push(c); return c; }
   drop(c: Client) { this.list = this.list.filter((x) => x !== c); this.room.closed(c); }
 }
@@ -1642,5 +1646,44 @@ describe('quick match tables of 2, 4 and 6 stalls', () => {
     await b.say(hi('Ben', '🐻'));
     expect(b.view!.status).toBe('playing');
     expect(h.room.d.game!.players.length).toBe(2);
+  });
+});
+
+// PLAN-133: a finished online match is kept as a nameless record, only when every person shares game data.
+describe('match records from a room', () => {
+  const hello = (name: string, share: boolean | undefined) => ({ t: 'hello' as const, rv: RULES_VERSION, pv: PROTOCOL_VERSION, name, avatar: '', ...(share === undefined ? {} : { share }) });
+  async function match(shareA: boolean | undefined, shareB: boolean | undefined) {
+    const h = new Harness();
+    const a = h.connect('A');
+    const b = h.connect('B');
+    await a.say(hello('Murshidi', shareA));
+    await b.say(hello('Zorblax', shareB));
+    await start(h, a, b, 8, 1);
+    await playOut(h, a, b);
+    expect(h.room.d.status).toBe('finished');
+    return { h, a, b };
+  }
+
+  it('one record when both share: every day, the final cash, and no name, token or room code', async () => {
+    const { h, a } = await match(true, true);
+    expect(h.records.length).toBe(1);
+    const rec = h.records[0];
+    const g = h.room.d.game!;
+    expect(rec.mode).toBe('online');
+    expect(rec.days.map((d) => d.d)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(rec.end).toMatchObject({ over: true, cash: g.players.map((p) => p.cash) });
+    expect(rec.days[7].cash).toEqual(g.players.map((p) => p.cash));
+    expect(rec.cfg.seats.map((x) => x.k)).toEqual(['h', 'h', 'c']);
+    // the cleaner keeps it whole: nothing in it is outside the game's own words and numbers
+    expect(cleanRecord(JSON.parse(JSON.stringify(rec)))).toEqual(JSON.parse(JSON.stringify(rec)));
+    const text = JSON.stringify(rec);
+    for (const secret of ['Murshidi', 'Zorblax', 'TESTAB', ...h.room.d.seats.map((x) => x.token), ...g.players.map((p) => p.name)]) expect(text).not.toContain(secret);
+    // and the record never travels to a player
+    expect(a.inbox.some((m) => m.includes(rec.id) || m.includes('"rec"'))).toBe(false);
+  });
+
+  it('no record when one person has sharing off, or runs an older app that does not say', async () => {
+    expect((await match(true, false)).h.records).toEqual([]);
+    expect((await match(true, undefined)).h.records).toEqual([]);
   });
 });

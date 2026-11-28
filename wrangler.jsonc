@@ -16,14 +16,16 @@
       { "name": "BOARD", "class_name": "BoardDO" },
       { "name": "MATCH", "class_name": "MatchDO" },
       { "name": "ACCOUNT", "class_name": "AccountDO" },
-      { "name": "LOBBY", "class_name": "LobbyDO" }
+      { "name": "LOBBY", "class_name": "LobbyDO" },
+      { "name": "RECORDS", "class_name": "RecordsDO" }
     ]
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["RoomDO"] },
     { "tag": "v2", "new_sqlite_classes": ["StatsDO", "BoardDO", "MatchDO"] },
     { "tag": "v3", "new_sqlite_classes": ["AccountDO"] },
-    { "tag": "v4", "new_sqlite_classes": ["LobbyDO"] }
+    { "tag": "v4", "new_sqlite_classes": ["LobbyDO"] },
+    { "tag": "v5", "new_sqlite_classes": ["RecordsDO"] }
   ],
   // Per-IP limits for write endpoints (requests per 60 s). See server/limits.ts.
   "ratelimits": [
@@ -46,7 +48,8 @@
           { "name": "BOARD", "class_name": "BoardDO" },
           { "name": "MATCH", "class_name": "MatchDO" },
           { "name": "ACCOUNT", "class_name": "AccountDO" },
-          { "name": "LOBBY", "class_name": "LobbyDO" }
+          { "name": "LOBBY", "class_name": "LobbyDO" },
+          { "name": "RECORDS", "class_name": "RecordsDO" }
         ]
       },
       "ratelimits": [

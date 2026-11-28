@@ -1,9 +1,11 @@
 // Anonymous usage counters and crash lines, sent to our own server in small batches.
 // No IDs, names or device details: only event names like "game_end:win" and short error messages.
-// Players can switch it off in Settings ("Share anonymous stats").
+// Players can switch it off in Settings ("Share game data"; PLAN-133: the same switch covers the match records).
 import { anySave, hasStats, loadSettings } from '../ui/store';
 import { serverBase } from './client';
 import { activeBucket, dayKey, daysBetween, isoWeek } from './cohort';
+import { sessionHello } from './player';
+import { noteSlow } from './recorder';
 
 const queue: string[] = [];
 const errors: string[] = [];
@@ -86,4 +88,20 @@ export function installTelemetry() {
   const native = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
   track('app_open', native ? 'android' : 'web');
   trackCohort();
+  sessionHello(); // PLAN-134: only for a player who said yes
+  pruneKept();
+  // PLAN-133: long pauses of the screen while a game is open, as one number in its record
+  try { new PerformanceObserver((l) => { for (const e of l.getEntries()) if (e.duration > 200) noteSlow(); }).observe({ entryTypes: ['longtask'] }); } catch { /* not supported here */ }
+}
+
+/** PLAN-133: records kept beside games that were never finished are dropped after 30 days. */
+function pruneKept(now = Date.now()) {
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (!k?.startsWith('fm.rec.')) continue;
+      const at = (JSON.parse(localStorage.getItem(k) ?? '{}') as { at?: number }).at ?? 0;
+      if (now - at > 30 * 86_400_000) localStorage.removeItem(k);
+    }
+  } catch { /* storage unavailable */ }
 }

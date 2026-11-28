@@ -118,7 +118,7 @@ export interface RoomView {
 }
 
 export type ClientMsg =
-  | { t: 'hello'; token?: string; name: string; avatar: string; look?: Record<string, string>; rv?: number; pv?: number }
+  | { t: 'hello'; token?: string; name: string; avatar: string; look?: Record<string, string>; rv?: number; pv?: number; /** PLAN-133: "Share game data" is on for this person (absent, from an older app: not shared). */ share?: boolean }
   | { t: 'look'; look: Record<string, string> }
   | { t: 'character'; avatar: string }
   | { t: 'confirm' }

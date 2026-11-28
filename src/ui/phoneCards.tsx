@@ -24,7 +24,7 @@ const two = (n: number) => String(n).padStart(2, '0');
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ');
 const piecesOf = (n: number, f: FruitId) => `${n} ${n === 1 ? FRUIT[f].name : FRUIT[f].plural}`;
 
-/** PLAN-133: the pieces a customer or a standing order wants, one picture of the fruit each; `got` marks those handed over. */
+/** PLAN-135: the pieces a customer or a standing order wants, one picture of the fruit each; `got` marks those handed over. */
 function Pieces({ fruit, n, label, got = 0 }: { fruit: FruitId; n: number; label: string; got?: number }) {
   return <span class="wc-dots wc-pcs" role="img" aria-label={label}>{Array.from({ length: n }, (_, i) => <FruitSvg id={fruit} size={20} alt="" class={i < got ? 'got' : undefined} />)}</span>;
 }

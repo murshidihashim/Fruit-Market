@@ -8,7 +8,7 @@ export interface Limiter { limit(opts: { key: string }): Promise<{ success: bool
 /** PLAN-114: a Sprint submission shares the Daily market's binding and limit, on its own key. */
 /** PLAN-112: the Public rooms list is read every few seconds while the online screen is open, so it shares the larger
  *  per-minute limit of the usage counters (each route counts on its own key). */
-export const ROUTE_LIMITER = { rooms: 'RL_ROOMS', quick: 'RL_ROOMS', daily: 'RL_DAILY', sprint: 'RL_DAILY', t: 'RL_EVENTS', account: 'RL_ACCOUNT', public: 'RL_EVENTS' } as const;
+export const ROUTE_LIMITER = { rooms: 'RL_ROOMS', quick: 'RL_ROOMS', daily: 'RL_DAILY', sprint: 'RL_DAILY', t: 'RL_EVENTS', account: 'RL_ACCOUNT', public: 'RL_EVENTS', m: 'RL_EVENTS', s: 'RL_EVENTS', forget: 'RL_ACCOUNT' } as const;
 export type LimitedRoute = keyof typeof ROUTE_LIMITER;
 
 export async function allowed(limiter: Limiter | undefined, route: LimitedRoute, ip: string | null): Promise<boolean> {

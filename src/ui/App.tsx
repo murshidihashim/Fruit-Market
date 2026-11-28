@@ -20,6 +20,9 @@ import { fx } from './fx';
 import { setStill } from './motion';
 import { shouldAskFullscreen } from './fullscreen';
 import { track } from '../net/telemetry';
+import { noteLeft, noteShown } from '../net/recorder';
+import { answerLink, linkAnswer, noteGameStarted, sessionHello } from '../net/player';
+import { serverBase } from '../net/client';
 import { LEAGUE, finishGame, leagueConfig, leagueStage } from './progress';
 import { LocalSetup } from './Setup';
 import { Wardrobe } from './Wardrobe';
@@ -128,6 +131,7 @@ function useSaves() {
     const first = cfg0.players.findIndex((p) => p.kind === 'human');
     const cfg = first >= 0 && Object.keys(look).length ? { ...cfg0, players: cfg0.players.map((p, i) => (i === first ? { ...p, look } : p)) } : cfg0;
     track('game_start', counterMode(cfg));
+    noteGameStarted();
     track('players', cfg.players.length);
     // PLAN-118: a League stage that opens part-way is brought there by real game actions (nothing else changes).
     const g = openStage(newGame(cfg));
@@ -213,16 +217,17 @@ function useRun(nav: Nav, saves: Saves, entry: OnlineEntry) {
   // Starting another game of a mode saves over that mode's waiting game, so the player is asked first (PLAN-081). PLAN-120:
   // only a game of the same mode is replaced; the other modes' games wait on their own cards.
   const orAsk = (slot: SaveSlot, what: string, yes: () => void) => () => startOrAsk(waitingGame(games[slot] ?? null), yes, (then) => { fx.tap(); nav.setSwap({ slot, what, go: then }); });
-  const openIntro = (kind: DailyKind) => { setIntroKind(kind); nav.go('intro'); };
+  const openIntro = (kind: DailyKind) => { track('mode_view', kind); setIntroKind(kind); nav.go('intro'); };
   const resume = (slot: SaveSlot) => { saves.setActive(slot); nav.go('game'); };
-  const toOnline = (mode: 'room' | 'public', code: string | undefined, back: Screen) => { entry.setMode(mode); entry.setJoinCode(code); nav.setFrom(back); nav.go('online'); };
-  const toQuick = (back: Screen) => { nav.setFrom(back); nav.go('quick'); };
+  const toOnline = (mode: 'room' | 'public', code: string | undefined, back: Screen) => { track('mode_view', mode === 'room' ? 'private' : 'public'); entry.setMode(mode); entry.setJoinCode(code); nav.setFrom(back); nav.go('online'); };
+  const toQuick = (back: Screen) => { track('mode_view', 'quick'); nav.setFrom(back); nav.go('quick'); };
   // PLAN-125: Computer and Pass & Play open their set-up page (asking first when a game against the computer waits).
-  const toSetup = (mode: 'computer' | 'phone', back: Screen) => orAsk('play', 'a new game', () => { setSetup((s) => ({ ...s, mode })); nav.setFrom(back); nav.go('setup'); });
+  const toSetup = (mode: 'computer' | 'phone', back: Screen) => orAsk('play', 'a new game', () => { track('mode_view', mode === 'phone' ? 'pass_and_play' : 'computer'); setSetup((s) => ({ ...s, mode })); nav.setFrom(back); nav.go('setup'); });
   /** Leaves the game for Home, where it waits in its slot (a finished game is let go). */
   const leaveGame = () => {
     const g = saves.game;
-    if (g && g.phase !== 'over') track('quit_day', g.day);
+    if (g && g.phase !== 'over') { track('quit_day', g.day); track('quit_step', g.phase); noteLeft(g); }
+    noteShown(null);
     nav.setScreen('home');
     saves.dropFinished();
   };
@@ -349,6 +354,12 @@ function OverHome({ nav, saves, run, askFullscreen, onAsked }: { nav: Nav; saves
       )}
       {nav.popup === 'account' && <Popup title="Account" onClose={close}><accountPanel.Screen onChange={() => refresh((n) => n + 1)} /></Popup>}
       {askFullscreen && nav.played && nav.screen === 'home' && !nav.popup && !swap && <fullscreenPrompt.Screen onClose={onAsked} />}
+      {/* PLAN-134: asked once, after a first game, never over another question, and only where the game has a server to send to. Until a yes no player number exists. */}
+      {!askFullscreen && nav.played && nav.screen === 'home' && !nav.popup && !swap && serverBase() !== '' && linkAnswer() === null && (
+        <Popup title="Help improve the game?" onClose={() => { answerLink(false); refresh((n) => n + 1); }}>
+          <LinkAsk onAnswer={(yes) => { fx.tap(); answerLink(yes); if (yes) sessionHello(); refresh((n) => n + 1); }} />
+        </Popup>
+      )}
     </>
   );
 }
@@ -393,7 +404,7 @@ function HomeBody({ nav, saves, run }: { nav: Nav; saves: Saves; run: Run }) {
       onOnePhone={run.toSetup('phone', 'home')}
       onDaily={() => run.openIntro('daily')}
       onSprint={() => run.openIntro('sprint')}
-      onLeague={() => nav.go('league')}
+      onLeague={() => { track('mode_view', 'league'); nav.go('league'); }}
       onWardrobe={() => nav.go('wardrobe')}
       onAccount={() => { fx.tap(); whenReady(accountPanel, () => nav.setPopup('account')); }}
       onTrophies={() => nav.go('trophies')}
@@ -430,4 +441,18 @@ function useBackButtons(nav: NavState, apply: (step: BackStep) => void) {
     addEventListener('popstate', onPop);
     return () => removeEventListener('popstate', onPop);
   }, [latest]);
+}
+
+/** PLAN-134: the one question about linking games. The words say what is sent and what is not; No is as easy as Yes. */
+function LinkAsk({ onAnswer }: { onAnswer: (yes: boolean) => void }) {
+  return (
+    <div class="link-ask">
+      <p>May the game give this phone a <b>random player number</b>, so your games can be counted together? It shows how players improve and what keeps the game fun.</p>
+      <p class="muted">No name, account or phone ID is sent. You can switch it off, or have your data deleted, in Settings.</p>
+      <div class="row2">
+        <button class="btn" onClick={() => onAnswer(false)}>No thanks</button>
+        <button class="btn primary" onClick={() => onAnswer(true)}>Yes, share</button>
+      </div>
+    </div>
+  );
 }

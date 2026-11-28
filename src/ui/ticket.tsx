@@ -37,7 +37,7 @@ const two = (n: number) => String(n).padStart(2, '0');
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ');
 
 /**
- * A ticket shows a picture of the fruit for each piece (PLAN-133; a dot each before) when its rows have room for them,
+ * A ticket shows a picture of the fruit for each piece (PLAN-135; a dot each before) when its rows have room for them,
  * and one picture with a number ("×3") when they do not: a row of five tickets on a phone can be too narrow. These are the narrowest tickets, measured inside
  * the border in px, whose rows hold the dots: `roomy` with the spacing of the approved ticket, `tight` with the closer
  * spacing of a narrow one. The stylesheet compares them with the ticket's real width (cards.css, --nr and --nt).
@@ -46,7 +46,7 @@ export function dotsNeed(lines: { qty: number; max: number; done?: boolean }[]):
   // A price is a dollar sign and its figures, each two thirds of an em wide; a bought row ends with a tick.
   const chars = (x: { max: number }) => String(x.max).length + 1;
   const tick = (x: { done?: boolean }) => (x.done ? 11 : 0);
-  // PLAN-133: a piece is a picture of the fruit (14 px, 13 on a narrow ticket), 2 px apart.
+  // PLAN-135: a piece is a picture of the fruit (14 px, 13 on a narrow ticket), 2 px apart.
   const roomy = Math.max(0, ...lines.map((x) => 4 + x.qty * 14 + (x.qty - 1) * 2 + 3 + chars(x) * 8 + tick(x) + 4));
   const tight = Math.max(0, ...lines.map((x) => 3 + x.qty * 13 + (x.qty - 1) * 2 + 2 + chars(x) * 7.34 + tick(x) + 3));
   return { roomy: Math.ceil(roomy), tight: Math.ceil(tight) };
@@ -76,7 +76,7 @@ export function Ticket({ who, lines, class: cls, order }: { who: string; lines: 
       {rows.map((x) => (
         <div class={cx('tkc-rw', laneClass(x.fruit), x.done && 'done', x.move)}>
           <span class="tkc-q" role="img" aria-label={`${x.qty} ${x.qty === 1 ? FRUIT[x.fruit].name : FRUIT[x.fruit].plural}`}>
-            {/* PLAN-133: one picture of the fruit for each piece; on a ticket too narrow for them, one picture and "×3" */}
+            {/* PLAN-135: one picture of the fruit for each piece; on a ticket too narrow for them, one picture and "×3" */}
             <span class="tkc-dots">{Array.from({ length: x.qty }, () => <FruitSvg id={x.fruit} size={14} alt="" />)}</span>
             <em class="tkc-n"><FruitSvg id={x.fruit} size={14} alt="" />×{x.qty}</em>
           </span>

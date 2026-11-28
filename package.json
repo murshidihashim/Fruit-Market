@@ -1,6 +1,6 @@
 {
   "name": "fruit-market",
-  "version": "1.33.1",
+  "version": "1.34.1",
   "description": "Fruit Market: buy fresh, sell fast, undercut your rivals.",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,7 @@
     "test": "vitest run",
     "simulate": "vite-node scripts/simulate.ts",
     "balance": "vite-node scripts/balance.ts",
+    "matches": "vite-node scripts/matches.ts",
     "android:sync": "npm run build && npx cap sync android",
     "dev:online": "vite build && wrangler dev --port 8787",
     "deploy:web": "vite build && wrangler deploy",

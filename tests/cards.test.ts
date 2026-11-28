@@ -150,7 +150,7 @@ describe('customer cards (the Main board)', () => {
     });
   });
 
-  it('the fruit rows are in the board\'s lane order, with one picture of the fruit for each piece (PLAN-133)', () => {
+  it('the fruit rows are in the board\'s lane order, with one picture of the fruit for each piece (PLAN-135)', () => {
     for (const c of CUSTOMER_CARDS) {
       const s = html(TradingCard, { who: c.name, wants: c.wants });
       const rows = [...s.matchAll(/<li class="ln-([a-z]+)">.*?<\/li>/g)];
@@ -463,7 +463,7 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
       expect(s).toContain(`>${o.title}</strong>`);
       expect(s).toContain(esc(o.quirk));
       expect(s).toContain(`cd-want ln-${o.fruit}`);
-      // PLAN-133: a picture of the fruit for each piece, each on its paper disc; no dots
+      // PLAN-135: a picture of the fruit for each piece, each on its paper disc; no dots
       expect(s.match(/<span class="cd-ic"><img class="x-fruit"/g)).toHaveLength(orderQty(4));
       expect(s).not.toContain('<i></i>');
       expect(s).toContain(`<b>$${o.ceiling}</b><small>Highest bid, each</small>`);
@@ -549,7 +549,7 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
       for (const w of c.wants) expect(s).toContain(`<b>$${w.max}</b>`);
       expect(s.match(/class="tkc-lamp( off)?"/g)).toHaveLength(3);
       // Both ways of showing the amount are there; the stylesheet shows the dots when the ticket is wide enough.
-      // PLAN-133: a picture of the fruit for each piece (no dots, no lone picture in front), and one picture with "×N" for a narrow ticket
+      // PLAN-135: a picture of the fruit for each piece (no dots, no lone picture in front), and one picture with "×N" for a narrow ticket
       for (const row of s.match(/<div class="tkc-rw [^"]*">.*?<\/div>/g) ?? []) {
         const n = Number(row.match(/×(\d+)<\/em>/)![1]);
         expect(row.match(/<span class="tkc-dots">(.*?)<\/span>/)![1].match(/class="x-fruit"/g), c.name).toHaveLength(n);
@@ -577,7 +577,7 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
     expect(one.roomy).toBeLessThan(three.roomy);
     expect(three.roomy).toBeLessThan(dear.roomy);
     expect(one.tight).toBeLessThan(one.roomy);
-    // Four tickets across a 390 px phone are 83.75 px inside their borders. PLAN-133: three pictures fit beside a
+    // Four tickets across a 390 px phone are 83.75 px inside their borders. PLAN-135: three pictures fit beside a
     // one-figure price and beside "$13"; four pictures and "$13" do not, so that ticket says "×4".
     expect(three.roomy).toBeLessThanOrEqual(83.75);
     expect(dear.roomy).toBeLessThanOrEqual(83.75);
