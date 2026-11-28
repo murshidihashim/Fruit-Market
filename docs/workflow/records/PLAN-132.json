@@ -28,8 +28,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks), with the scripts moved to the new routes (a tile, then Play)",
-      "result": "NOT RUN",
-      "evidence": "Running"
+      "result": "FAIL",
+      "evidence": "Every step passed (solo game, League, Pass & Play, online match, Quick Match, public room, Sprint, four players, reconnect, Quick Match of 4; 0 leaks) except the performance budget: longest task during play 245 ms and 230 ms against 200 ms. The pause is on the game table, which this plan does not touch, and this machine has failed that limit on unchanged builds (238 to 315 ms on 2026-11-14 and 2026-11-16; 63 ms on CI). CI on the pull request decides it"
     },
     {
       "id": "T3",

@@ -5063,6 +5063,10 @@
     {
       "at": "2026-11-28 09:04",
       "text": "1.32.1 recorded as published: the live game's Settings showed \"Version 1.32.1\" on 2026-11-28 and tag v1.32.1 is on main 95e643b. The deploy run's number was not looked up."
+    },
+    {
+      "at": "2026-11-28 09:28",
+      "text": "PLAN-132 implemented: npm run verify PASS (1440). Browser run: every step passed with 0 leaks except the performance budget (longest task in play 245 and 230 ms against 200 ms on this machine; the table is not changed by this plan, and unchanged builds have failed here before). Owner, 2026-11-28, twice: \"push it live\". Release 1.33.0 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy if CI is green."
     }
   ]
 }
