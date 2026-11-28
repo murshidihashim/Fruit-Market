@@ -2,44 +2,44 @@
 // - Your stall (YourStall), drawn with every look you wear (the awning in your colour with your roof and trim, your
 //   shopkeeper in what they wear inside your signboard frame, your name and title on the signboard, your crate with your
 //   prop and your price tag), with the stamp book and the Wardrobe as icon buttons. It heads the Stall tab.
-// - One hero card for the chosen mode, framed like a stall (an awning on top): Custom match (the four ways to play a full
-//   market, you against three rivals, your next goal), the Market League (the stage you are on, its picture and rivals,
-//   your stars, the next trophy), the Daily market (today's first customer and the lorry, your place, today's twist) and
-//   the Sprint (3 days, your best today, the week, its reason).
-// - The mode tabs under it (a tablist: Custom, League, Daily, Sprint), each marking a waiting game with its day.
-// - The one big Play button for the chosen mode, or Continue (with the mode, day and cash) and a smaller New game when
-//   that mode's game is waiting (store.ts keeps one per mode).
-// Nothing here is animated; the chosen tab is remembered in a small `fm.` key (never in the save envelope).
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+// - One wide card for the chosen mode, framed like a stall (an awning on top). PLAN-132: its name with where you stand
+//   beside it, then: Match (four tiles, the way ticked is what Play starts), the Market League (the stage's picture,
+//   title, goal and stars; the next trophy), the Daily market and the Sprint (today's first customer and the lorry,
+//   and one line of rules). A fact is on a card once; the host beside the card only chats (HomeHost.tsx).
+// - The mode tabs above the host and the card (a tablist: Match, League, Daily, Sprint), each marking a waiting game
+//   with its day. A sideways swipe on the card changes mode too.
+// - The one big Play button for the chosen mode ("Play · Computer" for a Match), or Continue and a smaller New game
+//   when that mode's game is waiting (store.ts keeps one per mode).
+// The chosen tab and the chosen way are remembered in small `fm.` keys (never in the save envelope).
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { SPRINT_DAYS, dailyConfig, dailyTwist, sprintConfig } from '../engine/daily';
+import { SPRINT_DAYS, SPRINT_WEEK_DAYS, dailyConfig, sprintConfig } from '../engine/daily';
 import { FRUIT, RIVALS, lookOf, type FruitId } from '../engine/data';
-import { newGame, type GameConfig, type GameState } from '../engine/game';
+import { newGame, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
 import { ownerHash, placeWords } from '../net/sprint';
 import { stallOf, tagOf, titleOf } from '../net/looks';
-import { Face } from './art';
-import { CardArt, Gazette, TradingCard } from './cards';
+import { ART_SIZE, CardArt, Gazette, TradingCard } from './cards';
+import { customerArt, eventArt, eventFocus, guestArt } from './deckArt';
 import { CardZoom } from './cardZoom';
 import { LEAGUE, picName, stageByNo, stageStars, starGoals } from './campaign';
 import { FruitSvg } from './fruitIcons';
 import { Icon, PropSprite, RoofBand } from './icons';
-import { myAvatar, setupAvatar, worn } from './looks';
+import { myAvatar, worn } from './looks';
 import { crateUrl } from './marketArt';
-import { C } from './palette';
 import { nextTrophy } from './leagueTrophy';
-import { MODE_REASON, WAYS, leagueEcho } from './playMenu';
+import { WAYS, wayName, type PlayWay } from './playMenu';
 import { HOME_MODES, type HomeMode } from './modes';
-import { leagueConfig, leagueStage, myStars } from './progress';
-import { stageGoal, stageRivals } from './progressView';
+import { leagueStage, myStars } from './progress';
+import { stageGoal } from './progressView';
 import { waitingGame, type WaitingGame } from './paused';
-import { FramedFace, PriceTag, myColour, shownAvatar, stallName } from './stampCard';
+import { FramedFace, PriceTag, myColour, stallName } from './stampCard';
 import { Stars, picSrc } from './StageMoment';
-import { WEEK_NOTE, bestLine, useSprintBoards } from './Sprint';
+import { useSprintBoards } from './Sprint';
 import { loadSprintBest } from './sprintStore';
 import { loadDaily, type SaveSlot } from './store';
 import { currentStreak } from './streak';
-import { firstCustomer, rivalsLine, shortDate } from './dailyCard';
+import { firstCustomer, shortDate } from './dailyCard';
 import './home-cards.css';
 
 const LORRY: FruitId[] = ['blueberry', 'watermelon', 'mango', 'apple'];
@@ -184,85 +184,98 @@ export function ModeTabs({ at, games, onPick }: { at: HomeMode; games: Partial<R
   );
 }
 
-/* ---------- the hero cards ---------- */
+/* ---------- the ways of a Match: the one chosen ---------- */
+
+const WAY_KEY = 'fm.homeWay';
+const isWay = (v: unknown): v is PlayWay => WAYS.some((w) => w.id === v);
+/** PLAN-132: the way ticked for a player who has not chosen yet: the computer, the gentlest first game. */
+export const FIRST_WAY: PlayWay = 'computer';
+/** The way to play a Match the player chose last (kept across reloads in a small `fm.` key, never in a save). */
+export function savedWay(): PlayWay {
+  try {
+    const v = localStorage.getItem(WAY_KEY);
+    return isWay(v) ? v : FIRST_WAY;
+  } catch {
+    return FIRST_WAY; // no storage (a private window)
+  }
+}
+export function saveWay(w: PlayWay) {
+  try { localStorage.setItem(WAY_KEY, w); } catch { /* no storage: the choice lasts this visit only */ }
+}
+
+/** Each way's flat picture: a bolt, a key, a monitor, two arrows, on its fruit colour (home-cards.css). */
+const WAY_ICON: Record<PlayWay, ComponentChildren> = {
+  quick: <path class="hh-fg" d="M16 3L6 16h7l-2 9 11-14h-7z" />,
+  room: <><circle class="hh-ln" cx="10" cy="14" r="5.5" /><path class="hh-ln" d="M15 14h9M20 14v5M24 14v4" /></>,
+  computer: <><rect class="hh-ln" x="5" y="6" width="18" height="12" /><path class="hh-ln" d="M14 18v4M9 23h10" /></>,
+  phone: <path class="hh-ln" d="M5 10h15l-4-4M23 18H8l4 4" />,
+};
+
+/* ---------- the mode cards ---------- */
 
 export interface HeroProps {
   today: string;
   /** The saved game of each mode (store.ts loadGames), or none. */
   games: Partial<Record<SaveSlot, GameState>>;
-  /** The "Next: …" line (Home.tsx nextLine): the nearest look to unlock, or the next level's reward. */
-  next: string | null;
-  /** The four ways to play a Custom match, each straight to its own start (as the Play page's buttons). */
-  onQuick: () => void;
-  onRoom: () => void;
-  onComputer: () => void;
-  onOnePhone: () => void;
+  /** PLAN-132: the way to play a Match that is ticked, and what a tap on a tile does (it only chooses). */
+  way: PlayWay;
+  onWay: (w: PlayWay) => void;
 }
 
-/** The card's frame: a stall's awning on top, then the mode's name and its short line. */
-function Frame({ mode, sub, children }: { mode: HomeMode; sub: ComponentChildren; children: ComponentChildren }) {
+/** A Daily-style game's first morning, made once per day and kind (the card and the host's line both read it). */
+const mornings = new Map<string, GameState>();
+export function firstMorning(kind: 'daily' | 'sprint', today: string): GameState {
+  const key = `${kind}:${today}`;
+  let g = mornings.get(key);
+  if (!g) {
+    mornings.clear();
+    g = newGame(kind === 'sprint' ? sprintConfig(today, 'You') : dailyConfig(today, 'You'));
+    mornings.set(key, g);
+  }
+  return g;
+}
+/** The first customer's name as the cards show it ("Coral Mei"), or null when the day opens with an event. */
+export function firstTitle(kind: 'daily' | 'sprint', today: string): string | null {
+  const who = firstCustomer(firstMorning(kind, today));
+  return who ? lookOf(who.name).title : null;
+}
+
+/** The card's frame: a stall's awning on top, then the mode's name with where you stand beside it (PLAN-132: the day
+ *  and cash of a waiting game, the stage, or the date and today's result), then its body. */
+function Frame({ mode, status, children }: { mode: HomeMode; status: ComponentChildren; children: ComponentChildren }) {
   return (
-    <div class={`jh-hero jh-hero-${mode}`} data-card={mode}>
-      <RoofBand cls="tb-awn jh-hawn" colour={C.xMelon} scale={2} />
-      <div class="jh-hhd"><h2>{MODES.find((m) => m.id === mode)!.name}</h2><small>{sub}</small></div>
-      <div class="jh-hb">{children}</div>
+    <div class={`hh-card hh-card-${mode}`} data-card={mode}>
+      <div class="hh-awn" aria-hidden="true" />
+      <div class="hh-chd"><h2>{MODES.find((m) => m.id === mode)!.name}</h2>{status ? <small>{status}</small> : null}</div>
+      <div class="hh-cb">{children}</div>
     </div>
   );
 }
 
-/** The waiting game's table in one row: every stall's face and cash (the table shows them to all). */
-function TableRow({ g }: { g: GameState }) {
-  const me = g.players.findIndex((p) => p.kind === 'human');
-  const solo = g.players.filter((p) => p.kind === 'human').length === 1;
-  const order = g.players.map((_, i) => i).sort((a, b) => g.players[b].cash - g.players[a].cash);
-  return (
-    <div class="jh-trow" aria-label="The table">
-      {order.map((i) => (
-        <span class={`jh-tr ${solo && i === me ? 'me' : ''}`}>
-          <FramedFace who={shownAvatar(g.players, i)} size={22} look={i === me ? worn() : g.players[i].look} />
-          <b>${g.players[i].cash}</b>
-        </span>
-      ))}
-    </div>
-  );
-}
+/** A mode's waiting game in words ("Day 4 of 10 · $23"), or null. */
+const waitOf = (p: HeroProps, mode: HomeMode): string | null => {
+  const w = waitingGame(p.games[MODES.find((m) => m.id === mode)!.slot] ?? null);
+  return w ? waitWords(w) : null;
+};
 
-/** The "Next: …" strip at the foot of a card. */
-const NextStrip = ({ next }: { next: string | null }) => (next ? <span class="jh-next3"><b>Next:</b> {next}</span> : null);
-
-/** Custom match: the four ways to play a full market of your own, you against three rivals (or the waiting game's
- *  table), and your next goal. */
+/** Match: the four ways to play a full market of your own as tiles; the one ticked is what Play starts. */
 function CustomCard(p: HeroProps) {
-  const g = p.games.play;
-  const w = waitingGame(g ?? null);
-  const avatar = myAvatar();
-  const rivals = RIVALS.filter((r) => r.avatar !== avatar).slice(0, 3);
   return (
-    <Frame mode="custom" sub="your market, your way">
-      <div class="jh-ways2">
-        {/* PLAN-125 (DEC-133): the four ways, with the names and lines of the approved mockup B */}
+    <Frame mode="custom" status={waitOf(p, 'custom')}>
+      <div class="hh-ways" role="radiogroup" aria-label="How to play">
         {WAYS.map((w) => (
-          <button class="jh-way" data-a={`way-${w.id}`} onClick={{ quick: p.onQuick, room: p.onRoom, computer: p.onComputer, phone: p.onOnePhone }[w.id]}>
-            <b>{w.name}</b><span>{w.line}</span>
+          <button class="hh-way" role="radio" aria-checked={w.id === p.way ? 'true' : 'false'} data-a={`way-${w.id}`} onClick={() => p.onWay(w.id)}>
+            <svg class={`hh-wic hh-wic-${w.id}`} viewBox="0 0 28 28" aria-hidden="true"><rect class="hh-bg" width="28" height="28" />{WAY_ICON[w.id]}</svg>
+            <b>{w.name}</b>
           </button>
         ))}
       </div>
-      {w && g ? (
-        <div class="jh-hwait"><span class="jh-lb">Your game · {w.mode}</span><TableRow g={g} /></div>
-      ) : (
-        <span class="jh-vs" aria-hidden="true">
-          <span class="jh-me"><FramedFace who={avatar} size={44} look={worn()} /></span><i>vs</i>
-          {rivals.map((r) => <span class="jh-round"><Face who={r.avatar} size={36} /></span>)}
-        </span>
-      )}
-      <NextStrip next={p.next} />
     </Frame>
   );
 }
 
-/** The Market League: the stage you are on, its picture with you against its rivals, its title and goal, your stars and
- *  the next trophy. */
-function LeagueCard() {
+/** The Market League: the stage you are on (its picture, title, goal and stars) and the next trophy. */
+function LeagueCard(p: HeroProps) {
   const at = leagueStage();
   const done = at >= LEAGUE.length;
   const sel = Math.min(at, LEAGUE.length - 1);
@@ -271,19 +284,19 @@ function LeagueCard() {
   const got = stageStars(sel, stars).length;
   const trophy = nextTrophy();
   return (
-    <Frame mode="league" sub={done ? `All ${LEAGUE.length} stages cleared` : `Stage ${sel + 1} of ${LEAGUE.length}`}>
-      <span class="jh-why">{MODE_REASON.league}</span>
-      <div class="jh-lgpic">
-        <CardArt class="jh-lgart" src={picSrc(st.pic)} alt={picName(st.pic)} w={300} h={170} eager />
-        <span class="jh-lgvs" aria-hidden="true">
-          <FramedFace who={setupAvatar(leagueConfig(sel, '', ''))} size={28} look={worn()} /><i>vs</i>
-          {stageRivals(st).map((r) => <span class="jh-round"><Face who={r.avatar} size={24} /></span>)}
-        </span>
+    <Frame mode="league" status={waitOf(p, 'league') ?? (done ? `All ${LEAGUE.length} stages cleared` : `Stage ${sel + 1} of ${LEAGUE.length}`)}>
+      <div class="hh-duo">
+        <div class="hh-col">
+          <span class="hh-lb">{st.pic.kind === 'keeper' ? 'Your rival' : 'This stage'}</span>
+          <div class="hh-pic"><CardArt class="hh-art" src={picSrc(st.pic)} alt={picName(st.pic)} w={300} h={170} eager /><span class="hh-pn">{picName(st.pic)}</span></div>
+        </div>
+        <div class="hh-col hh-mid">
+          <b class="hh-big">{st.title}</b>
+          <span class="hh-fact">{stageGoal(st)}</span>
+          <Stars got={got} total={starGoals(st).length} size={18} />
+        </div>
       </div>
-      <b class="jh-lgt">{st.title}</b>
-      <span class="jh-lgg">{stageGoal(st)}</span>
-      <span class="jh-lgs"><Stars got={got} total={starGoals(st).length} size={16} /><small>{stars.length} stars in all</small></span>
-      {trophy && <span class="jh-lgtr"><b>Next trophy</b> {trophy.title} · {trophy.got} of {trophy.goal} stars</span>}
+      <span class="hh-rules">{trophy ? <><b>Next trophy:</b> {trophy.title} · {trophy.got} of {trophy.goal} stars</> : <><b>{stars.length} stars</b> in all</>}</span>
     </Frame>
   );
 }
@@ -295,98 +308,122 @@ export function useDailyBoard(today: string): BoardResult | null {
   return res;
 }
 
-/** The first morning of a Daily-style game: its first customer as a small card that opens whole on a tap, and the lorry. */
-function FirstMorning({ cfg, children }: { cfg: GameConfig; children: ComponentChildren }) {
-  // The card's set-up is made once a day by its card (DailyCard, SprintCard), so the first morning is too.
-  const first = useMemo(() => newGame(cfg), [cfg]);
+/** The first morning of a Daily-style game: who opens it (a cropped picture that opens the whole card on a tap) beside
+ *  the lorry in four large tiles. */
+function FirstMorning({ first }: { first: GameState }) {
   const who = firstCustomer(first);
   const e = first.event;
+  const title = who ? lookOf(who.name).title : e ? e.title : 'First customer';
+  const [w, h] = who ? ART_SIZE.customer : ART_SIZE.event;
+  const src = who ? customerArt(who.name) ?? guestArt(who.name) : e ? eventArt(e.id) : null;
   return (
-    <div class="jh-db">
-      <CardZoom class="jh-dcard" title={who ? lookOf(who.name).title : e ? e.title : 'First customer'}>{who ? <TradingCard who={who.name} wants={who.wants} eager /> : e ? <Gazette event={e} eager /> : null}</CardZoom>
-      <div class="jh-dr">
-        <span class="jh-lb">Today's lorry brings</span>
-        <div class="jh-lorry">{LORRY.map((f) => <span class={`f-${f}`}><FruitSvg id={f} size={18} alt={FRUIT[f].plural} /><b>{first.delivery[f] ?? 0}</b></span>)}</div>
-        {children}
+    <div class="hh-duo">
+      <div class="hh-col">
+        <span class="hh-lb">{who ? 'First customer' : 'Today opens with'}</span>
+        <CardZoom class="hh-pic jh-dcard" title={title}
+          thumb={<><CardArt class="hh-art" src={src} alt="" w={w} h={h} eager focus={e && !who ? eventFocus(e.id) : undefined} /><span class="hh-pn">{title}</span></>}>
+          {who ? <TradingCard who={who.name} wants={who.wants} eager /> : e ? <Gazette event={e} eager /> : null}
+        </CardZoom>
+      </div>
+      <div class="hh-col">
+        <span class="hh-lb">Today's lorry brings</span>
+        <div class="hh-lorry">{LORRY.map((f) => <span class={`f-${f}`}><FruitSvg id={f} size={24} alt={FRUIT[f].plural} /><b>{first.delivery[f] ?? 0}</b></span>)}</div>
       </div>
     </div>
   );
 }
 
-/** You against the day's rivals (the computer stalls of a Daily-style game). */
-function DayRivals({ cfg }: { cfg: GameConfig }) {
-  return (
-    <span class="jh-vs jh-dvs" role="img" aria-label={rivalsLine(cfg)}>
-      <span class="jh-me"><FramedFace who={setupAvatar(cfg)} size={44} look={worn()} /></span><i>vs</i>
-      {cfg.players.filter((pl) => pl.kind === 'ai').map((pl) => <span class="jh-round"><Face who={pl.avatar ?? ''} size={36} /></span>)}
-    </span>
-  );
+/** "27 Nov · Not played", "27 Nov · $45 · 3rd of 20": the day and today's result as plain words beside the card's name
+ *  (PLAN-132: it is a status, so it does not look like a button). */
+export function dayStatus(today: string, cash: number | undefined, place: string | null, streak = 0): string {
+  const result = cash === undefined ? 'Not played' : place ? `$${cash} · ${place}` : `$${cash}`;
+  return [shortDate(today), streak > 0 ? `${streak}-day streak` : null, result].filter(Boolean).join(' · ');
 }
 
-/** The Daily market: today's first customer and the lorry, today's twist, your best and place (and a League echo). */
+/** The Daily market: today's first customer and lorry; the date, your streak and today's result beside its name. */
 function DailyCard(p: HeroProps) {
-  const cfg = useMemo(() => dailyConfig(p.today, 'You'), [p.today]);
-  const first = useMemo(() => newGame(cfg), [cfg]);
+  const first = firstMorning('daily', p.today);
+  const cfg = first.config;
   const res = useDailyBoard(p.today);
   const daily = loadDaily();
   const streak = currentStreak(Object.keys(daily), p.today);
-  const who = firstCustomer(first);
-  const mine = bestLine(daily[p.today], res?.error ? null : placeWords(res ? { rank: res.rank, players: res.players ?? res.top.length } : undefined));
-  // PLAN-119: what today's Daily uses that you met in the Market League (its twist's standing orders, its first customer).
-  const echo = leagueEcho(first.config, who?.name ?? null, leagueStage());
+  const place = res?.error ? null : placeWords(res ? { rank: res.rank, players: res.players ?? res.top.length } : undefined);
   return (
-    <Frame mode="daily" sub={`${shortDate(p.today)}${streak > 0 ? ` · ${streak}-day streak` : ''}`}>
-      <span class="jh-why">{MODE_REASON.daily}</span>
-      <FirstMorning cfg={cfg}>
-        <span class="jh-dtw"><b>{dailyTwist(p.today).title}</b> · {cfg.days} days · {cfg.players.length} stalls</span>
-        <span class="jh-dme">{mine ?? (res && !res.error && res.top.length ? `${res.players ?? res.top.length} played · best so far $${res.top[0].cash}` : 'Not played today')}</span>
-      </FirstMorning>
-      <DayRivals cfg={cfg} />
-      {echo && <span class="jh-decho" data-a="daily-echo">{echo}</span>}
+    <Frame mode="daily" status={waitOf(p, 'daily') ?? dayStatus(p.today, daily[p.today], place, streak)}>
+      <FirstMorning first={first} />
+      <span class="hh-rules"><b>{cfg.days} days</b> · {cfg.players.length} stalls · the same market for everyone</span>
     </Frame>
   );
 }
 
-/** The Sprint: today's 3-day market (its first customer and lorry), your best today and place, the week, its reason. */
+/** The Sprint: today's 3-day market (its first customer and lorry); the date and your best today beside its name. */
 function SprintCard(p: HeroProps) {
-  const cfg = useMemo(() => sprintConfig(p.today, 'You'), [p.today]);
+  const first = firstMorning('sprint', p.today);
   const boards = useSprintBoards(p.today);
-  const mine = bestLine(loadSprintBest()[p.today]?.cash, placeWords(boards?.day));
-  const week = placeWords(boards?.week);
   return (
-    <Frame mode="sprint" sub={`${SPRINT_DAYS} days · ${shortDate(p.today)}`}>
-      <span class="jh-why jh-spwhy">{MODE_REASON.sprint}</span>
-      <FirstMorning cfg={cfg}>
-        <span class="jh-dtw"><b>{SPRINT_DAYS} days</b> · {cfg.players.length} stalls · retry as often as you like</span>
-        <span class="jh-dme">{mine ?? (boards?.day?.players ? `${boards.day.players} played · best so far $${boards.day.top[0]?.cash ?? 0}` : 'Not played today')}</span>
-      </FirstMorning>
-      <DayRivals cfg={cfg} />
-      <span class="jh-decho" data-a="sprint-week">{week ? `This week: ${week}. ${WEEK_NOTE}` : WEEK_NOTE}</span>
+    <Frame mode="sprint" status={waitOf(p, 'sprint') ?? dayStatus(p.today, loadSprintBest()[p.today]?.cash, placeWords(boards?.day))}>
+      <FirstMorning first={first} />
+      <span class="hh-rules"><b>{SPRINT_DAYS} days</b> · {first.config.players.length} stalls · best {SPRINT_WEEK_DAYS} days count</span>
     </Frame>
   );
 }
 
-/** The chosen mode's card (the tab panel the mode tabs control). */
-export function HeroCard(p: HeroProps & { mode: HomeMode }) {
-  const body = p.mode === 'league' ? <LeagueCard /> : p.mode === 'daily' ? <DailyCard {...p} /> : p.mode === 'sprint' ? <SprintCard {...p} /> : <CustomCard {...p} />;
-  return <section id="jh-hero" class="jh-panel" role="tabpanel" aria-labelledby={`jh-tab-${p.mode}`}>{body}</section>;
+/** How far a finger must travel sideways for a swipe, and how much more sideways than up or down. */
+const SWIPE_PX = 44;
+
+/**
+ * The chosen mode's card (the tab panel the mode tabs control). PLAN-132: a sideways swipe on it moves to the next or
+ * the previous mode (`onSwipe(1)` or `onSwipe(-1)`), and the card slides in from the side it came from (`from`).
+ */
+export function HeroCard(p: HeroProps & { mode: HomeMode; from?: 'l' | 'r' | ''; onSwipe?: (d: 1 | -1) => void }) {
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false);
+  const down = (e: PointerEvent) => { start.current = { x: e.clientX, y: e.clientY }; swiped.current = false; };
+  const up = (e: PointerEvent) => {
+    const s = start.current;
+    start.current = null;
+    if (!s) return;
+    const dx = e.clientX - s.x, dy = e.clientY - s.y;
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < 2 * Math.abs(dy)) return;
+    swiped.current = true;
+    p.onSwipe?.(dx < 0 ? 1 : -1);
+  };
+  // a swipe that began and ended on one tile is not a tap on it
+  const click = (e: Event) => { if (swiped.current) { swiped.current = false; e.stopPropagation(); e.preventDefault(); } };
+  const body = p.mode === 'league' ? <LeagueCard {...p} /> : p.mode === 'daily' ? <DailyCard {...p} /> : p.mode === 'sprint' ? <SprintCard {...p} /> : <CustomCard {...p} />;
+  return (
+    <section id="jh-hero" class={`jh-panel hh-panel${p.from ? ` hh-from-${p.from}` : ''}`} role="tabpanel" aria-labelledby={`jh-tab-${p.mode}`}
+      onPointerDown={down} onPointerUp={up} onPointerCancel={() => { start.current = null; }} onClickCapture={click}>
+      {body}
+    </section>
+  );
 }
 
 /**
- * PLAN-124: the one big button for the chosen mode. Play opens the mode's own start (the Play page, the League screen,
- * the Daily intro or the Sprint intro); with a game of that mode waiting it is Continue, with the mode, day and cash
- * under it, and a smaller New game beside it. Each keeps the mode's `data-a` hook. REP-140 B-20: Continue goes straight
- * into the game; New game first asks, as starting over ends the waiting game (`onNew`), then goes where Play would.
+ * The one big button for the chosen mode. Play opens the mode's own start: the League screen, the Daily intro, the
+ * Sprint intro, and for a Match the page of the way that is ticked, which the button names ("Play · Computer",
+ * PLAN-132). With a game of that mode waiting it is Continue (the card says the day and cash) and a smaller New game
+ * beside it. Each keeps the mode's `data-a` hook. REP-140 B-20: Continue goes straight into the game; New game first
+ * asks, as starting over ends the waiting game (`onNew`).
  */
-export function PlayButton({ mode, games, onPlay, onContinue, onNew }: { mode: HomeMode; games: Partial<Record<SaveSlot, GameState>>; onPlay: () => void; onContinue: (slot: SaveSlot) => void; onNew: (slot: SaveSlot) => void }) {
+export function PlayButton({ mode, games, way, onPlay, onContinue, onNew }: { mode: HomeMode; games: Partial<Record<SaveSlot, GameState>>; way: PlayWay; onPlay: () => void; onContinue: (slot: SaveSlot) => void; onNew: (slot: SaveSlot) => void }) {
   const m = MODES.find((x) => x.id === mode)!;
   const w = waitingGame(games[m.slot] ?? null);
   const hook = m.slot;
-  if (!w) return <div class="jh-go-row"><button class="jh-go jh-play" data-a={hook} aria-label={`Play, ${m.name}`} onClick={onPlay}>Play</button></div>;
+  if (!w) {
+    const match = mode === 'custom';
+    return (
+      <div class="jh-go-row">
+        <button class={`jh-go jh-play${match ? ' hh-long' : ''}`} data-a={hook} aria-label={match ? `Play, ${wayName(way)}` : `Play, ${m.name}`} onClick={onPlay}>
+          {match ? `Play · ${wayName(way)}` : 'Play'}
+        </button>
+      </div>
+    );
+  }
   return (
     <div class="jh-go-row">
-      <button class="jh-go jh-cont" data-a={`continue-${m.slot}`} onClick={() => onContinue(m.slot)}>
-        <PlayIcon /><span><b>Continue</b><small>{continueWords(w)}</small></span>
+      <button class="jh-go jh-cont" data-a={`continue-${m.slot}`} aria-label={`Continue, ${continueWords(w)}`} onClick={() => onContinue(m.slot)}>
+        <PlayIcon /><span><b>Continue</b></span>
       </button>
       <button class="jh-new" data-a={hook} aria-label={`New game, ${m.name}`} onClick={() => onNew(m.slot)}>New game</button>
     </div>

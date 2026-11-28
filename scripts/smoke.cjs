@@ -46,7 +46,7 @@ const path = require('path');
     // B-20: Continue goes straight into the game.
     await page.click('[data-a^="continue-"]');
   } else {
-    await page.click('[data-tab="custom"]'); await page.click('[data-a="play"]'); await page.click('[data-a="computer"]'); // PLAN-124: Home's Custom tab and Play, then Computer
+    await page.click('[data-tab="custom"]'); await page.click('[data-a="way-computer"]'); await page.click('[data-a="play"]'); // PLAN-132: Home's Match tab, the Computer tile, then Play
     await setRivals(page, rivals);
     await page.click('button:has-text("Start game")');
     await page.waitForTimeout(250);

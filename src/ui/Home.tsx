@@ -1,14 +1,16 @@
-// The home screen. PLAN-124, "Shopfront and Board": three tabs in a bar at the foot (Stall, Market, Rules).
-// - Market (Home itself): the four fruit lanes (the band the opening folds into), the title with your profile chip
-//   (your framed face, name, level and rank; a gear for Settings; the rest opens the Stall tab), "Back to room" when an
-//   online match is open, then one hero card for the chosen mode, the mode tabs (Custom, League, Daily, Sprint) and one
-//   big Play button for that mode (Continue when its game is waiting). The pieces are in HomeCards.tsx.
+// The home screen: three tabs in a bar at the foot (Stall, Market, Rules; PLAN-124).
+// - Market (Home itself), top to bottom (PLAN-132): the four fruit lanes (the band the opening folds into), the title
+//   with your profile chip (your framed face, name, level and rank; a tap opens the Stall tab) and a gear for Settings,
+//   "Back to room" when an online match is open, the mode tabs (Match, League, Daily, Sprint), the host (Rosa, full
+//   body, chatting in a bubble; HomeHost.tsx), one wide card for the chosen mode and one big Play button (Continue when
+//   its game is waiting). The cards, the tabs and the button are in HomeCards.tsx.
 // - Stall: your stall drawn with every look you wear, the stamp book and the Wardrobe, your next goals and the account.
 // - Rules: How to play (HowTo.tsx) inside the tab.
-// Custom match's Play opens the Play menu (PlayMenu, below): the four ways to start a normal game (PLAN-125).
-// The look is the game table's (Market Ticket): booth.css for the parts the opening animates, journey-home.css and
-// home-cards.css for the rest. The opening (Opening.tsx, "Lane Drop") plays on the Market tab: "hm-intro" on <html>
-// animates the title and everything under the band into place (".hm-title", ".hm-rest").
+// A Match's Play starts the way that is ticked on its card (PLAN-132). The Play page (PlayMenu, below) lists the same
+// four ways; it is where "Start over" on a waiting Match leads.
+// The look is the game table's (Market Ticket): booth.css for the parts the opening animates, journey-home.css
+// and home-cards.css for the rest. The opening (Opening.tsx, "Lane Drop") plays on the Market tab:
+// "hm-intro" on <html> animates the title and everything under the band into place (".hm-title", ".hm-rest").
 import { useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { RIVALS, type FruitId } from '../engine/data';
@@ -20,12 +22,15 @@ import { useFocusTrap } from './focusTrap';
 import { FruitSvg } from './fruitIcons';
 import { fx } from './fx';
 import { DESKTOP_MODE_NOTE, inDesktopMode } from './phoneFit';
-import { HeroCard, ModeTabs, PlayButton, PlayIcon, YourStall, saveMode, startMode, type HomeMode } from './HomeCards';
+import { HeroCard, MODES, ModeTabs, PlayButton, PlayIcon, YourStall, firstTitle, saveMode, saveWay, savedWay, startMode, type HomeMode } from './HomeCards';
+import { Host } from './HomeHost';
+import type { HostFacts } from './hostWords';
+import { LEAGUE } from './campaign';
 import { HowTo } from './HowTo';
 import { PropSprite, RoofBand } from './icons';
 import { chosenColour, myAvatar, syncLooks, worn } from './looks';
 import { NORMAL_HEADING, WAYS, computerLine, phoneLine, quickLine, roomLine, type PlayWay } from './playMenu';
-import { myPlace, snapshot, syncTiers } from './progress';
+import { leagueStage, myPlace, snapshot, syncTiers } from './progress';
 import { BackArrow, FramedFace, TrophyPic } from './stampCard';
 import { goals, nextReward, type Goal } from './stamps';
 import { loadName, nameOrDefault, type SaveSlot } from './store';
@@ -47,7 +52,8 @@ export interface ShopProps {
   onContinue: (slot: SaveSlot) => void;
   /** New game beside Continue: asks first, as starting over ends that mode's game (REP-140 B-20). */
   onNewGame: (slot: SaveSlot) => void;
-  /** Opens the Play page (Custom match). */
+  /** Opens the Play page (the four ways to play a Match). PLAN-132: Home's Play no longer uses it, as it starts the way
+   *  that is ticked; the page is still where "Start over" on a waiting Match leads (App.tsx). */
   onPlay: () => void;
   /** PLAN-120: open the Daily intro for the Daily market, or for the Sprint. */
   onDaily: () => void;
@@ -173,14 +179,45 @@ export function HomeNav({ tab, onTab }: { tab: HomeTab; onTab: (t: HomeTab) => v
   );
 }
 
-const MODE_GO: Record<HomeMode, (p: ShopProps) => () => void> = { custom: (p) => p.onPlay, league: (p) => p.onLeague, daily: (p) => p.onDaily, sprint: (p) => p.onSprint };
+/** What the host's lines are built from (hostWords.ts). The day's first customers are looked up only for the mode she
+ *  speaks about, so Home does not make two markets as it opens. */
+function hostFacts(mode: HomeMode, today: string): HostFacts {
+  const at = leagueStage();
+  const st = at < LEAGUE.length ? LEAGUE[at] : null;
+  const rival = st?.rivals[0];
+  return {
+    stage: st?.title ?? null,
+    rival: rival ? RIVALS[rival.idx % RIVALS.length].name : null,
+    dailyFirst: mode === 'daily' ? firstTitle('daily', today) : null,
+    sprintFirst: mode === 'sprint' ? firstTitle('sprint', today) : null,
+  };
+}
 
-/** The Market tab: the title and your profile chip, the hero card, the mode tabs and the Play button. */
+/**
+ * The Market tab, top to bottom (PLAN-132): the title with your profile chip and the gear, the mode tabs, the host and
+ * her bubble, the chosen mode's wide card, and the Play button.
+ */
 function MarketTab(p: ShopProps) {
   const [mode, setMode] = useState<HomeMode>(() => startMode(p.games));
-  const pick = (m: HomeMode) => { if (m !== mode) fx.tap(); saveMode(m); setMode(m); };
+  const [way, setWay] = useState<PlayWay>(savedWay);
+  // the side the card came from, for its slide: 'r' when moving on to a later mode
+  const [from, setFrom] = useState<'l' | 'r' | ''>('');
+  const pick = (m: HomeMode) => {
+    if (m === mode) return;
+    fx.tap();
+    setFrom(MODES.findIndex((x) => x.id === m) > MODES.findIndex((x) => x.id === mode) ? 'r' : 'l');
+    saveMode(m);
+    setMode(m);
+  };
+  const swipe = (d: 1 | -1) => { const to = MODES[MODES.findIndex((x) => x.id === mode) + d]; if (to) pick(to.id); };
+  const pickWay = (w: PlayWay) => { if (w !== way) fx.tap(); saveWay(w); setWay(w); };
+  // Play starts the mode: for a Match, the page of the way that is ticked (never the Play page in between)
+  const go: Record<HomeMode, () => void> = {
+    custom: { quick: p.onQuick, room: p.onPrivate, computer: p.onComputer, phone: p.onOnePhone }[way],
+    league: p.onLeague, daily: p.onDaily, sprint: p.onSprint,
+  };
   return (
-    <div class="home hm jh jh-market">
+    <div class="home hm jh jh-market hh">
       <div class="hm-in">
         <LaneBand />
         <div class="hm-title jh-top">
@@ -196,9 +233,10 @@ function MarketTab(p: ShopProps) {
               <span class="hm-tk-txt"><small>Your online match</small><span>Back to room {p.room}</span></span>
             </button>
           )}
-          <HeroCard mode={mode} today={p.today} games={p.games} next={nextLine()} onQuick={p.onQuick} onRoom={p.onPrivate} onComputer={p.onComputer} onOnePhone={p.onOnePhone} />
           <ModeTabs at={mode} games={p.games} onPick={pick} />
-          <PlayButton mode={mode} games={p.games} onPlay={MODE_GO[mode](p)} onContinue={p.onContinue} onNew={p.onNewGame} />
+          <Host mode={mode} facts={hostFacts(mode, p.today)} />
+          <HeroCard key={mode} mode={mode} from={from} today={p.today} games={p.games} way={way} onWay={pickWay} onSwipe={swipe} />
+          <PlayButton mode={mode} games={p.games} way={way} onPlay={go[mode]} onContinue={p.onContinue} onNew={p.onNewGame} />
         </div>
       </div>
     </div>

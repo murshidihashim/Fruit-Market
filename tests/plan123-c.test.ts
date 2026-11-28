@@ -168,7 +168,7 @@ describe('League results: the next action says what it asks of you', () => {
 
 describe('Home: every mode one tap from the first view, and Continue names the game', () => {
   it('four mode tabs, each with its own save slot (PLAN-124: the tabs replace the four chips; tests/home-cards.test.ts draws them)', () => {
-    expect(MODES.map((m) => [m.tab, m.slot])).toEqual([['Custom', 'play'], ['League', 'league'], ['Daily', 'daily'], ['Sprint', 'sprint']]);
+    expect(MODES.map((m) => [m.tab, m.slot])).toEqual([['Match', 'play'], ['League', 'league'], ['Daily', 'daily'], ['Sprint', 'sprint']]);
   });
   it('Continue says the mode (with the League stage), the day and the cash', () => {
     const w = waitingGame({ ...newGame(sprintConfig(DATE, 'You')), day: 2 })!;

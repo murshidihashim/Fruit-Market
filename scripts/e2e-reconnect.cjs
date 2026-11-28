@@ -49,7 +49,7 @@ async function player(name) {
 async function newMatch() {
   const A = await player('Ann'), B = await player('Ben');
   await A.page.goto(base);
-  await A.page.click('[data-tab="custom"]'); await A.page.click('[data-a="play"]'); await A.page.click('[data-a="room"]'); // PLAN-124: Home's Custom tab and Play
+  await A.page.click('[data-tab="custom"]'); await A.page.click('[data-a="way-room"]'); await A.page.click('[data-a="play"]'); // PLAN-132: Home's Match tab, the way's tile, then Play
   await A.page.click('[data-a="open-room"]'); // PLAN-125: the Private Room page's Open a room
   await A.page.waitForSelector('#invite-link');
   const link = await A.page.inputValue('#invite-link');
@@ -121,10 +121,10 @@ async function quicks() {
     const started = Date.now();
     const A = await player('Quinn'), B = await player('Robin');
     // PLAN-125: Quick Match opens its set-up page (2 stalls unless another size was chosen); Find a match starts looking.
-    await A.page.goto(base); await A.page.click('[data-tab="custom"]'); await A.page.click('[data-a="play"]'); await A.page.click('[data-a="quick"]');
+    await A.page.goto(base); await A.page.click('[data-tab="custom"]'); await A.page.click('[data-a="way-quick"]'); await A.page.click('[data-a="play"]');
     await A.page.click('[data-a="find"]');
     await A.page.waitForSelector('text=Looking for a stall');
-    await B.page.goto(base); await B.page.click('[data-tab="custom"]'); await B.page.click('[data-a="play"]'); await B.page.click('[data-a="quick"]');
+    await B.page.goto(base); await B.page.click('[data-tab="custom"]'); await B.page.click('[data-a="way-quick"]'); await B.page.click('[data-a="play"]');
     const t0 = Date.now();
     await B.page.click('[data-a="find"]');
     const [a, b] = await Promise.all([waitBack(A), waitBack(B)]);

@@ -17,14 +17,14 @@ const pages = [];
     p.on('websocket', (ws) => ws.on('framereceived', (f) => P.frames.push(typeof f.payload === 'string' ? f.payload : '')));
     await p.addInitScript((n) => { localStorage.setItem('fm.name', n); localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false })); }, name);
     pages.push(P); await p.goto(base); await p.click('[data-tab="custom"]');
-    // PLAN-124: Home's Custom tab, then Play where the build still has it (PLAN-125 may open the modes from Home).
-    if (await p.locator('[data-a="play"]').count()) await p.click('[data-a="play"]');
+    // PLAN-132: Home's Match tab and its Quick Match tile; `look` presses Play, which opens the Quick Match page.
+    await p.click('[data-a="way-quick"]');
     return P;
   };
   // PLAN-113: with a saved name, Quick match starts looking at once; PLAN-125's set-up page has "Find a match" first
   // (its table size starts at 2 stalls).
   const look = async (P) => {
-    await P.page.click('[data-a="quick"]');
+    await P.page.click('[data-a="play"]');
     const find = P.page.getByRole('button', { name: /Find a match/i });
     await find.first().waitFor({ timeout: 5000 }).catch(() => {});
     if (await find.count().catch(() => 0)) await find.first().click();

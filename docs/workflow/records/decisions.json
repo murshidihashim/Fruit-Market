@@ -3428,6 +3428,37 @@
       "reports": []
     },
     {
+      "id": "DEC-139",
+      "title": "Home gets a host: Rosa, with the mode tabs on top and one wide card",
+      "question": "Should Home's Market tab be rebuilt as the mockup of REP-147 (less the Next goal line), and published?",
+      "choice": "Yes, as PLAN-132: always Rosa, full body and moving; tabs on top; one wide card that swipes; \"Custom match\" renamed \"Match\"; the four ways as tiles you choose, with Play naming the choice; nothing said twice.",
+      "rationale": "The owner wanted a friendlier landing page and worked the design through six mockup rounds. The host makes Home read at a glance; saying each fact once and choosing the way on the card removes the repeated Play page step.",
+      "impact": {
+        "player": "Home looks and reads differently; a Match starts from a tile and Play. Nothing in a game changes.",
+        "technical": "Home.tsx, HomeCards.tsx, a new HomeHost.tsx and hostWords.ts, Rosa's drawing as src/ui/host/rosa.svg, styles in home-cards.css and booth.css; a new small key fm.homeWay beside fm.homeMode. Rules, protocol and saves untouched.",
+        "data": "None. The chosen way is kept on the phone only."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-28, after six rounds on the mockup (REP-142 to REP-147): \"remove the next goal thingy, the push it live,\"",
+        "date": "2026-11-28"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-132",
+      "reviewTrigger": "When the owner has used it on a phone; Rosa's body below the shoulders is a sketch that may be redrawn.",
+      "reports": [
+        "REP-142",
+        "REP-143",
+        "REP-144",
+        "REP-145",
+        "REP-146",
+        "REP-147",
+        "REP-148"
+      ]
+    },
+    {
       "id": "DEC-140",
       "title": "Keep full match records (nameless, replayable)",
       "question": "Should the game keep a record of every finished match, beyond today's anonymous counts?",
@@ -5080,15 +5111,15 @@
     },
     {
       "at": "2026-11-28 09:04",
-      "text": "Branch ccr-608a8c5d-g7t4ma merged with main (1.32.1). Its four design reports, written 2026-11-26 to 2026-11-28 as REP-140 to REP-150 while main used REP-140 and REP-141 for the audit, are renumbered REP-149 to REP-152: a design study of rules 20 measured over 1,200 computer games (REP-149), two rounds of further mechanics (REP-150, REP-151) and a direction for a more skill-based, competitive game (REP-152). The owner likes favour cards sold by secret bid; nothing is approved."
+      "text": "Owner asked for a new Home layout with a moving character on the left and swipeable mode cards (2026-11-27), then shaped it over six mockup rounds (REP-142 to REP-147): one character, always Rosa, full body; tabs on top and one wide card; nothing said twice; a backdrop; tiles for the four ways with Play naming the choice; \"Custom match\" renamed \"Match\". Owner, 2026-11-28: \"remove the next goal thingy, the push it live,\" (DEC-139, PLAN-132). REP-142's claim that blinking and waving need new drawings was wrong and was corrected in REP-143: Rosa's picture is made of separate shapes."
     },
     {
       "at": "2026-11-28 09:04",
-      "text": "Owner asked whether match data is stored (it is not: anonymous counts only) and then: \"plan option 2, keep full match records\". PLAN-133 and DEC-140 written, awaiting approval (REP-153): nameless, replayable records kept 12 months. Nothing built."
+      "text": "1.32.1 recorded as published: the live game's Settings showed \"Version 1.32.1\" on 2026-11-28 and tag v1.32.1 is on main 95e643b. The deploy run's number was not looked up."
     },
     {
-      "at": "2026-11-28 09:14",
-      "text": "Owner sent a wider tracking list (timing, undo and tooltip events, first-game and menu funnels, quit context, an anonymous player ID with sessions and device details, progression, notifications, A/B buckets, a third-party service). REP-154 sorts it: timing, funnels, quit context and coarse device notes join PLAN-133 with no ID (part 1); the player number, sessions and A/B tags are part 2 and need their own approval because the app says today that no IDs are sent; no third-party service recommended yet; notifications do not exist. Still awaiting approval."
+      "at": "2026-11-28 09:28",
+      "text": "PLAN-132 implemented: npm run verify PASS (1440). Browser run: every step passed with 0 leaks except the performance budget (longest task in play 245 and 230 ms against 200 ms on this machine; the table is not changed by this plan, and unchanged builds have failed here before). Owner, 2026-11-28, twice: \"push it live\". Release 1.33.0 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy if CI is green."
     },
     {
       "at": "2026-11-28 09:36",
@@ -5097,6 +5128,10 @@
     {
       "at": "2026-11-28 10:50",
       "text": "PLAN-133, PLAN-134: browser tests pass on the branch (E2E OK, 0 leaks) after one fix: the player-number question is asked only where the game has a server. Still not run: the preview-copy check, the Cloudflare storage limit, a look at the question on a phone."
+    },
+    {
+      "at": "2026-11-28 11:11",
+      "text": "Branch ccr-608a8c5d-g7t4ma merged with main (1.33.0 candidate). Main had used PLAN-132, DEC-139 and REP-142 to REP-148 for the new Home, so the branch's records were renumbered: design reports REP-149, REP-150, REP-151 and REP-152 (2026-11-26 to 2026-11-28; nothing approved), match records plan REP-153 and the wider tracking plan REP-154 (owner: \"plan option 2, keep full match records\", then a wider tracking list), implementation report REP-155; PLAN-133 (match records, DEC-140) and PLAN-134 (player number, DEC-141). Owner: \"yes merge and publish live\": publication approved for PLAN-133 and PLAN-134; they join release 1.33.0 with the new Home (PLAN-132)."
     }
   ]
 }

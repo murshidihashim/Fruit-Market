@@ -30,7 +30,7 @@ const expect = (ok, what) => { if (!ok) throw new Error(`expected ${what}`); };
   const settle = () => host.page.waitForTimeout(400);
 
   await host.page.goto(base);
-  await host.page.click('[data-tab="custom"]'); await host.page.click('[data-a="play"]'); await host.page.click('[data-a="room"]'); // PLAN-124: Home's Custom tab and Play
+  await host.page.click('[data-tab="custom"]'); await host.page.click('[data-a="way-room"]'); await host.page.click('[data-a="play"]'); // PLAN-132: Home's Match tab, the way's tile, then Play
   await host.page.click('[data-a="open-room"]'); // PLAN-125: the Private Room page's Open a room
   await host.page.waitForSelector('#invite-link');
   const link = await host.page.inputValue('#invite-link');

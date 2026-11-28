@@ -29,7 +29,7 @@ const path = require('path');
   await p.waitForTimeout(400);
   const shot = (name) => p.screenshot({ path: `${out}/${name}.png` });
   await shot('1-home');
-  await p.click('[data-tab="custom"]'); await p.click('[data-a="play"]'); await p.click('[data-a="computer"]'); // PLAN-124: Home's Custom tab and Play
+  await p.click('[data-tab="custom"]'); await p.click('[data-a="way-computer"]'); await p.click('[data-a="play"]'); // PLAN-132: Home's Match tab, the way's tile, then Play
   await setRivals(p, 2);
   await p.click('button:has-text("Start game")');
   // A merchant trait is picked only when the game offers one (the Daily market, the Market League); a new game goes

@@ -12,7 +12,7 @@ import { introWords } from '../src/ui/DailyIntro';
 import { shortDate } from '../src/ui/dailyCard';
 import { PlayMenu, Shopfront, type ShopProps } from '../src/ui/Home';
 import { howTo } from '../src/ui/HowTo';
-import { MODES, resetModeVisit, saveMode, savedMode, startMode, waitWords } from '../src/ui/HomeCards';
+import { FIRST_WAY, MODES, dayStatus, resetModeVisit, saveMode, saveWay, savedMode, savedWay, startMode, waitWords } from '../src/ui/HomeCards';
 import { waitingGame } from '../src/ui/paused';
 import { leagueConfig } from '../src/ui/progress';
 import type { SaveSlot } from '../src/ui/store';
@@ -105,8 +105,8 @@ describe('the Play page keeps the Normal game group only', () => {
   });
 });
 
-describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mode tabs and one Play button', () => {
-  it('draws the title, the chip with your name, level and rank, the Custom match card, four tabs and Play', () => {
+describe('Home, the Market tab (PLAN-124, PLAN-132): the profile chip, the mode tabs, the host, one wide card and one Play button', () => {
+  it('draws the title, the chip with your name, level and rank, four tabs, the host, the Match card and Play', () => {
     mem.set('fm.name', 'Mblabla');
     const html = home({});
     expect(html).toContain('class="jh-shell jh-on-market"');
@@ -115,26 +115,27 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
     expect(html).toContain('<span class="jh-pnm">Mblabla</span>');
     expect(html).toContain('· Lvl 1</span>');
     expect(html).toMatch(/<button class="jh-gear" data-a="settings" aria-label="Settings">/);
-    // one hero card: Custom match, its four ways (each a button), you against three rivals, the Next line
+    // one wide card: Match, with nothing beside its name; its four ways are tiles (a radio group), Computer ticked first
     expect([...html.matchAll(/data-card="(\w+)"/g)].map((m) => m[1])).toEqual(['custom']);
-    expect(html).toContain('<h2>Custom match</h2><small>your market, your way</small>');
-    for (const w of ['quick', 'room', 'computer', 'phone']) expect(html).toContain(`data-a="way-${w}"`);
-    // PLAN-125: the four ways' names and lines from the approved mockup B; "Pass & Play" replaces "One phone"
-    for (const t of ['Quick Match', 'Strangers online', 'Private Room', 'Friends by link or code', 'Computer', 'On this phone', 'Pass &amp; Play', 'Take turns on this phone']) expect(html).toContain(t);
+    expect(html).toContain('<div class="hh-chd"><h2>Match</h2></div>');
+    expect(html).toContain('role="radiogroup" aria-label="How to play"');
+    expect([...html.matchAll(/role="radio" aria-checked="(true|false)" data-a="way-(\w+)"/g)].map((m) => `${m[2]}:${m[1]}`)).toEqual(['quick:false', 'room:false', 'computer:true', 'phone:false']);
+    // PLAN-132: the tiles carry the name and a picture only; the lines under them, "your market, your way", the "vs"
+    // row and the Next line left the card
+    for (const t of ['Quick Match', 'Private Room', 'Computer', 'Pass &amp; Play']) expect(html).toContain(`<b>${t}</b>`);
+    for (const gone of ['Strangers online', 'Friends by link or code', 'On this phone', 'Take turns on this phone', 'your market, your way', '<i>vs</i>', 'jh-next3', 'Custom']) expect(html).not.toContain(gone);
     expect(html).not.toMatch(/One phone/i);
-    expect(html).toContain('<i>vs</i>');
-    expect(html).toMatch(/<span class="jh-next3"><b>Next:<\/b> .+<\/span>/);
     // the mode tabs: a tablist, Custom chosen, the card is its panel
     expect(html).toContain('role="tablist" aria-label="Game modes"');
     expect([...html.matchAll(/role="tab" id="jh-tab-(\w+)"/g)].map((m) => m[1])).toEqual(['custom', 'league', 'daily', 'sprint']);
     expect(html).toMatch(/id="jh-tab-custom" class="jh-tab on [^"]*" data-tab="custom" aria-selected="true" aria-controls="jh-hero" tabIndex="0"/);
     expect(html).toMatch(/id="jh-tab-league" class="jh-tab {2}[^"]*" data-tab="league" aria-selected="false" aria-controls="jh-hero" tabIndex="-1"/);
-    expect(html).toContain('id="jh-hero" class="jh-panel" role="tabpanel" aria-labelledby="jh-tab-custom"');
-    // one Play button, keeping Home's "play" hook (it opens the Play page); no Continue
-    expect(html).toMatch(/<button class="jh-go jh-play" data-a="play" aria-label="Play, Custom match">Play<\/button>/);
+    expect(html).toContain('id="jh-hero" class="jh-panel hh-panel" role="tabpanel" aria-labelledby="jh-tab-custom"');
+    // one Play button, keeping Home's "play" hook; it names the way that is ticked; no Continue
+    expect(html).toMatch(/<button class="jh-go jh-play hh-long" data-a="play" aria-label="Play, Computer">Play · Computer<\/button>/);
     expect(html).not.toContain('data-a="continue-');
-    // the order on screen: chip, card, tabs, Play, then the bottom bar
-    const order = ['jh-prof', 'id="jh-hero"', 'role="tablist"', 'jh-go-row', 'jh-nav3'].map((k) => html.indexOf(k));
+    // PLAN-132, the order on screen: chip, tabs, the host, the card, Play, then the bottom bar
+    const order = ['jh-prof', 'role="tablist"', 'class="hh-hero"', 'id="jh-hero"', 'jh-go-row', 'jh-nav3'].map((k) => html.indexOf(k));
     expect(order).toEqual([...order].sort((a, b) => a - b));
     expect(order.every((i) => i > 0)).toBe(true);
   });
@@ -153,60 +154,83 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
       const html = home({});
       expect([...html.matchAll(/data-card="(\w+)"/g)].map((m) => m[1])).toEqual([mode]);
       expect(html).toContain(`<h2>${name}</h2>`);
+      expect(html).toContain('class="hh-hero"');
       expect(html).toContain(`aria-labelledby="jh-tab-${mode}"`);
       expect(html).toMatch(new RegExp(`data-a="${hook}" aria-label="Play, ${name}">Play</button>`));
     }
   });
 
-  it('the League card: the stage picture with its rivals, the title, the goal, the stars and the next trophy', () => {
+  it('the League card: the stage beside its name, its picture, title, goal and stars, and the next trophy', () => {
     mem.set('fm.homeMode', 'league');
     const html = home({});
-    expect(html).toContain('Stage 1 of');
-    for (const c of ['jh-lgart', 'jh-lgvs', 'jh-lgt', 'jh-lgg', 'jh-lgs', 'stars in all', 'Next trophy']) expect(html).toContain(c);
+    expect(html).toMatch(/<h2>Market League<\/h2><small>Stage 1 of \d+<\/small>/);
+    for (const c of ['Your rival', 'hh-art', 'hh-big', 'hh-fact', 'jp-stars', '<b>Next trophy:</b>']) expect(html).toContain(c);
   });
 
-  it('the Daily card: the first customer, the lorry, the twist, your best or "Not played today", you against its rivals', () => {
+  it('the Daily card: the date and "Not played" beside its name, the first customer, the lorry and one line of rules', () => {
     mem.set('fm.homeMode', 'daily');
     const html = home({});
+    const cfg = dailyConfig(DATE, 'You');
     // C-13 (REP-122): Home calls it the Daily market (its tab says "Daily"), never "today's market"
-    expect(html).toContain('<h2>Daily market</h2>');
+    expect(html).toContain(`<h2>Daily market</h2><small>${shortDate(DATE)} · Not played</small>`);
     expect(html).toContain('<b>Daily</b>');
     expect(html).not.toMatch(/today['’]s market/i);
-    expect(html).toContain(`<small>${shortDate(DATE)}</small>`);
-    expect(html).toContain('jh-dcard');
+    // the first customer is a cropped picture that opens the whole card (it keeps the old hook)
+    expect(html).toMatch(/class="card-zoom hh-pic jh-dcard" role="button"/);
     expect(html).toContain('Today\'s lorry brings');
-    expect(html).toContain(`<b>${dailyTwist(DATE).title}</b>`);
-    expect(html).toContain('Not played today');
-    expect(html).toContain('jh-dvs');
+    expect((html.match(/class="f-\w+"><img class="x-fruit"/g) ?? []).length).toBe(4);
+    expect(html).toContain(`<span class="hh-rules"><b>${cfg.days} days</b> · ${cfg.players.length} stalls · the same market for everyone</span>`);
+    // PLAN-132: "Not played" is plain words, not a yellow box; the twist and the rivals row are on the Daily's own page
+    for (const gone of ['jh-dme', 'jh-dvs', 'Not played today', dailyTwist(DATE).title]) expect(html).not.toContain(gone);
   });
 
-  it('the Sprint card: 3 days, its first customer and lorry, your best today, the week line and its reason', () => {
+  it('the Sprint card: the date and "Not played" beside its name; its days and what counts are said once', () => {
     mem.set('fm.homeMode', 'sprint');
     const html = home({});
-    expect(html).toContain(`<small>${SPRINT_DAYS} days · ${shortDate(DATE)}</small>`);
-    expect(html).toContain('A few minutes. Beat your best.');
-    expect(html).toContain('jh-dcard');
-    expect(html).toContain('Not played today');
-    expect(html).toContain(`Your best ${SPRINT_WEEK_DAYS} days count.`);
+    expect(html).toContain(`<h2>Sprint</h2><small>${shortDate(DATE)} · Not played</small>`);
+    expect(html).toContain(`<span class="hh-rules"><b>${SPRINT_DAYS} days</b> · ${sprintConfig(DATE, 'You').players.length} stalls · best ${SPRINT_WEEK_DAYS} days count</span>`);
+    expect((html.match(new RegExp(`${SPRINT_DAYS} days`, 'g')) ?? []).length).toBe(1);
+    expect((html.match(new RegExp(`${SPRINT_WEEK_DAYS} days count`, 'gi')) ?? []).length).toBe(1);
+    expect(html).toMatch(/class="card-zoom hh-pic jh-dcard"/);
+    expect(html).not.toContain('A few minutes. Beat your best.');
   });
 
-  it('a mode with a game waiting: its tab says the day, and Play becomes Continue (mode, day, cash) beside New game', () => {
+  it('the day\'s result beside a card\'s name is plain words: the date, a streak, the cash and the place', () => {
+    expect(dayStatus(DATE, undefined, null)).toBe(`${shortDate(DATE)} · Not played`);
+    expect(dayStatus(DATE, 45, null)).toBe(`${shortDate(DATE)} · $45`);
+    expect(dayStatus(DATE, 45, '3rd of 20', 4)).toBe(`${shortDate(DATE)} · 4-day streak · $45 · 3rd of 20`);
+  });
+
+  it('the way to play a Match is remembered in a small key; Computer until one is chosen', () => {
+    expect(FIRST_WAY).toBe('computer');
+    expect(savedWay()).toBe('computer');
+    saveWay('room');
+    expect(mem.get('fm.homeWay')).toBe('room');
+    expect(savedWay()).toBe('room');
+    const html = home({});
+    expect(html).toMatch(/aria-checked="true" data-a="way-room"/);
+    expect(html).toMatch(/aria-label="Play, Private Room">Play · Private Room<\/button>/);
+    mem.set('fm.homeWay', 'nonsense');
+    expect(savedWay()).toBe('computer');
+  });
+
+  it('a mode with a game waiting: its tab says the day, its card the day and cash, and Play becomes Continue beside New game', () => {
     const play = at(newGame({ players: [{ name: 'A', kind: 'human', avatar: '🐸' }, { name: 'Rosa', kind: 'ai', level: 'easy', avatar: '🦊' }], days: 10, unripe: true, upgrades: true, events: true, seed: 3 }), 4, 23);
     const daily = at(newGame(dailyConfig(DATE, 'A')), 6, 31);
     expect(waitWords(waitingGame(play)!)).toBe('Day 4 of 10 · $23');
     mem.set('fm.homeMode', 'custom');
     const html = home({ play, daily });
-    expect(html).toMatch(/data-tab="custom" aria-selected="true"[^>]*aria-label="Custom, Computer game waiting on day 4"/);
+    expect(html).toMatch(/data-tab="custom" aria-selected="true"[^>]*aria-label="Match, Computer game waiting on day 4"/);
     expect(html).toMatch(/data-tab="daily" aria-selected="false"[^>]*aria-label="Daily, Daily market waiting on day 6"/);
-    expect(html).toContain('<b>Custom</b><small>Day 4</small>');
+    expect(html).toContain('<b>Match</b><small>Day 4</small>');
     expect(html).toContain('<b>Daily</b><small>Day 6</small>');
     expect(html).toContain('<b>League</b></button>');
     // Continue for the chosen mode, and New game (REP-140 B-20: it asks first, then goes where Play would; the same "play" hook)
     expect(html).toContain('data-a="continue-play"');
-    expect(html).toContain('<b>Continue</b><small>Computer game · Day 4 of 10 · $23</small>');
-    expect(html).toMatch(/<button class="jh-new" data-a="play" aria-label="New game, Custom match">New game<\/button>/);
-    // the Custom card shows the waiting game's table
-    expect(html).toContain('aria-label="The table"');
+    // PLAN-132: Continue is one word (its spoken name still says which game); the day and cash stand beside the card's name
+    expect(html).toMatch(/data-a="continue-play" aria-label="Continue, Computer game · Day 4 of 10 · \$23"[^>]*>.*?<b>Continue<\/b><\/span><\/button>/);
+    expect(html).toContain('<h2>Match</h2><small>Day 4 of 10 · $23</small>');
+    expect(html).toMatch(/<button class="jh-new" data-a="play" aria-label="New game, Match">New game<\/button>/);
     // every mode waiting: each tab with its Continue
     const all = { play, daily, league: at(newGame(leagueConfig(2, 'A', '')), 2, 14), sprint: at(newGame(sprintConfig(DATE, 'A')), 2, 12) };
     for (const [mode, slot] of [['league', 'league'], ['daily', 'daily'], ['sprint', 'sprint']] as const) {
@@ -218,7 +242,7 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
     }
     resetModeVisit();
     mem.set('fm.homeMode', 'league');
-    expect(home(all)).toContain('League stage 3 · Day 2 of');
+    expect(home(all)).toContain('aria-label="Continue, League stage 3 · Day 2 of');
   });
 
   it('remembers the chosen tab in a small key; on the first view a waiting game\'s tab opens unless the remembered one waits', () => {
@@ -262,7 +286,7 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
     for (const l of ['Stall', 'Market', 'Rules']) expect(html).toContain(`<span>${l}</span>`);
   });
 
-  it('the buttons call what they say: the four ways, Play, Continue, the chip, the gear and the bar', () => {
+  it('the buttons call what they say: the four tiles choose, Play starts the way ticked, Continue, the chip, the gear and the bar', () => {
     const called: string[] = [];
     const log = (k: string) => () => { called.push(k); };
     const play = at(newGame({ players: [{ name: 'A', kind: 'human', avatar: '🐸' }, { name: 'Rosa', kind: 'ai', level: 'easy', avatar: '🦊' }], days: 10, unripe: true, upgrades: true, events: true, seed: 3 }), 4, 23);
@@ -272,9 +296,20 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
       onNewGame: (s) => { called.push(`new:${s}`); },
     });
     const tree = h(Shopfront, props({}));
-    for (const a of ['way-quick', 'way-room', 'way-computer', 'way-phone', 'play', 'profile', 'settings']) find(tree, (pp) => pp['data-a'] === a)!.onClick();
+    // PLAN-132: a tile only chooses the way (nothing starts); Play starts the way that is ticked, never the Play page
+    for (const a of ['way-quick', 'way-room', 'way-computer', 'way-phone']) find(tree, (pp) => pp['data-a'] === a)!.onClick();
+    expect(called).toEqual([]);
+    expect(mem.get('fm.homeWay')).toBe('phone');
+    mem.delete('fm.homeWay');
+    for (const a of ['play', 'profile', 'settings']) find(tree, (pp) => pp['data-a'] === a)!.onClick();
     find(tree, (pp) => pp['data-nav'] === 'rules')!.onClick();
-    expect(called).toEqual(['quick', 'room', 'computer', 'phone', 'play-page', 'tab:stall', 'settings', 'tab:rules']);
+    expect(called).toEqual(['computer', 'tab:stall', 'settings', 'tab:rules']);
+    for (const [w, starts] of [['quick', 'quick'], ['room', 'room'], ['phone', 'phone']] as const) {
+      called.length = 0;
+      mem.set('fm.homeWay', w);
+      find(h(Shopfront, props({})), (pp) => pp['data-a'] === 'play')!.onClick();
+      expect(called).toEqual([starts]);
+    }
     called.length = 0;
     const waiting = h(Shopfront, props({ play }));
     find(waiting, (pp) => pp['data-a'] === 'continue-play')!.onClick();
