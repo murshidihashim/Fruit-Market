@@ -47,14 +47,16 @@ button:focus-visible { outline: 3px solid var(--berry); outline-offset: 2px; }
 
 /* left: one shopkeeper, free on the page */
 .host { position: relative; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; border: 0; background: none; padding: 0; cursor: pointer; color: var(--ink); font: inherit; text-align: left; }
-.host svg { display: block; width: 216px; height: auto; flex: none; margin-left: -2px; overflow: visible; }
+.host svg { display: block; width: 166px; height: auto; flex: none; margin: 0 0 4px -4px; overflow: visible; animation: walkin .7s cubic-bezier(.2,.9,.3,1.1) both; }
 .say { position: absolute; left: 8px; right: 2px; top: 4px; background: var(--paper); border: 2.5px solid var(--ink); padding: 8px 9px 9px; box-shadow: 4px 4px 0 var(--ink); display: flex; flex-direction: column; gap: 4px; z-index: 2; }
 .say::after { content: ""; position: absolute; left: 64px; bottom: -13px; width: 18px; height: 18px; background: var(--paper); border-right: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink); transform: rotate(45deg) skew(8deg, 8deg); }
-.say b { font: 400 13.5px/1.1 var(--disp); text-transform: uppercase; } .say span { font: 500 12.5px/1.3 var(--txt); }
+.say b { font: 400 13px/1.1 var(--disp); text-transform: uppercase; } .say span { font: 500 12px/1.3 var(--txt); }
 .say i { font: 600 9.5px/1 var(--txt); font-style: normal; letter-spacing: .1em; text-transform: uppercase; color: var(--slate); }
 .say.pop { animation: pop .28s cubic-bezier(.2,.9,.3,1.3) both; }
 .rig * { transform-box: view-box; }
-.r-all { animation: rise .7s cubic-bezier(.2,.9,.3,1.15) both, breathe 3.4s ease-in-out .7s infinite; transform-origin: 300px 400px; }
+.r-all { animation: breathe 2.8s ease-in-out infinite; transform-origin: 300px 672px; }
+.r-toe { animation: toe 1.4s ease-in-out infinite; transform-origin: 312px 672px; }
+.hop .r-hop { animation: jump .5s ease-out; }
 .r-head { animation: tilt 5s ease-in-out infinite; transform-origin: 300px 268px; }
 .r-eyes { animation: blink 4.2s infinite; transform-origin: 300px 190px; }
 .r-arm { animation: wave 2.2s ease-in-out infinite; transform-origin: 150px 352px; }
@@ -62,14 +64,16 @@ button:focus-visible { outline: 3px solid var(--berry); outline-offset: 2px; }
 .r-mouth { transform-origin: 300px 236px; }
 .talk .r-mouth { animation: chat .26s ease-in-out 7; }
 .r-fruit { animation: fhop 3.6s ease-in-out infinite; animation-delay: calc(var(--k) * .45s); }
-@keyframes rise { from { transform: translateY(240px); } to { transform: none; } }
-@keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1, 1.012); } }
+@keyframes walkin { from { transform: translateX(-110%); } to { transform: none; } }
+@keyframes toe { 0%,60%,100% { transform: rotate(0); } 75% { transform: rotate(-16deg); } }
+@keyframes jump { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-34px); } }
+@keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.01, .985); } }
 @keyframes tilt { 0%,100% { transform: rotate(-2.5deg); } 50% { transform: rotate(3deg); } }
 @keyframes blink { 0%,93%,100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
 @keyframes wave { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(7deg); } }
 @keyframes spin { 0%,100% { transform: rotate(-12deg); } 50% { transform: rotate(14deg); } }
 @keyframes chat { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(.45); } }
-@keyframes fhop { 0%,80%,100% { transform: translateY(0); } 88% { transform: translateY(-14px); } }
+@keyframes fhop { 0%,80%,100% { transform: translateY(0); } 88% { transform: translateY(-26px); } }
 @keyframes hop { 0%,82%,100% { transform: translateY(0); } 90% { transform: translateY(-5px) rotate(-8deg); } }
 @keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
 
@@ -141,7 +145,7 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
   <header class="intro">
     <span class="eyebrow">Fruit Market · proposal for the home screen · from the live game 1.32.1</span>
     <h1>Rosa on the left, the modes on the right</h1>
-    <p>A working mockup on a 9:16 phone (360 x 640). Rosa stands on the left and explains the game. Swipe the cards on the right; she stays the same. Press Play to see where each button leads. Nothing in the game has changed.</p>
+    <p>A working mockup on a 9:16 phone (360 x 640). Rosa stands on the left, full body, and tells you about the game mode on the card showing. Swipe the cards on the right and her bubble changes. Press Play to see where each button leads. Nothing in the game has changed.</p>
   </header>
 
   <div class="top">
@@ -155,10 +159,20 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
           <div class="split">
             <button class="host" id="host" aria-label="Rosa, the shopkeeper. Tap for her next line">
               <span class="say" id="say"><b id="sayH"></b><span id="sayT"></span><i id="sayN"></i></span>
-              <svg class="rig" viewBox="100 52 400 460" aria-hidden="true">
-<path d="M104 340V206a146 146 0 0 1 292 0V340z" fill="#ef7b86"/><g class="r-all"><g class="r-head"><path d="M206 300V200c0-42 34-70 94-70s94 28 94 70v100z" fill="#1f272a"/></g><path d="M126 400v-66c0-36 30-60 66-60h216c36 0 66 24 66 60v66z" fill="#fffcf5"/><path d="M258 277q42 32 84 0" fill="none" stroke="#efe9df" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect x="274" y="250" width="52" height="36" fill="#c19072"/><g class="r-head"><circle cx="300" cy="196" r="82" fill="#e3ae8b"/><path d="M225 216a13 13 0 1 0 26 0a13 13 0 1 0 -26 0zM349 216a13 13 0 1 0 26 0a13 13 0 1 0 -26 0z" fill="#f2918c" opacity="0.45"/><path d="M206 230a12 12 0 1 0 24 0a12 12 0 1 0 -24 0zM370 230a12 12 0 1 0 24 0a12 12 0 1 0 -24 0z" fill="#e73c35"/><path d="M219 190C232 150 268 140 300 140s68 10 81 50c-16-21-48-32-81-32s-65 11-81 32z" fill="#1f272a"/><g class="r-flower"><path d="M371.9 90.5L374.1 111.3L393.9 104.5L380.6 120.8L399.5 129.9L378.7 132.1L385.5 151.9L369.2 138.6L360.1 157.5L357.9 136.7L338.1 143.5L351.4 127.2L332.5 118.1L353.3 115.9L346.5 96.1L362.8 109.4Z" fill="#e73c35"/><circle cx="366" cy="124" r="10" fill="#fffcf5"/></g><g class="r-eyes"><path d="M261 190a9 9 0 1 0 18 0a9 9 0 1 0 -18 0zM321 190a9 9 0 1 0 18 0a9 9 0 1 0 -18 0z" fill="#1f272a"/><path d="M270 187a3 3 0 1 0 6 0a3 3 0 1 0 -6 0zM330 187a3 3 0 1 0 6 0a3 3 0 1 0 -6 0z" fill="#fffcf5"/></g><g class="r-mouth"><path d="M271 232q29 7 58 0-6 18-29 18t-29-18z" fill="#fffcf5"/></g></g><g class="r-arm"><rect x="122" y="272" width="44" height="96" rx="20" fill="#fffcf5" transform="rotate(-3 144 300)"/><rect x="124" y="290" width="40" height="9" rx="4" fill="#efe9df" transform="rotate(-3 144 300)"/><path d="M167 304l-2 36" fill="none" stroke="#efe9df" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(0 8) rotate(-8 146 190)"><path d="M108 152l16-18h44l16 18v94h-76z" fill="#fffcf5"/><circle cx="146" cy="150" r="6" fill="#ef7b86"/><path d="M146 150c2-16-8-26-22-24" fill="none" stroke="#1f272a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M122 178h48M122 196h30" fill="none" stroke="#1f272a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="162" cy="222" r="10" fill="#e73c35"/><path d="M122 222h20" fill="none" stroke="#bdb4a6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g><circle cx="147" cy="270" r="22" fill="#e3ae8b"/><ellipse cx="163" cy="256" rx="9" ry="14" fill="#e3ae8b" transform="rotate(28 163 256)"/></g></g>
-<rect x="0" y="400" width="700" height="112" fill="#fffcf5"/><rect x="100" y="400" width="24" height="112" fill="#e73c35"/><rect x="148" y="400" width="24" height="112" fill="#e73c35"/><rect x="196" y="400" width="24" height="112" fill="#e73c35"/><rect x="244" y="400" width="24" height="112" fill="#e73c35"/><rect x="292" y="400" width="24" height="112" fill="#e73c35"/><rect x="340" y="400" width="24" height="112" fill="#e73c35"/><rect x="388" y="400" width="24" height="112" fill="#e73c35"/><rect x="436" y="400" width="24" height="112" fill="#e73c35"/><rect x="484" y="400" width="24" height="112" fill="#e73c35"/><rect x="0" y="338" width="600" height="62" fill="#ddd4c6"/><rect x="0" y="338" width="600" height="24" fill="#efe9df"/><rect x="0" y="362" width="600" height="4" fill="#bdb4a6" opacity="0.7"/><path d="M100 368v40M300 368v40M500 368v40" fill="none" stroke="#bdb4a6" stroke-width="3" stroke-linecap="butt" stroke-linejoin="round" opacity="0.7"/><rect x="0" y="336" width="700" height="4" fill="#1f272a"/><rect x="0" y="398" width="700" height="4" fill="#1f272a"/>
-<g transform="translate(-296 156)"><g class="r-fruit" style="--k:0"><g transform="translate(438 224.9) scale(1.5000)"><path d="M20 46C13 70 32 94 58 94C84 94 96 68 88 43C80 19 55 10 38 18C28 23 22 33 20 46Z" fill="#fec400" transform="scale(0.32)"/><path d="M56 13C80 20 94 44 88 66C84 82 72 92 58 94C76 78 82 48 56 13Z" fill="#b98a00" transform="scale(0.32)"/><ellipse cx="33" cy="50" rx="6" ry="13" fill="#fffcf5" transform="scale(0.32)"/><path d="M42 15C50 0 72 0 78 9C68 21 50 22 42 15Z" fill="#1f272a" transform="scale(0.32)"/></g></g><g class="r-fruit" style="--k:1"><g transform="translate(488 228.6) scale(1.3750)"><circle cx="50" cy="54" r="40" fill="#3558a2" transform="scale(0.32)"/><ellipse cx="34" cy="40" rx="9" ry="6.5" fill="#fffcf5" transform="scale(0.32)"/><path d="M53.0 20.0L56.8 28.7L66.3 29.7L59.2 36.0L61.2 45.3L53.0 40.5L44.8 45.3L46.8 36.0L39.7 29.7L49.2 28.7Z" fill="#1f272a" transform="scale(0.32)"/></g></g><g class="r-fruit" style="--k:2"><g transform="translate(414 243.1) scale(1.6250)"><circle cx="50" cy="54" r="40" fill="#3558a2" transform="scale(0.32)"/><ellipse cx="34" cy="40" rx="9" ry="6.5" fill="#fffcf5" transform="scale(0.32)"/><path d="M53.0 20.0L56.8 28.7L66.3 29.7L59.2 36.0L61.2 45.3L53.0 40.5L44.8 45.3L46.8 36.0L39.7 29.7L49.2 28.7Z" fill="#1f272a" transform="scale(0.32)"/></g></g><g class="r-fruit" style="--k:3"><g transform="translate(456 239.1) scale(1.8125)"><path d="M50 28C32 13 7 26 9 56C11 83 31 96 50 90C69 96 89 83 91 56C93 26 68 13 50 28Z" fill="#e73c35" transform="scale(0.32)"/><ellipse cx="30" cy="48" rx="6" ry="13" fill="#fffcf5" transform="scale(0.32)"/><path d="M47 8h7v22h-7Z" fill="#1f272a" transform="scale(0.32)"/><path d="M55 18C63 4 85 4 91 13C81 25 63 25 55 18Z" fill="#1f272a" transform="scale(0.32)"/></g></g><g class="r-fruit" style="--k:4"><g transform="translate(504 239.4) scale(1.7500)"><path d="M20 46C13 70 32 94 58 94C84 94 96 68 88 43C80 19 55 10 38 18C28 23 22 33 20 46Z" fill="#fec400" transform="scale(0.32)"/><path d="M56 13C80 20 94 44 88 66C84 82 72 92 58 94C76 78 82 48 56 13Z" fill="#b98a00" transform="scale(0.32)"/><ellipse cx="33" cy="50" rx="6" ry="13" fill="#fffcf5" transform="scale(0.32)"/><path d="M42 15C50 0 72 0 78 9C68 21 50 22 42 15Z" fill="#1f272a" transform="scale(0.32)"/></g></g><rect x="412" y="284" width="146" height="68" fill="#ddd4c6"/><rect x="412" y="284" width="146" height="6" fill="#efe9df"/><path d="M412 284h12v68h-12zM546 284h12v68h-12z" fill="#bdb4a6"/><path d="M424 307h122M424 329h122" fill="none" stroke="#1f272a" stroke-width="5" stroke-linecap="butt" stroke-linejoin="round"/><rect x="465.0" y="292" width="40" height="10" rx="5" fill="#1f272a"/></g><rect x="0" y="508" width="700" height="4" fill="#1f272a"/></svg>
+              <svg class="rig" viewBox="96 96 392 588" aria-hidden="true">
+<circle cx="292" cy="318" r="190" fill="#ef7b86"/><ellipse cx="300" cy="672" rx="150" ry="9" fill="#ddd4c6"/>
+<g class="r-fruit" style="--k:0" ><g transform="translate(-322 396)"><g transform="translate(438 224.9) scale(1.5000)"><path d="M20 46C13 70 32 94 58 94C84 94 96 68 88 43C80 19 55 10 38 18C28 23 22 33 20 46Z" fill="#fec400" transform="scale(0.32)"/><path d="M56 13C80 20 94 44 88 66C84 82 72 92 58 94C76 78 82 48 56 13Z" fill="#b98a00" transform="scale(0.32)"/><ellipse cx="33" cy="50" rx="6" ry="13" fill="#fffcf5" transform="scale(0.32)"/><path d="M42 15C50 0 72 0 78 9C68 21 50 22 42 15Z" fill="#1f272a" transform="scale(0.32)"/></g></g></g><g class="r-fruit" style="--k:2" ><g transform="translate(-52 382)"><g transform="translate(456 239.1) scale(1.8125)"><path d="M50 28C32 13 7 26 9 56C11 83 31 96 50 90C69 96 89 83 91 56C93 26 68 13 50 28Z" fill="#e73c35" transform="scale(0.32)"/><ellipse cx="30" cy="48" rx="6" ry="13" fill="#fffcf5" transform="scale(0.32)"/><path d="M47 8h7v22h-7Z" fill="#1f272a" transform="scale(0.32)"/><path d="M55 18C63 4 85 4 91 13C81 25 63 25 55 18Z" fill="#1f272a" transform="scale(0.32)"/></g></g></g>
+<g class="r-hop"><g class="r-all"><g class="r-head"><path d="M206 300V200c0-42 34-70 94-70s94 28 94 70v100z" fill="#1f272a"/></g>
+<rect x="258" y="586" width="28" height="66" fill="#e3ae8b"/><rect x="314" y="586" width="28" height="66" fill="#e3ae8b"/>
+<ellipse cx="264" cy="660" rx="29" ry="13" fill="#1f272a"/><g class="r-toe"><ellipse cx="338" cy="660" rx="29" ry="13" fill="#1f272a"/></g>
+<path d="M228 306L150 352" fill="none" stroke="#fffcf5" stroke-width="42" stroke-linecap="round"/>
+<path d="M372 306L424 376L390 438" fill="none" stroke="#fffcf5" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/><circle cx="386" cy="446" r="20" fill="#e3ae8b"/>
+<path d="M212 304c0-22 16-34 38-34h100c22 0 38 12 38 34v170H212z" fill="#fffcf5"/>
+<path d="M212 468h176l46 130H166z" fill="#e73c35"/><path d="M172 580h256" fill="none" stroke="#b62528" stroke-width="7"/>
+<path d="M258 277q42 32 84 0" fill="none" stroke="#efe9df" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect x="274" y="250" width="52" height="36" fill="#c19072"/>
+<path d="M254 322h92v80h28v140a12 12 0 0 1-12 12H238a12 12 0 0 1-12-12V402h28z" fill="#fec400"/><path d="M268 456h64v30a14 14 0 0 1-14 14h-36a14 14 0 0 1-14-14z" fill="#e0a800"/>
+<path d="M258 322c-4-20 4-36 14-44M342 322c4-20-4-36-14-44" fill="none" stroke="#fec400" stroke-width="8" stroke-linecap="round"/>
+<g class="r-head"><circle cx="300" cy="196" r="82" fill="#e3ae8b"/><path d="M225 216a13 13 0 1 0 26 0a13 13 0 1 0 -26 0zM349 216a13 13 0 1 0 26 0a13 13 0 1 0 -26 0z" fill="#f2918c" opacity="0.45"/><path d="M206 230a12 12 0 1 0 24 0a12 12 0 1 0 -24 0zM370 230a12 12 0 1 0 24 0a12 12 0 1 0 -24 0z" fill="#e73c35"/><path d="M219 190C232 150 268 140 300 140s68 10 81 50c-16-21-48-32-81-32s-65 11-81 32z" fill="#1f272a"/><g class="r-flower"><path d="M371.9 90.5L374.1 111.3L393.9 104.5L380.6 120.8L399.5 129.9L378.7 132.1L385.5 151.9L369.2 138.6L360.1 157.5L357.9 136.7L338.1 143.5L351.4 127.2L332.5 118.1L353.3 115.9L346.5 96.1L362.8 109.4Z" fill="#e73c35"/><circle cx="366" cy="124" r="10" fill="#fffcf5"/></g><g class="r-eyes"><path d="M261 190a9 9 0 1 0 18 0a9 9 0 1 0 -18 0zM321 190a9 9 0 1 0 18 0a9 9 0 1 0 -18 0z" fill="#1f272a"/><path d="M270 187a3 3 0 1 0 6 0a3 3 0 1 0 -6 0zM330 187a3 3 0 1 0 6 0a3 3 0 1 0 -6 0z" fill="#fffcf5"/></g><g class="r-mouth"><path d="M271 232q29 7 58 0-6 18-29 18t-29-18z" fill="#fffcf5"/></g></g><g class="r-arm"><rect x="122" y="272" width="44" height="96" rx="20" fill="#fffcf5" transform="rotate(-3 144 300)"/><rect x="124" y="290" width="40" height="9" rx="4" fill="#efe9df" transform="rotate(-3 144 300)"/><path d="M167 304l-2 36" fill="none" stroke="#efe9df" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(0 8) rotate(-8 146 190)"><path d="M108 152l16-18h44l16 18v94h-76z" fill="#fffcf5"/><circle cx="146" cy="150" r="6" fill="#ef7b86"/><path d="M146 150c2-16-8-26-22-24" fill="none" stroke="#1f272a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M122 178h48M122 196h30" fill="none" stroke="#1f272a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="162" cy="222" r="10" fill="#e73c35"/><path d="M122 222h20" fill="none" stroke="#bdb4a6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g><circle cx="147" cy="270" r="22" fill="#e3ae8b"/><ellipse cx="163" cy="256" rx="9" ry="14" fill="#e3ae8b" transform="rotate(28 163 256)"/></g></g></g></svg>
             </button>
             <div class="right">
               <div class="rail" id="rail" tabindex="0" aria-label="Game modes, swipe to change">
@@ -232,8 +246,8 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
       <div class="box">
         <h3>What changes</h3>
         <ul>
-          <li><b>Left:</b> one shopkeeper, Rosa, with no frame round her. She rises from behind her counter, sways, blinks, waves her price tag, and the fruit in her crate hops.</li>
-          <li><b>Her bubble</b> explains the game in four short lines, one after another. Tap her for the next line. She does not change when you change mode.</li>
+          <li><b>Left:</b> Rosa, full body, with no frame round her. She walks in, bounces, blinks, tilts her head, waves her price tag and taps her foot.</li>
+          <li><b>Her bubble</b> explains the mode on the card showing. When you swipe, she gives a small hop and explains the new one. Tap her for a second line.</li>
           <li><b>Right:</b> one card per mode. Swipe, or tap a name under the cards. The next card peeks in.</li>
           <li><b>One Play button</b> for the card showing. It becomes Continue when that mode has a game waiting.</li>
           <li><b>Custom match</b> no longer has four buttons on the card. Play opens the Play page with the four ways, as today.</li>
@@ -252,7 +266,7 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
       <div class="row"><b>Daily market</b><span><i>Play</i> → the Daily page (today's market, the board) → Start. <span class="tag same">Same as today</span></span></div>
       <div class="row"><b>Sprint</b><span><i>Play</i> → the Sprint page (today's 3 days, your best) → Start. <span class="tag same">Same as today</span></span></div>
       <div class="row"><b>A game is waiting</b><span><i>Continue</i> → straight back into the game. <i>New game</i> → asks first, then goes where Play goes. <span class="tag same">Same as today</span></span></div>
-      <div class="row"><b>Rosa (left)</b><span>Tap → her next line. No page opens. <span class="tag">New</span></span></div>
+      <div class="row"><b>Rosa (left)</b><span>Tap → a second line about the mode showing. No page opens. <span class="tag">New</span></span></div>
       <div class="row"><b>Profile chip · gear · bottom bar</b><span>The Stall tab · Settings · Stall, Market, Rules. <span class="tag same">Same as today</span></span></div>
     </div>
   </section>
@@ -271,9 +285,9 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
     <div class="box">
       <h2>Limits to know</h2>
       <ul>
-        <li>Good news, and a correction: Rosa's drawing is made of separate shapes, so she can blink, tilt her head, wave and talk with no new art. I said earlier this needed new drawings; it does not.</li>
-        <li>Each shopkeeper would need the same set-up by hand. One host is the small version; "your own shopkeeper" is eight of them.</li>
-        <li>The bubble's words are new and are my suggestion. They need your approval like any other text.</li>
+        <li><b>Her body below the shoulders is new art.</b> The game's picture of Rosa stops at the chest. I drew the apron, skirt, legs and shoes for this mockup; treat them as a sketch to approve or redraw.</li>
+        <li>Her face, hair, arm and price tag are the game's own drawing, moved as they are.</li>
+        <li>Her words are new and are my suggestion. They need your approval like any other text.</li>
         <li>On a 360 x 640 phone the cards are 166 px wide, so they carry less text than today. The detail stays on each mode's page.</li>
         <li>Quick Match goes from one tap to two.</li>
         <li>The "Reduced motion" setting would hold her still.</li>
@@ -284,8 +298,8 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
   <section class="box">
     <h2>Three things to decide</h2>
     <ol class="q">
-      <li><b>Is the host always Rosa?</b> I suggest yes for the first version. The other choice is the shopkeeper you play as, which is eight set-ups in place of one.</li>
-      <li><b>Are her four lines right?</b> "Welcome", "Buy low", "Sell smart", "Most cash wins". Change any wording you like.</li>
+      <li><b>Is her full-body look right?</b> Yellow apron, red skirt, white top as on her card. Say what to change, or approve it as the base for the real drawing.</li>
+      <li><b>Are her lines about each mode right?</b> Swipe through all four and tap her on each. Change any wording you like.</li>
       <li><b>May the four buttons leave the Custom card?</b> Play then always opens the Play page. Quick Match becomes two taps.</li>
     </ol>
   </section>
@@ -319,19 +333,24 @@ addEventListener('resize', fit); fit();
 
 MODES.forEach((m, i) => { const b = document.createElement('button'); b.textContent = m.tab; b.setAttribute('role', 'tab'); b.onclick = () => rail.scrollTo({ left: rail.children[i].offsetLeft - rail.children[0].offsetLeft, behavior: 'smooth' }); dots.append(b); });
 
-const TALK = [['Welcome!', 'I\'m Rosa. This is my stall.'], ['Buy low', 'Each morning the lorry brings fruit. Buy what you can sell.'], ['Sell smart', 'Set your prices in secret. The best offer gets the customer.'], ['Most cash wins', 'Fruit spoils, so sell it in time. Now pick a game!']];
-const host = $('#host'); let line = -1, talkT = 0;
-function speak() {
-  line = (line + 1) % TALK.length;
-  $('#sayH').textContent = TALK[line][0]; $('#sayT').textContent = TALK[line][1]; $('#sayN').textContent = `${line + 1} of ${TALK.length} · tap Rosa`;
-  const s = $('#say'); s.classList.remove('pop'); host.classList.remove('talk'); void s.offsetWidth;
-  if (!document.body.dataset.still) { s.classList.add('pop'); host.classList.add('talk'); }
+const TALK = {
+  hello: [['Welcome!', 'I\'m Rosa. Swipe the cards and I\'ll tell you about each game.']],
+  custom: [['Custom match', 'A full market, set up your way. Play strangers, friends or the computer.'], ['Custom match', 'Good for a first game: pick Computer and choose Easy.']],
+  league: [['Market League', 'Twelve stages. Each rival has a trick to beat. Win stars to move up.'], ['Market League', 'You start at Village Square, against me. I go easy on you.']],
+  daily: [['Daily market', 'One market a day, the same for everyone. See how you rank.'], ['Daily market', 'Play every day to keep your streak going.']],
+  sprint: [['Sprint', 'Only 3 days, a few minutes. Beat your best. Retry as often as you like.'], ['Sprint', 'Your best 5 days of the week count.']],
+};
+const host = $('#host'); let key = 'hello', line = 0, talkT = 0;
+function speak(k, n) {
+  key = k; line = n % TALK[k].length; const [h, x] = TALK[k][line];
+  $('#sayH').textContent = h; $('#sayT').textContent = x; $('#sayN').textContent = TALK[k].length > 1 ? 'Tap Rosa for more' : 'Swipe the cards →';
+  const s = $('#say'); s.classList.remove('pop'); host.classList.remove('talk', 'hop'); void s.offsetWidth;
+  if (!document.body.dataset.still) { s.classList.add('pop'); host.classList.add('talk', 'hop'); }
   clearTimeout(talkT); talkT = setTimeout(() => host.classList.remove('talk'), 1900);
 }
-function chatter() { clearInterval(timer); timer = setInterval(() => { if (!document.body.dataset.still) speak(); }, 5200); }
-host.onclick = () => { speak(); chatter(); };
-function show(i) {
-  at = i; const m = MODES[i];
+host.onclick = () => (key === 'hello' ? speak(MODES[at].id, 0) : speak(key, line + 1));
+function show(i, quiet) {
+  at = i; const m = MODES[i]; if (!quiet) speak(m.id, 0);
   [...rail.children].forEach((c, k) => c.classList.toggle('on', k === i));
   [...dots.children].forEach((d, k) => { d.classList.toggle('on', k === i); d.setAttribute('aria-selected', k === i); });
   const w = waiting && m.id === 'custom';
@@ -359,8 +378,8 @@ rail.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = request
 }); });
 rail.addEventListener('keydown', (e) => { const to = e.key === 'ArrowRight' ? at + 1 : e.key === 'ArrowLeft' ? at - 1 : -1; if (to >= 0 && to < MODES.length) { e.preventDefault(); dots.children[to].click(); } });
 document.querySelectorAll('[data-toast]').forEach((b) => { b.onclick = () => say(b.dataset.toast); });
-$('#tWait').onclick = (e) => { waiting = !waiting; e.currentTarget.setAttribute('aria-pressed', waiting); document.querySelectorAll('[data-wait]').forEach((x) => { x.hidden = !waiting; }); dots.children[0].click(); show(at); };
+$('#tWait').onclick = (e) => { waiting = !waiting; e.currentTarget.setAttribute('aria-pressed', waiting); document.querySelectorAll('[data-wait]').forEach((x) => { x.hidden = !waiting; }); dots.children[0].click(); show(at, true); };
 $('#tStill').onclick = (e) => { const on = !document.body.dataset.still; if (on) document.body.dataset.still = '1'; else delete document.body.dataset.still; e.currentTarget.setAttribute('aria-pressed', on);
   document.querySelectorAll('.rig *, .phone img').forEach((i) => { i.style.animationPlayState = on ? 'paused' : ''; }); };
-show(0); speak(); chatter();
+show(0, true); speak('hello', 0);
 </script>
