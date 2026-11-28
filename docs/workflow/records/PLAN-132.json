@@ -1,11 +1,14 @@
 {
   "id": "PLAN-132",
-  "title": "Match records: keep every finished game as a replayable, nameless record",
+  "title": "Match records and play telemetry, part 1: replayable nameless records with timing, funnel and quit context",
   "problem": "The game keeps only anonymous counts, so nothing is known about how real players buy, stock and price; every balance figure comes from computer games. The owner wants the game more skill based and competitive (REP-145) and asked: \"plan option 2, keep full match records\".",
   "scope": [
-    "A match record: the set-up (mode, stalls, days, options, computer levels, perks), the seed, the rules, computer-player and app versions, every person's moves in order, and how the game ended. The engine is deterministic, so the whole game replays from it. About 3 to 6 KB for a 10-day game",
+    "A match record: the set-up (mode, stalls, days, options, computer levels, perks), the seed, the rules, computer-player and app versions, every person's moves in order, and how the game ended. The engine is deterministic, so the whole game replays from it. About 3 to 6 KB for a 10-day game. Beside each move: the time the step took; per step, how many take-backs and cancels",
     "No name, account ID, device ID, room code or IP address in a record; typed stall names become seat numbers; each record has a random number of its own; no link between two games by one player",
     "Sent when a game ends or is left: solo, pass-and-play, League, Daily and Sprint from the app; online matches from the room server",
+    "Saved to the server at the end of each day of a game, not only at the end, so a force-close loses at most a day",
+    "In the record: which rule page, card or tip was opened mid-game (its name only); the step and rank when a game is left; a coarse device note (phone, tablet or desktop; operating system family; screen size bucket; app version) and one slow-frames bucket",
+    "New anonymous counts: first buy, first sale and Day 1 done in a first game; each mode viewed and each mode started",
     "Kept in a new store on the game server (a SQLite Durable Object, one per month) for 12 months, then deleted; live and preview separate",
     "The Settings switch \"Share anonymous stats\" becomes \"Share game data\" and covers records; online, a match is kept only if every person in it has the switch on",
     "Limits against abuse: size cap, the existing per-IP rate limit, shape checks, unknown versions refused",
@@ -13,10 +16,11 @@
     "docs/privacy.html and docs/ANALYTICS.md updated; tests that no identifier can enter a record"
   ],
   "exclusions": [
-    "No player number linking games (ratings would need a separate decision)",
+    "No player number linking games, no sessions, no A/B tags: these are part 2, a separate plan needing its own approval (REP-147)",
     "No rule, balance or save change; no change to what other players see online",
     "No paid service: if the Cloudflare plan's storage limit is too small, stop and ask",
-    "No backup of the records (PLAN-003 covers backups)"
+    "No backup of the records (PLAN-003 covers backups)",
+    "No third-party analytics service"
   ],
   "acceptance": [
     {
@@ -59,7 +63,8 @@
   "release": "unreleased",
   "build": "",
   "reports": [
-    "REP-146"
+    "REP-146",
+    "REP-147"
   ],
   "decisions": [
     "DEC-139"

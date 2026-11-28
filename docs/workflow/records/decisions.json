@@ -3431,7 +3431,7 @@
       "id": "DEC-139",
       "title": "Keep full match records (nameless, replayable)",
       "question": "Should the game keep a record of every finished match, beyond today's anonymous counts?",
-      "choice": "Proposed: yes. Each finished game is kept as its set-up, seed and moves, with no name or ID, for 12 months, under the same Settings switch as the anonymous stats.",
+      "choice": "Proposed, in two parts. Part 1 (PLAN-132): each game kept as its set-up, seed, moves and step timings, with no name or ID, for 12 months, under the Settings switch. Part 2 (a later plan): a random player number, asked for on first start, to follow return, sessions and progression.",
       "rationale": "Real match data is needed to make the game more skill based and competitive (REP-145); today every balance figure comes from computer games.",
       "impact": {
         "player": "Nothing changes in play. The privacy page and the Settings switch say that games are kept without names.",
@@ -3449,7 +3449,8 @@
       "plan": "PLAN-132",
       "reviewTrigger": "After two weeks of records on the live game.",
       "reports": [
-        "REP-146"
+        "REP-146",
+        "REP-147"
       ]
     }
   ],
@@ -5057,6 +5058,10 @@
     {
       "at": "2026-11-28 09:04",
       "text": "Owner asked whether match data is stored (it is not: anonymous counts only) and then: \"plan option 2, keep full match records\". PLAN-132 and DEC-139 written, awaiting approval (REP-146): nameless, replayable records kept 12 months. Nothing built."
+    },
+    {
+      "at": "2026-11-28 09:14",
+      "text": "Owner sent a wider tracking list (timing, undo and tooltip events, first-game and menu funnels, quit context, an anonymous player ID with sessions and device details, progression, notifications, A/B buckets, a third-party service). REP-147 sorts it: timing, funnels, quit context and coarse device notes join PLAN-132 with no ID (part 1); the player number, sessions and A/B tags are part 2 and need their own approval because the app says today that no IDs are sent; no third-party service recommended yet; notifications do not exist. Still awaiting approval."
     }
   ]
 }
