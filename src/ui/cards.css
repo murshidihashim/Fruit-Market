@@ -55,7 +55,7 @@
 .cd-dots { display: flex; flex-wrap: wrap; gap: calc(var(--u) * 6); }
 /* PLAN-133: a customer's pieces are pictures of the fruit, one each */
 .cd-pcs { flex-wrap: nowrap; gap: calc(var(--u) * 3); }
-.cd-dots i { flex: none; width: calc(var(--u) * 14); height: calc(var(--u) * 14); border-radius: 50%; border: calc(var(--u) * 2) solid var(--x-ink); background: var(--lane); }
+.cd-want .cd-pcs { gap: calc(var(--u) * 4); }
 
 /* ---------- the customer card (Main board): a heading bar in the type's colour, the picture, fruit rows, one legend bar ---------- */
 .cd-kind {
@@ -186,8 +186,6 @@
 .cd-ft.cd-ft-c { justify-content: center; }
 /* a standing order: what it wants on a band in the fruit's colour, with the freshness it takes */
 .cd-want { flex: none; display: flex; align-items: center; gap: calc(var(--u) * 8); margin-top: calc(var(--u) * 11); padding: calc(var(--u) * 4) calc(var(--u) * 8); background: var(--lane); color: var(--lane-ink); }
-.cd-want .cd-dots { gap: calc(var(--u) * 4); }
-.cd-want .cd-dots i { width: calc(var(--u) * 12); height: calc(var(--u) * 12); border: 0; background: var(--lane-ink); }
 .cd-want-t { font: 800 calc(var(--u) * 8) / 1.15 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .cd-want-l { flex: none; margin-left: auto; display: flex; gap: calc(var(--u) * 4); }
 .cd-want .cd-lamp { width: calc(var(--u) * 16); height: calc(var(--u) * 16); font-size: calc(var(--u) * 10); }
@@ -273,7 +271,6 @@
 .wc .wc-txt { margin: 0; line-height: 1.3; }
 .wc-foot { flex: none; padding: 6px 9px; background: var(--x-kraft); text-align: center; font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
 .wc-dots { display: flex; flex-wrap: wrap; gap: 5px; }
-.wc-dots i { flex: none; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--x-ink); background: var(--lane); }
 .wc-pcs { flex-wrap: nowrap; gap: 3px; }
 .wc-rw { display: flex; align-items: center; gap: 5px; }
 
@@ -311,7 +308,6 @@
 .wc .wc-sqpic { flex: none; width: 84px; height: 84px; border: 2px solid var(--x-ink); }
 .wc-ttl-o { font-size: 1.3125rem; }
 .wc-order .wc-rw .x-fruit { width: 22px; height: 22px; }
-.wc-order .wc-dots i { width: 14px; height: 14px; }
 .wc-lab { font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .wc-stats { display: flex; gap: 6px; padding: 10px; }
 .wc-stat { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 6px 8px; border: 2px solid var(--x-ink); }

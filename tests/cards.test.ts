@@ -463,7 +463,9 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
       expect(s).toContain(`>${o.title}</strong>`);
       expect(s).toContain(esc(o.quirk));
       expect(s).toContain(`cd-want ln-${o.fruit}`);
-      expect(s.match(/<span class="cd-dots"[^>]*>(.*?)<\/span>/)![1].match(/<i><\/i>/g)).toHaveLength(orderQty(4));
+      // PLAN-133: a picture of the fruit for each piece, each on its paper disc; no dots
+      expect(s.match(/<span class="cd-ic"><img class="x-fruit"/g)).toHaveLength(orderQty(4));
+      expect(s).not.toContain('<i></i>');
       expect(s).toContain(`<b>$${o.ceiling}</b><small>Highest bid, each</small>`);
       expect(s).toContain(`<b>$${o.stake}</b><small>Stake</small>`);
       expect(s).toContain('Deliver all 4 and the stake comes back');

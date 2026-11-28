@@ -95,12 +95,8 @@ export function prefWords(pref: Pref): string {
   return `${title}: Fresh, Okay for $${OKAY_LESS} less, or Soft for $${SOFT_LESS} less.`;
 }
 
-/** The pieces a card asks for, one dot each. */
-function Dots({ n, label }: { n: number; label: string }) {
-  return <span class="cd-dots" role="img" aria-label={label}>{Array.from({ length: n }, () => <i />)}</span>;
-}
 /** PLAN-133: the pieces a customer wants, one picture of the fruit each (three apples wanted is three apples drawn).
- *  It keeps the dots' class, so How to play still points at it for "how many". A standing order keeps its dots. */
+ *  It keeps the dots' class, so How to play still points at it for "how many". */
 function Pieces({ fruit, n, label }: { fruit: FruitId; n: number; label: string }) {
   return <span class="cd-dots cd-pcs" role="img" aria-label={label}>{Array.from({ length: n }, () => <FruitSvg id={fruit} size={22} alt="" />)}</span>;
 }
@@ -425,7 +421,7 @@ function orderSizes(): string {
 }
 
 /**
- * A standing order's card. In a game: `qty` pieces (drawn as dots), `due` (the words beside the label), and once the
+ * A standing order's card. In a game: `qty` pieces (a picture of the fruit each), `due` (the words beside the label), and once the
  * bids are in, `bid` (the winning price) and `stake` (what the holder put down). Without them the card is the deck's
  * own: the pieces for each table size, the highest bid allowed and the card's stake.
  */
@@ -436,8 +432,11 @@ export function OrderCard({ card, qty, due, bid, stake, class: cls }: {
     <article class={cx('cd', 'cd-a', 'cd-order', cls)}>
       <Head label="Standing order" right={<span>{due ?? `Due in ${ORDER_LEAD} days`}</span>} title={card.title} small={25} />
       <div class={`cd-want ${laneClass(card.fruit)}`}>
-        <span class="cd-ic"><FruitSvg id={card.fruit} size={17} alt={FRUIT[card.fruit].name} /></span>
-        {qty !== undefined ? <Dots n={qty} label={piecesOf(qty, card.fruit)} /> : <span class="cd-want-t">{`${orderSizes()} stalls`}</span>}
+        {/* PLAN-133: in a game, a picture of the fruit for each piece (each on its paper disc, so a blueberry shows on the
+            blue band); the card as a definition keeps one picture and the sizes in words */}
+        {qty !== undefined
+          ? <span class="cd-dots cd-pcs" role="img" aria-label={piecesOf(qty, card.fruit)}>{Array.from({ length: qty }, () => <span class="cd-ic"><FruitSvg id={card.fruit} size={17} alt="" /></span>)}</span>
+          : <><span class="cd-ic"><FruitSvg id={card.fruit} size={17} alt={FRUIT[card.fruit].name} /></span><span class="cd-want-t">{`${orderSizes()} stalls`}</span></>}
         <span class="cd-want-l" role="img" aria-label="Fresh or Okay"><i class="cd-lamp">F</i><i class="cd-lamp">O</i></span>
       </div>
       <div class="cd-two">
