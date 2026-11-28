@@ -6,7 +6,7 @@
    Colours and type are the live game's (read from 1.32.1), one look on purpose: it is a picture of the game. */
 :root {
   --paper: #fffcf5; --ink: #1f272a; --yel: #fec400; --green: #0a7443; --tint: #efe9df; --tint2: #ddd4c6;
-  --berry: #3558a2; --melon: #0e9a58; --mango: #fec400; --apple: #e73c35; --slate: #5b6468; --label: #3f494d;
+  --berry: #3558a2; --melon: #0e9a58; --mango: #fec400; --apple: #e73c35; --slate: #5b6468; --label: #3f494d; --sel: #fff1b8;
   --disp: 'Archivo Black', 'Archivo', system-ui, sans-serif; --txt: 'Archivo', system-ui, sans-serif;
 }
 html { background: var(--tint); }
@@ -48,9 +48,11 @@ button:focus-visible { outline: 3px solid var(--berry); outline-offset: 2px; }
 .dots button.on { background: var(--ink); color: var(--yel); }
 /* Rosa, standing on the card's awning, and her bubble */
 .hero { flex: 1; margin-top: 6px; min-height: 0; position: relative; z-index: 4; }
-.host { position: absolute; left: 4px; bottom: -11px; border: 0; background: none; padding: 0; cursor: pointer; color: var(--ink); font: inherit; width: 120px; }
+.bunt { position: absolute; left: 0; top: -6px; width: 100%; height: auto; display: block; }
+.crates { position: absolute; right: 14px; bottom: 5px; width: 170px; height: auto; display: block; }
+.host { position: absolute; left: 4px; bottom: -15px; z-index: 2; border: 0; background: none; padding: 0; cursor: pointer; color: var(--ink); font: inherit; width: 120px; }
 .host svg { display: block; width: 120px; height: auto; overflow: visible; animation: walkin .7s cubic-bezier(.2,.9,.3,1.1) both; }
-.say { position: absolute; left: 132px; right: 12px; top: 34px; background: var(--paper); border: 2.5px solid var(--ink); padding: 9px 10px 9px; box-shadow: 4px 4px 0 var(--ink); display: flex; flex-direction: column; gap: 6px; text-align: left; cursor: pointer; font: inherit; color: var(--ink); }
+.say { position: absolute; left: 132px; right: 12px; top: 40px; z-index: 2; background: var(--paper); border: 2.5px solid var(--ink); padding: 9px 10px 9px; box-shadow: 4px 4px 0 var(--ink); display: flex; flex-direction: column; gap: 6px; text-align: left; cursor: pointer; font: inherit; color: var(--ink); }
 .say::after { content: ""; position: absolute; left: -10.5px; top: 30px; width: 16px; height: 16px; background: var(--paper); border-left: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink); transform: rotate(45deg); }
 .say span { font: 600 13.5px/1.3 var(--txt); }
 .say i { font: 700 10px/1 var(--txt); font-style: normal; letter-spacing: .08em; text-transform: uppercase; color: var(--label); }
@@ -84,7 +86,7 @@ button:focus-visible { outline: 3px solid var(--berry); outline-offset: 2px; }
 .card .awn { flex: none; height: 10px; border-bottom: 3px solid var(--ink); background: repeating-linear-gradient(90deg, var(--green) 0 14px, var(--paper) 14px 28px); }
 .chd { flex: none; padding: 7px 9px; border-bottom: 3px solid var(--ink); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .chd b { font: 400 17px/1 var(--disp); text-transform: uppercase; white-space: nowrap; } .chd small { font: 600 11.5px/1.15 var(--txt); text-align: right; }
-.cb { flex: 1; min-height: 0; margin: 5px; background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink); padding: 9px; display: flex; flex-direction: column; gap: 8px; }
+.cb { flex: 1; min-height: 0; margin: 5px; background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--ink); padding: 8px 9px; display: flex; flex-direction: column; gap: 8px; }
 .duo { flex: 1; min-height: 0; display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 10px; }
 .col { display: flex; flex-direction: column; gap: 5px; min-width: 0; min-height: 0; }
 .lb { font: 700 10px/1 var(--txt); letter-spacing: .08em; text-transform: uppercase; color: var(--label); }
@@ -99,11 +101,16 @@ button:focus-visible { outline: 3px solid var(--berry); outline-offset: 2px; }
 .big { font: 400 16px/1.05 var(--disp); text-transform: uppercase; }
 .fact { font: 500 12.5px/1.3 var(--txt); }
 .stars { font-size: 20px; letter-spacing: 3px; line-height: 1; }
-.ways { flex: 1; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; align-content: center; }
-.ways li { font: 400 13px/1 var(--disp); text-transform: uppercase; display: flex; flex-direction: column; gap: 3px; padding-left: 8px; border-left: 4px solid var(--yel); }
-.ways small { font: 500 11.5px/1.15 var(--txt); text-transform: none; color: var(--label); }
+.ways { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 6px; }
+.way { position: relative; display: flex; align-items: center; gap: 7px; padding: 0 6px; border: 2.5px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; text-align: left; font: inherit; min-width: 0; }
+.way svg { flex: none; width: 28px; height: 28px; }
+.way span { display: flex; flex-direction: column; gap: 3px; min-width: 0; font: 400 11.5px/1 var(--disp); text-transform: uppercase; }
+.way small { font: 500 10.5px/1.1 var(--txt); text-transform: none; color: var(--label); }
+.way[aria-checked="true"] { background: var(--sel); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.way[aria-checked="true"]::after { content: "✓"; position: absolute; right: -2.5px; top: -2.5px; width: 18px; height: 18px; background: var(--ink); color: var(--yel); font: 800 12px/18px var(--txt); text-align: center; }
 .go { flex: none; display: flex; gap: 8px; padding: 8px 10px 8px; }
 .play { flex: 1; min-height: 52px; background: var(--yel); border: 3px solid var(--ink); border-bottom-width: 8px; cursor: pointer; color: var(--ink); font: 400 23px/1 var(--disp); text-transform: uppercase; }
+.play.long { font-size: 18px; }
 .play:active { transform: translateY(3px); border-bottom-width: 5px; margin-bottom: 3px; }
 .newg { flex: none; width: 88px; background: var(--paper); border: 3px solid var(--ink); font: 400 12px/1.1 var(--disp); text-transform: uppercase; cursor: pointer; color: var(--ink); }
 .nav { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--tint); border-top: 2px solid var(--ink); height: 44px; }
@@ -154,6 +161,8 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
           </div>
           <div class="dots" id="dots" role="tablist" aria-label="Game modes"></div>
           <div class="hero">
+            <svg class="bunt" viewBox="0 0 354 28" aria-hidden="true"><path d="M0 2Q59 12 118 3T236 3T354 2" fill="none" stroke="#dccdb3" stroke-width="1.5"/><path d="M6 5.2h22l-11 17z" fill="#e7d9c1"/><path d="M35 7.7h22l-11 17z" fill="#efe4d0"/><path d="M64 7.6h22l-11 17z" fill="#e7d9c1"/><path d="M93 4.8h22l-11 17z" fill="#efe4d0"/><path d="M122 4.9h22l-11 17z" fill="#e7d9c1"/><path d="M151 7.6h22l-11 17z" fill="#efe4d0"/><path d="M180 7.7h22l-11 17z" fill="#e7d9c1"/><path d="M209 5.1h22l-11 17z" fill="#efe4d0"/><path d="M238 4.7h22l-11 17z" fill="#e7d9c1"/><path d="M267 7.5h22l-11 17z" fill="#efe4d0"/><path d="M296 7.7h22l-11 17z" fill="#e7d9c1"/><path d="M325 5.3h22l-11 17z" fill="#efe4d0"/></svg>
+            <svg class="crates" viewBox="0 0 170 62" aria-hidden="true" fill="none" stroke="#e3d6bf" stroke-width="2" stroke-linejoin="round"><rect x="4" y="30" width="70" height="30"/><path d="M4 40h70M4 50h70M12 30v30M66 30v30"/><rect x="82" y="30" width="70" height="30"/><path d="M82 40h70M82 50h70M90 30v30M144 30v30"/><rect x="44" y="2" width="70" height="26"/><path d="M44 11h70M44 19h70M52 2v26M106 2v26"/><circle cx="24" cy="22" r="8"/><circle cx="130" cy="22" r="8"/><circle cx="146" cy="24" r="6"/></svg>
             <button class="say" id="say" aria-label="Rosa says"><span id="sayT"></span><i id="sayN"></i></button>
             <button class="host" id="host" aria-label="Rosa, the shopkeeper. Tap for another line"><svg class="rig" viewBox="96 96 392 588" aria-hidden="true">
 <circle cx="292" cy="300" r="186" fill="#ef7b86"/>
@@ -173,7 +182,7 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
             <section class="card" data-m="custom">
               <div class="awn"></div><div class="chd"><b>Custom match</b><small id="cstat">Your market, your way</small></div>
               <div class="cb">
-                <ul class="ways"><li>Quick Match<small>Strangers online</small></li><li>Private Room<small>Friends by link or code</small></li><li>Computer<small>On this phone</small></li><li>Pass &amp; Play<small>Take turns on this phone</small></li></ul>
+                <div class="ways" id="ways" role="radiogroup" aria-label="How to play"><button class="way" role="radio" data-w="quick" aria-checked="false"><svg viewBox="0 0 28 28"><rect width="28" height="28" fill="var(--berry)"/><path d="M16 3L6 16h7l-2 9 11-14h-7z" fill="var(--paper)"/></svg><span>Quick Match<small>Strangers online</small></span></button><button class="way" role="radio" data-w="room" aria-checked="false"><svg viewBox="0 0 28 28"><rect width="28" height="28" fill="var(--apple)"/><circle cx="10" cy="14" r="5.5" fill="none" stroke="var(--paper)" stroke-width="3.5"/><path d="M15 14h9M20 14v5M24 14v4" fill="none" stroke="var(--paper)" stroke-width="3.5"/></svg><span>Private Room<small>Friends by code</small></span></button><button class="way" role="radio" data-w="computer" aria-checked="false"><svg viewBox="0 0 28 28"><rect width="28" height="28" fill="var(--melon)"/><rect x="5" y="6" width="18" height="12" fill="none" stroke="var(--paper)" stroke-width="3"/><path d="M14 18v4M9 23h10" stroke="var(--paper)" stroke-width="3"/></svg><span>Computer<small>On this phone</small></span></button><button class="way" role="radio" data-w="phone" aria-checked="false"><svg viewBox="0 0 28 28"><rect width="28" height="28" fill="var(--mango)"/><path d="M5 10h15l-4-4M23 18H8l4 4" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/></svg><span>Pass &amp; Play<small>Take turns</small></span></button></div>
                 <span class="rules"><b>Next goal:</b> Striped Roof · sell a piece of fruit</span>
               </div>
             </section>
@@ -231,13 +240,11 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
       <div class="box">
         <h3>What changed in this round</h3>
         <ul>
-          <li><b>Top to bottom:</b> fruit banner, title and profile, the four mode tabs, Rosa and her bubble, one wide card, Play, the bottom bar.</li>
-          <li><b>Nothing said twice.</b> The mode's name is on its tab and its card only. Rosa no longer repeats rules; she chats. Play just says Play.</li>
-          <li><b>Wide card.</b> The first customer and the lorry sit side by side, the fruit counts are about twice the size, and the rules are one line at the foot.</li>
-          <li><b>"Not played"</b> is now plain words beside the date, so only Play looks like a button.</li>
-          <li><b>Tabs</b> are one joined strip above Rosa and the card. Swiping the card still works.</li>
-          <li><b>Polish:</b> fruit sits straight on its colour in the banner, with a thin white edge (a blueberry on blue would vanish without it); the gear has its own square; small labels are darker.</li>
-          <li><b>Kept:</b> Rosa full body and moving, the swipe, one Play button, the same button routes.</li>
+          <li><b>Behind Rosa:</b> faint beige bunting hangs under the tabs, and faint crate outlines sit behind her bubble. Both are quiet enough not to fight her words.</li>
+          <li><b>Rosa is lower:</b> her shoes stand on the card's striped awning, and her bubble moved down with her.</li>
+          <li><b>Custom match has four tiles</b> with icons in the four fruit colours: a bolt, a key, a monitor, swap arrows. The chosen tile is filled pale yellow with a tick.</li>
+          <li><b>Play names your choice</b> on the Custom card: "Play · Computer". Play then opens that way's own page directly. The other modes still say just Play.</li>
+          <li>Everything else is as in the last round.</li>
         </ul>
       </div>
     </div>
@@ -247,7 +254,7 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
     <h2>Where each button leads</h2>
     <p>The same rule on every card: the card tells you about the mode, Play opens that mode's own page, and the choices are made there.</p>
     <div class="map">
-      <div class="row"><b>Custom match</b><span><i>Play</i> → the Play page → <i>Quick Match</i> (pick shopkeeper and table size, then the search) · <i>Private Room</i> (your room, or join with a code) · <i>Computer</i> (set-up) · <i>Pass &amp; Play</i> (set-up).<br><span class="tag">Changed</span>Today the four ways are also buttons on the Home card, so each has two routes.</span></div>
+      <div class="row"><b>Custom match</b><span>Tap a tile to choose: <i>Quick Match</i>, <i>Private Room</i>, <i>Computer</i> or <i>Pass &amp; Play</i>. <i>Play</i> → that way's own page (the search, your room, or set-up).<br><span class="tag">Changed</span>Today a tile opens its page at once, and Play opens a Play page listing the same four. That Play page is no longer needed from Home.</span></div>
       <div class="row"><b>Market League</b><span><i>Play</i> → the League page (your stage, the rival, the goal) → Start. <span class="tag same">Same as today</span></span></div>
       <div class="row"><b>Daily market</b><span><i>Play</i> → the Daily page (today's market, the board) → Start. <span class="tag same">Same as today</span></span></div>
       <div class="row"><b>Sprint</b><span><i>Play</i> → the Sprint page (today's 3 days, your best) → Start. <span class="tag same">Same as today</span></span></div>
@@ -273,7 +280,8 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
       <ul>
         <li><b>Her body below the shoulders is new art,</b> drawn for this mockup. Her face, hair, forearm and price tag are the game's own drawing.</li>
         <li>Her chat lines are new words and my suggestion. Two of them use the customers' own descriptions from the game (Coral Mei is not fussy; Grandpa Tan remembers ten-cent apples).</li>
-        <li>The Custom card lists the four ways as words, not buttons. Play opens the Play page. Quick Match goes from one tap to two.</li>
+        <li>Every Custom way is now two taps (choose, then Play), or one tap if your choice is already ticked. The mockup starts on Computer; the game would remember your last choice.</li>
+        <li>The icon colours are the game's own four fruit colours, the nearest to the ones you listed, so the game keeps one palette.</li>
         <li>The next card now peeks in by only a sliver, so the tabs are the main way to change mode.</li>
         <li>The "Reduced motion" setting would hold her still.</li>
       </ul>
@@ -283,9 +291,9 @@ ol.q { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap
   <section class="box">
     <h2>Three things to decide</h2>
     <ol class="q">
-      <li><b>Is this layout the one to build?</b> If yes, I write the plan for your approval.</li>
-      <li><b>Are Rosa's look and chat lines right?</b> Tap through all four modes. Change any wording you like.</li>
-      <li><b>May the four buttons leave the Custom card?</b> Play then always opens the Play page. Quick Match becomes two taps.</li>
+      <li><b>Is this the layout to build?</b> If yes, I write the plan for your approval.</li>
+      <li><b>Which way is ticked for a new player?</b> I suggest Computer, then whatever you chose last.</li>
+      <li><b>Are Rosa's look and chat lines right?</b> Her body below the shoulders is still my sketch.</li>
     </ol>
   </section>
 </div>
@@ -307,7 +315,9 @@ const MODES = [
     cast: [['rosa', 'Rosa', ''], ['benny', 'Uncle Benny', ''], ['chen', 'Ah Chen', '']], you: 'raj',
     page: ['Sprint', 'The Sprint page, as it is today: a 3-day market, the perks to pick from, your best today and this week, then Start.'] },
 ];
-const WAYS = [['Quick Match', 'Strangers online · 2, 4 or 6 stalls · 10 days', 'Pick your shopkeeper and table size, then the search starts'], ['Private Room', 'Friends by link or code · 2 to 6 stalls', 'Your room with its link and code; joining with a code is here too'], ['Computer', 'On this phone · Easy, Normal, Hard', 'Set-up: shopkeeper, stalls, levels, game length'], ['Pass & Play', 'Take turns on this phone · 2 to 6 people', 'Set-up: who plays, game length']];
+const WAYS = { quick: ['Quick Match', 'Pick your shopkeeper and table size, then the search for players starts.'], room: ['Private Room', 'Your room with its link and code; joining with a code is here too.'], computer: ['Computer', 'Set-up: shopkeeper, stalls, levels and game length, then Start game.'], phone: ['Pass & Play', 'Set-up: who plays and the game length, then Start game.'] };
+let way = 'computer';
+function pickWay(k) { way = k; document.querySelectorAll('.way').forEach((b) => b.setAttribute('aria-checked', b.dataset.w === k)); }
 const $ = (s) => document.querySelector(s);
 const rail = $('#rail'), dots = $('#dots'), go = $('#go'), toast = $('#toast'), page = $('#page');
 let at = 0, waiting = false, timer = 0, turn = 0;
@@ -341,18 +351,15 @@ function show(i, quiet) {
   const w = waiting && m.id === 'custom';
   go.innerHTML = w
     ? `<button class="play" id="pl">▶ Continue</button><button class="newg" id="ng">New game</button>`
-    : `<button class="play" id="pl" aria-label="Play, ${m.name}">Play</button>`;
+    : m.id === 'custom' ? `<button class="play long" id="pl">Play · ${WAYS[way][0]}</button>` : `<button class="play" id="pl" aria-label="Play, ${m.name}">Play</button>`;
   $('#cstat').textContent = waiting ? 'Day 4 of 10 · $23' : 'Your market, your way';
   $('#pl').onclick = () => (w ? say('Continue goes straight back into the game, as today.') : openPage(m));
   if (w) $('#ng').onclick = () => say('New game asks first ("Starting over ends this game"), then opens the Play page, as today.');
 }
 function openPage(m) {
-  $('#ptitle').textContent = m.page ? m.page[0] : 'Play';
   const pin = $('#pin'); pin.innerHTML = '';
-  if (!m.page) {
-    const h = document.createElement('div'); h.className = 'lb'; h.textContent = 'Custom match'; pin.append(h);
-    WAYS.forEach(([n, l, next]) => { const t = document.createElement('button'); t.className = 'tile'; t.innerHTML = `<b>${n}</b>${l}<em>→ ${next}</em>`; t.onclick = () => say(`${n}: ${next}. That page stays as it is today.`); pin.append(t); });
-  } else { const n = document.createElement('p'); n.className = 'note'; n.textContent = m.page[1]; pin.append(n); }
+  const pg = m.page || [WAYS[way][0], `The ${WAYS[way][0]} page, as it is today. ${WAYS[way][1]} The Play page in between is skipped.`];
+  $('#ptitle').textContent = pg[0]; const n = document.createElement('p'); n.className = 'note'; n.textContent = pg[1]; pin.append(n);
   page.classList.add('open'); page.setAttribute('aria-hidden', 'false'); $('#back').focus({ preventScroll: true });
 }
 $('#back').onclick = () => { page.classList.remove('open'); page.setAttribute('aria-hidden', 'true'); };
@@ -367,5 +374,6 @@ document.querySelectorAll('[data-toast]').forEach((b) => { b.onclick = () => say
 $('#tWait').onclick = (e) => { waiting = !waiting; e.currentTarget.setAttribute('aria-pressed', waiting); dots.children[0].click(); show(at, true); };
 $('#tStill').onclick = (e) => { const on = !document.body.dataset.still; if (on) document.body.dataset.still = '1'; else delete document.body.dataset.still; e.currentTarget.setAttribute('aria-pressed', on);
   document.querySelectorAll('.rig *, .phone img').forEach((i) => { i.style.animationPlayState = on ? 'paused' : ''; }); };
-show(0, true); speak('hello', 0);
+document.querySelectorAll('.way').forEach((b) => { b.onclick = () => { pickWay(b.dataset.w); show(at, true); }; });
+pickWay(way); show(0, true); speak('hello', 0);
 </script>
