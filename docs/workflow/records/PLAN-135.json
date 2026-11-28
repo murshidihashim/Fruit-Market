@@ -17,13 +17,13 @@
       "id": "T1",
       "text": "npm run verify",
       "result": "PASS",
-      "evidence": "After the merge with main (1.34.0): see REP-157"
+      "evidence": "On the code merged with main (1.34.0): records OK, palette, lint, types, 1451 passed, build OK"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": "Not run locally for this change; CI on the release pull request runs it"
+      "result": "PASS",
+      "evidence": "CI on pull request 45 (verify:full, run 46141881561): success"
     },
     {
       "id": "T3",
@@ -43,7 +43,7 @@
     "evidence": "Owner, 2026-11-28: \"can we redesign the customer cards so that it shows 3 icons of the fruit for a customer wanting 3 pieces of the fruit, currently it is designed as 1 icon and 2 circle\"; then, with publication: \"apply it to standing orders as well and push live\"",
     "date": "2026-11-28"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.34.1",
   "build": "branch claude/dazzling-johnson-8wytx6, merged with main 8c0c166 (1.34.0)",
   "reports": [

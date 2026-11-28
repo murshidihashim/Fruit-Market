@@ -860,14 +860,17 @@
     },
     {
       "version": "1.34.1",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-135"
       ],
       "notes": [
         "Customer cards and standing orders now show one fruit for each piece wanted: three apples wanted is three apples drawn",
         "A customer's card opened from Home fills the screen again"
-      ]
+      ],
+      "date": "2026-11-28",
+      "commit": "97b9cb6",
+      "tagged": true
     }
   ]
 }

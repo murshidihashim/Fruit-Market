@@ -3529,7 +3529,7 @@
         "evidence": "Owner, 2026-11-28: \"can we redesign the customer cards so that it shows 3 icons of the fruit for a customer wanting 3 pieces of the fruit, currently it is designed as 1 icon and 2 circle\"; then, with publication: \"apply it to standing orders as well and push live\"",
         "date": "2026-11-28"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-135",
       "reviewTrigger": "When the owner has seen it on a phone.",
       "reports": [
@@ -5178,6 +5178,10 @@
     {
       "at": "2026-11-28 19:49",
       "text": "Branch claude/dazzling-johnson-8wytx6 merged with main 8c0c166 (1.34.0, match records). Main had used PLAN-133, PLAN-134, DEC-140, DEC-141 and REP-149 to REP-155, so this branch's customer-card work was renumbered: PLAN-135, DEC-142, REP-156 and REP-157 (they were PLAN-133, DEC-140, REP-149 and REP-150 here; the code's notes follow). Its release is 1.34.1, not 1.33.1. Pull request 45 had a conflict and no CI run until this merge."
+    },
+    {
+      "at": "2026-11-28 20:24",
+      "text": "1.34.1 published (PLAN-135): CI on pull request 45 green (verify:full), squash-merged to main 97b9cb6, Deploy LIVE run 58 success, tag v1.34.1. Seen on the live game: Settings shows \"Version 1.34.1\"; a first customer's card opened from Home after a tab change fills the screen (390x844) with fruit pictures and no dots; table tickets show a picture per piece. Merged and deployed in this session on the owner's \"apply it to standing orders as well and push live\". Not yet seen on a real phone."
     }
   ]
 }
