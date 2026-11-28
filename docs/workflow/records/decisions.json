@@ -5093,6 +5093,10 @@
     {
       "at": "2026-11-28 09:36",
       "text": "Owner: \"buld plan 2 as well\". Taken as approval of PLAN-132 (part 1) and the new PLAN-133 (the player number; DEC-140), with the recommended answers to REP-147's open questions: 12 months, a one-time question rather than on by default, the game's own server. Both built on the branch (REP-148): records store each day's facts for every mode; the room records online matches when everyone shares; the server's gate keeps names out. Not merged to main, not published."
+    },
+    {
+      "at": "2026-11-28 10:50",
+      "text": "PLAN-132, PLAN-133: browser tests pass on the branch (E2E OK, 0 leaks) after one fix: the player-number question is asked only where the game has a server. Still not run: the preview-copy check, the Cloudflare storage limit, a look at the question on a phone."
     }
   ]
 }

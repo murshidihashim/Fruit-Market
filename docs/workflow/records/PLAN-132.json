@@ -32,8 +32,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "2026-11-28 10:50: npm run test:e2e on commit 6d4efb86: E2E OK, every leak check 0. A first run failed in the League test because the new question covered Home in the offline copy; fixed (asked only where the game has a server) and re-run"
     },
     {
       "id": "T3",
