@@ -1,6 +1,6 @@
 /* =====================================================================
    PLAN-124, Home as "Shopfront and Board" (Home.tsx, HomeCards.tsx), and the Daily intro (DailyIntro.tsx). The same look
-   as the rest of Home (journey-home.css): ink edges, paper, mustard actions, square corners. Nothing here is animated.
+   as the rest of Home (journey-home.css): ink edges, paper, mustard actions, square corners. Only the host moves (PLAN-132, at the end).
    - The shell: Home's tab above the bottom bar (Stall, Market, Rules). Each tab scrolls on its own; the Market tab fits
      one phone screen (the compact rules below; a phone 760 px high and more gets the bigger pictures and extra lines).
    - Market: the profile chip, one hero card (a stall: an awning, the mode's name, its body), the mode tabs, the Play row.
@@ -355,3 +355,143 @@
   .home.hm.jh .jh-hero-custom .jh-way span { font-size: 0.875rem; }
 }
 .home.hm.jh > .hm-in > .jh-desk { margin: 4px 16px 0; }
+
+/* =====================================================================
+   PLAN-132, Home's Market tab with a host (Home.tsx, HomeHost.tsx, HomeCards.tsx). Top to bottom: the fruit band, the
+   title with the profile chip and the gear, the mode tabs, Rosa and her bubble, one wide card, Play.
+   - The host's part (.hh-hero) takes the room the screen has left; Rosa is as tall as that room (up to 240 px) and
+     stands on the card's awning. Her bubble sits beside her; faint bunting and crates fill the paper behind.
+   - The card (.hh-card) is as tall as its content: its name with where you stand beside it, then its body.
+   Colours are the palette's. Her movement stops with Reduced motion (motion.css stops every animation).
+   ===================================================================== */
+
+/* ---------- the band, the chip and the gear ---------- */
+.home.hm.jh .jh-prof { background: transparent; box-shadow: none; gap: 6px; }
+.home.hm.jh .jh-pmain { padding: 3px 12px 3px 4px; border-radius: 999px; background: var(--j-paper); box-shadow: inset 0 0 0 3px var(--j-ink); }
+.home.hm.jh .jh-gear { width: 46px; min-height: 46px; background: var(--j-paper); box-shadow: inset 0 0 0 3px var(--j-ink); }
+
+/* ---------- the layout of the Market tab ---------- */
+/* the tab fits one screen: the host's part gives way first; a screen too short for the rest scrolls */
+.jh-shell > .home.hm.jh.hh { min-height: 0; }
+.home.hm.jh.hh .hm-rest { flex: 1 1 auto; min-height: 0; justify-content: flex-start; gap: 8px; }
+.home.hm.jh.hh .hm-rest > * { flex-shrink: 0; }
+.home.hm.jh.hh .jh-panel { flex: none; }
+.home.hm.jh.hh .jh-go-row { margin-top: 2px; }
+
+/* ---------- the host ---------- */
+.home.hm.jh.hh .hm-rest > .hh-hero { flex: 1 1 170px; min-height: 96px; max-height: 330px; }
+.hh-hero { position: relative; z-index: 2; container-type: size; margin-bottom: -8px; }
+.hh-hero > * { --hh: 180px; }
+@supports (height: 1cqh) { .hh-hero > * { --hh: min(100cqh + 6px, 290px); } }
+.hh-bunt { position: absolute; left: 0; top: -8px; width: 100%; height: 26px; display: block; }
+.hh-bunt .hh-line { fill: none; stroke: var(--c-ddd4c6); stroke-width: 1.5; }
+.hh-bunt .hh-flag { fill: var(--c-efe9df); }
+.hh-bunt .hh-flag2 { fill: var(--c-ddd4c6); opacity: 0.6; }
+.hh-crates { position: absolute; right: 4px; bottom: 12px; width: min(170px, 46%); height: auto; display: block; fill: none; stroke: var(--c-ddd4c6); stroke-width: 2; stroke-linejoin: round; opacity: 0.75; }
+.home.hm.jh .hh-host { position: absolute; left: -4px; bottom: -14px; z-index: 2; width: calc(var(--hh) * 0.667); height: var(--hh); padding: 0; background: none; line-height: 0; }
+.hh-rig { display: block; width: 100%; height: 100%; overflow: visible; animation: hh-walk 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.1) both; }
+.home.hm.jh .hh-say {
+  position: absolute; left: calc(var(--hh) * 0.667 + 4px); right: 4px; top: calc(var(--hh) * 0.2); z-index: 2; display: flex; flex-direction: column; gap: 6px;
+  padding: 9px 10px; background: var(--j-paper); color: var(--j-ink); text-align: left; box-shadow: inset 0 0 0 3px var(--j-ink), 4px 4px 0 var(--j-ink);
+}
+.hh-say::after { content: ""; position: absolute; left: -8px; top: 26px; width: 15px; height: 15px; background: var(--j-paper); border-left: 3px solid var(--j-ink); border-bottom: 3px solid var(--j-ink); transform: rotate(45deg); }
+.hh-say span { font: 600 0.875rem/1.3 var(--f-label); }
+.hh-say i { font: 800 0.6875rem/1 var(--f-label); font-style: normal; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.78; }
+.hh-host:focus-visible, .hh-say:focus-visible { outline: 3px solid var(--x-sky-d); outline-offset: 2px; }
+.hh-beat .hh-say { animation: hh-pop 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; transform-origin: 0 34px; }
+
+/* her parts (host/rosa.svg): the numbers are places in her drawing */
+.hh-rig * { transform-box: view-box; }
+.hh-rig .r-all { animation: hh-breathe 2.8s ease-in-out infinite; transform-origin: 300px 672px; }
+.hh-rig .r-toe { animation: hh-toe 1.4s ease-in-out infinite; transform-origin: 312px 672px; }
+.hh-rig .r-head { animation: hh-tilt 5s ease-in-out infinite; transform-origin: 300px 268px; }
+.hh-rig .r-eyes { animation: hh-blink 4.2s infinite; transform-origin: 300px 190px; }
+.hh-rig .r-arm { animation: hh-wave 2.2s ease-in-out infinite; transform-origin: 150px 352px; }
+.hh-rig .r-flower { animation: hh-spin 5s ease-in-out infinite; transform-origin: 366px 124px; }
+.hh-rig .r-mouth { transform-origin: 300px 236px; }
+.hh-beat .hh-rig { animation: none; }
+.hh-beat .r-hop { animation: hh-jump 0.5s ease-out; }
+.hh-beat .r-mouth { animation: hh-chat 0.26s ease-in-out 7; }
+@keyframes hh-walk { from { transform: translateX(-120%); } to { transform: none; } }
+@keyframes hh-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.01, 0.985); } }
+@keyframes hh-toe { 0%, 60%, 100% { transform: rotate(0); } 75% { transform: rotate(-16deg); } }
+@keyframes hh-tilt { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(3deg); } }
+@keyframes hh-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
+@keyframes hh-wave { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(7deg); } }
+@keyframes hh-spin { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(14deg); } }
+@keyframes hh-jump { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-34px); } }
+@keyframes hh-chat { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.45); } }
+@keyframes hh-pop { from { transform: scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .hh-rig, .hh-rig *, .hh-say, .hh-panel { animation: none !important; } }
+
+/* ---------- the wide card ---------- */
+.hh-panel { touch-action: pan-y; }
+.hh-panel.hh-from-r { animation: hh-in-r 0.22s ease-out both; }
+.hh-panel.hh-from-l { animation: hh-in-l 0.22s ease-out both; }
+@keyframes hh-in-r { from { transform: translateX(28px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+@keyframes hh-in-l { from { transform: translateX(-28px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+.hh-card { display: flex; flex-direction: column; background: var(--c-0a7443); color: var(--j-paper); box-shadow: inset 0 0 0 3px var(--j-ink); padding: 3px; }
+.hh-card .hh-awn { flex: none; height: 11px; border-bottom: 3px solid var(--j-ink); background: repeating-linear-gradient(90deg, var(--c-0a7443) 0 14px, var(--j-paper) 14px 28px); }
+.hh-chd { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 7px 9px; border-bottom: 3px solid var(--j-ink); }
+.hh-chd h2 { flex: none; margin: 0; font: 400 1.125rem/1 var(--f-display); text-transform: uppercase; letter-spacing: 0.01em; color: var(--j-paper); white-space: nowrap; }
+.hh-chd small { min-width: 0; font: 600 0.75rem/1.2 var(--f-label); color: var(--j-paper); text-align: right; }
+.hh-cb { display: flex; flex-direction: column; gap: 8px; margin: 5px 2px 2px; padding: 9px; background: var(--j-paper); color: var(--j-ink); box-shadow: inset 0 0 0 2.5px var(--j-ink); }
+.hh-duo { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 10px; min-height: 104px; }
+.hh-col { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.hh-col.hh-mid { justify-content: center; gap: 8px; }
+.hh-lb { font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.78; }
+.hh-pic { position: relative; flex: 1 1 auto; min-height: 80px; overflow: hidden; box-shadow: inset 0 0 0 2.5px var(--j-ink); padding: 2.5px; }
+.hh-pic .hh-art, .hh-pic .hh-art img { position: absolute; inset: 2.5px; width: calc(100% - 5px); height: calc(100% - 5px); object-fit: cover; }
+.hh-pic .hh-art img { inset: 0; width: 100%; height: 100%; }
+.hh-pn { position: absolute; left: 2.5px; bottom: 2.5px; max-width: calc(100% - 5px); box-sizing: border-box; padding: 4px 6px; background: var(--j-ink); color: var(--j-paper); font: 400 0.6875rem/1 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hh-lorry { flex: 1 1 auto; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 5px; }
+.hh-lorry span { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; box-shadow: inset 0 0 0 2.5px var(--j-ink), inset 0 -6px 0 var(--lane); }
+.hh-lorry b { font: 400 1.25rem/1 var(--f-display); }
+.hh-rules { padding-top: 7px; border-top: 2px solid var(--c-ddd4c6); font: 600 0.75rem/1.25 var(--f-label); }
+.hh-rules b { font-weight: 800; }
+.hh-big { font: 400 1rem/1.05 var(--f-display); text-transform: uppercase; }
+.hh-fact { font: 500 0.8125rem/1.3 var(--f-label); }
+
+/* the four ways of a Match: tiles; the one ticked is filled, with a tick in its corner */
+.hh-ways { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 6px; }
+.home.hm.jh .hh-way { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 52px; padding: 4px 8px; background: var(--j-paper); color: var(--j-ink); text-align: left; box-shadow: inset 0 0 0 2.5px var(--j-ink); }
+.hh-way b { min-width: 0; font: 400 0.8125rem/1.05 var(--f-display); text-transform: uppercase; }
+.hh-wic { flex: none; width: 30px; height: 30px; }
+.hh-wic .hh-fg { fill: var(--j-paper); }
+.hh-wic .hh-ln { fill: none; stroke: var(--j-paper); stroke-width: 3; stroke-linejoin: round; }
+.hh-wic-quick .hh-bg { fill: var(--j-berry); }
+.hh-wic-room .hh-bg { fill: var(--j-apple); }
+.hh-wic-computer .hh-bg { fill: var(--j-melon); }
+.hh-wic-phone .hh-bg { fill: var(--j-mango); }
+.hh-wic-phone .hh-ln { stroke: var(--j-ink); }
+.home.hm.jh .hh-way[aria-checked="true"] { background: var(--c-fff3dc); box-shadow: inset 0 0 0 4px var(--j-ink); }
+.hh-way[aria-checked="true"]::after { content: "✓"; position: absolute; right: 0; top: 0; width: 20px; height: 20px; background: var(--j-ink); color: var(--j-yel); font: 800 0.8125rem/20px var(--f-label); text-align: center; }
+.hh-way:focus-visible { outline: 3px solid var(--x-sky-d); outline-offset: 2px; }
+.home.hm.jh .hh-way:active { transform: translateY(2px); }
+
+/* Play names the way of a Match, so its words are smaller; Continue is one word now */
+.home.hm.jh .jh-play.hh-long { font-size: 1.3125rem; }
+.home.hm.jh .jh-cont { justify-content: center; }
+
+@media (max-width: 379px) {
+  .home.hm.jh .jh-play.hh-long { font-size: 1.125rem; }
+  .hh-way b { font-size: 0.75rem; }
+  .hh-say span { font-size: 0.8125rem; }
+  .hh-chd h2 { font-size: 1rem; }
+}
+@media (max-height: 620px) {
+  .hh-duo { min-height: 84px; }
+  .hh-pic { min-height: 60px; }
+  .hh-lorry span { min-height: 30px; }
+  .home.hm.jh .hh-way { min-height: 44px; }
+  .hh-crates { display: none; }
+}
+@media (min-width: 600px) and (min-height: 760px) {
+  .hh-hero { max-height: 300px; }
+  .hh-duo { min-height: 150px; }
+  .hh-say span { font-size: 1rem; }
+}
+.hh-card .jp-stars { display: flex; gap: 2px; }
+.hh-card .jp-star path { fill: none; stroke: var(--j-ink); }
+.hh-card .jp-star.on path { fill: var(--j-yel); }
+@media (max-width: 339px) { .hh-way b { font-size: 0.6875rem; } .home.hm.jh .hh-way { gap: 6px; padding: 4px 6px; } .hh-wic { width: 26px; height: 26px; } }

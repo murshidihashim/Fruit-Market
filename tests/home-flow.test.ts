@@ -53,15 +53,14 @@ describe('B-04: the face on a card is the face you get at the table', () => {
     mem.set('fm.avatar', RIVALS[7].avatar);
     expect(setupAvatar(leagueConfig(0, 'You', ''))).toBe(RIVALS[7].avatar);
   });
-  it('Home\'s League card and the Daily and Sprint intros draw that face, not your chosen one facing itself', () => {
+  it('the Daily and Sprint intros draw that face, not your chosen one facing itself', () => {
     mem.set('fm.avatar', ROSA);
     const face = (who: string, size: number) => toStaticHtml(h(FramedFace, { who, size, look: worn() }));
-    const props = { today: DATE, games: {}, next: null, onQuick: noop, onRoom: noop, onComputer: noop, onOnePhone: noop };
-    const league = toStaticHtml(h(HeroCard, { ...props, mode: 'league' }));
+    // PLAN-132: Home's cards no longer draw you against the rivals (the faces are on each mode's own page)
+    const props = { today: DATE, games: {}, way: 'computer' as const, onWay: noop };
     const me = setupAvatar(leagueConfig(0, '', ''));
     expect(face(me, 28)).not.toBe(face(ROSA, 28));
-    expect(league).toContain(face(me, 28));
-    expect(league).not.toContain(face(ROSA, 28));
+    expect(toStaticHtml(h(HeroCard, { ...props, mode: 'league' }))).not.toContain('sbk-face');
     for (const kind of ['daily', 'sprint'] as const) {
       const cfg = kind === 'daily' ? dailyConfig(DATE, 'You') : sprintConfig(DATE, 'You');
       const html = toStaticHtml(h(DailyIntro, { kind, today: DATE, waiting: null, onBack: noop, onStart: noop, onContinue: noop, onSwitch: noop }));
@@ -69,9 +68,7 @@ describe('B-04: the face on a card is the face you get at the table', () => {
       // the day's rivals include Rosa, so the chosen Rosa is not drawn facing her
       expect(cfg.players.slice(1).map((p) => p.avatar), kind).toContain(ROSA);
       expect(html, kind).not.toContain(face(ROSA, 34));
-      const card = toStaticHtml(h(HeroCard, { ...props, mode: kind }));
-      expect(card, kind).toContain(face(setupAvatar(cfg), 44));
-      expect(card, kind).not.toContain(face(ROSA, 44));
+      expect(toStaticHtml(h(HeroCard, { ...props, mode: kind })), kind).not.toContain('sbk-face');
     }
   });
 });

@@ -26,9 +26,9 @@ const path = require('path');
   const game = () => page.evaluate(() => { const e = JSON.parse(localStorage.getItem('fm.save.play') || 'null'); return e && e.game; }); // PLAN-120: the Play slot
   const fail = async (why) => { await shot('stuck'); console.error(`One phone FAILED: ${why}. Errors: ${errors.join(' | ')}`); await browser.close(); process.exit(1); };
 
-  await page.click('[data-tab="custom"]'); // PLAN-124: Home's Custom tab, then its Play
+  await page.click('[data-tab="custom"]'); // PLAN-132: Home's Match tab, the Pass & Play tile, then Play
+  await page.click('[data-a="way-phone"]');
   await page.click('[data-a="play"]');
-  await page.click('[data-a="phone"]');
   await page.click('button:has-text("Start game")');
 
   const DONE = 'button:has-text("Done buying"), button:has-text("Skip buying")';

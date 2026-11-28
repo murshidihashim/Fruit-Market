@@ -816,12 +816,28 @@
     },
     {
       "version": "1.32.1",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-131"
       ],
       "notes": [
         "On iPhone, every tap on the price buttons now counts, and the buttons show when they are pressed"
+      ],
+      "date": "2026-11-27",
+      "commit": "95e643b",
+      "tagged": true
+    },
+    {
+      "version": "1.33.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-132"
+      ],
+      "notes": [
+        "A new Home: Rosa welcomes you and chats about each game",
+        "Pick how to play a Match right on Home (Quick Match, Private Room, Computer or Pass & Play), then press Play",
+        "Swipe the card or tap a tab to change game",
+        "\"Custom match\" is now called \"Match\""
       ]
     }
   ]

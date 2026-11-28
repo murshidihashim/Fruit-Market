@@ -32,9 +32,9 @@ const asked = {};
     pages.push(P);
     await p.goto(base);
     await p.click('[data-tab="custom"]');
-    // PLAN-124/125: Home's Custom card leads to the modes, through Play where the build still has it.
-    if (await p.locator('[data-a="play"]').count()) await p.click('[data-a="play"]');
-    await p.click('[data-a="quick"]');
+    // PLAN-132: Home's Match tab, the Quick Match tile, then Play.
+    await p.click('[data-a="way-quick"]');
+    await p.click('[data-a="play"]');
     // PLAN-125's set-up page: choose 4 stalls and look for a match (the earlier page starts looking at once).
     const four = p.getByRole('button', { name: /4 stalls/i });
     await four.first().waitFor({ timeout: 5000 }).catch(() => {});

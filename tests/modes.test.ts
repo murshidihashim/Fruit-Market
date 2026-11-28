@@ -56,7 +56,7 @@ describe('what each mode is called', () => {
   it('gives Home its tabs, with the same names the rest of the game uses', () => {
     expect(MODES).toBe(HOME_MODES);
     expect(HOME_MODES.map((m) => [m.id, m.slot, m.tab, m.name])).toEqual([
-      ['custom', 'play', 'Custom', 'Custom match'], ['league', 'league', 'League', 'Market League'],
+      ['custom', 'play', 'Match', 'Match'], ['league', 'league', 'League', 'Market League'],
       ['daily', 'daily', 'Daily', 'Daily market'], ['sprint', 'sprint', 'Sprint', 'Sprint'],
     ]);
     expect(NORMAL_HEADING).toBe(CUSTOM_MATCH);

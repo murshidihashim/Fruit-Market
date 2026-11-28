@@ -1,0 +1,97 @@
+{
+  "id": "PLAN-132",
+  "title": "Home with a host: Rosa, the mode tabs on top and one wide card",
+  "problem": "Home's Market tab says the same thing several times (the four ways to play are on the card and on the Play page; a mode's name and facts repeat), its cards are uneven, nothing on it moves after the opening and the shopkeepers are small circles. The owner asked for a friendlier landing page: one moving character, and cards you can swipe.",
+  "scope": [
+    "The Market tab, top to bottom: fruit band (fruit straight on its colour), title with the profile chip and the gear in its own square, the mode tabs, Rosa and her bubble, one wide card, Play",
+    "Rosa as the host in every mode: full body, moving (walks in, sways, blinks, waves her price tag, taps her foot, hops and talks for a new line); a tap on her or her bubble gives another line; faint bunting and crates behind her",
+    "Her lines are chat and tips only; a mode's facts are on its card once",
+    "The cards: the mode's name with where you stand beside it; Daily and Sprint show the first customer beside a larger lorry and one line of rules; \"Not played\" is plain words by the date",
+    "\"Custom match\" becomes \"Match\" everywhere (tab, card, Play page, the game's own labels)",
+    "The Match card's four ways are tiles with pictures: a tile chooses, the chosen one is ticked and remembered, and Play names it (\"Play · Computer\") and opens that way's own page",
+    "A sideways swipe on the card changes mode, as the tabs do",
+    "Removed from Home's cards: the lines under the four ways, \"your market, your way\", the you-against-rivals rows, the Next goal line, the Daily's twist and League echo, the Sprint's week line"
+  ],
+  "exclusions": [
+    "No change to the rules, the balance, the computer players, the online messages or saves (rules version 20, protocol 5 unchanged)",
+    "No new dependency",
+    "The Stall and Rules tabs, the League, Daily and Sprint pages and the set-up pages are unchanged",
+    "The Play page stays in the game: \"Start over\" on a waiting Match still leads to it"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "PASS",
+      "evidence": "records OK, palette, lint, types, 1440 passed in 139 files (6 new: tests/host-words.test.ts and two in tests/home-cards.test.ts), build OK"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks), with the scripts moved to the new routes (a tile, then Play)",
+      "result": "NOT RUN",
+      "evidence": "Running"
+    },
+    {
+      "id": "T3",
+      "text": "The Market tab fits one screen at 360x640, 390x844 and 320x568, and reads well at 1280x800",
+      "result": "PASS",
+      "evidence": "Screenshots of the local game at each size; the tab does not scroll (scroll height equals the screen's at 390x844 and 320x568)"
+    },
+    {
+      "id": "T4",
+      "text": "In the browser: a swipe changes mode, a tile chooses and Play names and opens it, a tap on Rosa or her bubble gives another line, a waiting Match shows its day and cash with Continue and New game",
+      "result": "PASS",
+      "evidence": "Local run at 360x640: swipe left to League and back; \"Play · Quick Match\" opened the Quick Match page; Rosa's lines changed on taps; \"Day 1 of 10 · $10\", Continue, New game; no console errors"
+    },
+    {
+      "id": "T5",
+      "text": "On a real phone: Rosa's movement is smooth and the swipe feels right",
+      "result": "NOT RUN",
+      "evidence": "No phone is available in this session; for the owner on the preview"
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-28, after six rounds on the mockup (REP-142 to REP-147): \"remove the next goal thingy, the push it live,\"",
+    "date": "2026-11-28"
+  },
+  "delivery": "implemented",
+  "release": "1.33.0",
+  "build": "branch claude/dazzling-johnson-8wytx6",
+  "reports": [
+    "REP-142",
+    "REP-143",
+    "REP-144",
+    "REP-145",
+    "REP-146",
+    "REP-147",
+    "REP-148"
+  ],
+  "decisions": [
+    "DEC-139"
+  ],
+  "changes": {
+    "added": [
+      "Rosa as Home's host: full body, moving, chatting in a bubble",
+      "Tiles with pictures for the four ways to play a Match; the chosen way is ticked and remembered",
+      "A swipe on Home's card changes mode"
+    ],
+    "changed": [
+      "Home's Market tab: tabs on top, then Rosa, one wide card and Play",
+      "\"Custom match\" is now \"Match\"",
+      "Play on the Match card names the way and opens its page directly",
+      "A day's result is plain words beside the card's name",
+      "The fruit in the top band sits on its colour"
+    ],
+    "fixed": [],
+    "removed": [
+      "From Home's cards: the lines under the four ways, \"your market, your way\", the rivals rows, the Next goal line, the Daily's twist and League echo, the Sprint's week line"
+    ]
+  },
+  "playerNotes": [
+    "A new Home: Rosa welcomes you and chats about each game",
+    "Pick how to play a Match right on Home (Quick Match, Private Room, Computer or Pass & Play), then press Play",
+    "Swipe the card or tap a tab to change game",
+    "\"Custom match\" is now called \"Match\""
+  ]
+}

@@ -90,7 +90,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
   }, MIN_TAP);
   const domCount = () => p.evaluate(() => document.querySelectorAll('*').length);
 
-  await p.click('[data-tab="custom"]'); await p.click('[data-a="play"]'); await p.click('[data-a="computer"]'); // PLAN-124: Home's Custom tab and Play, then Computer
+  await p.click('[data-tab="custom"]'); await p.click('[data-a="way-computer"]'); await p.click('[data-a="play"]'); // PLAN-132: Home's Match tab, the Computer tile, then Play
   await p.waitForTimeout(1500); // a player spends a moment choosing options on the setup screen
   await p.evaluate(() => { window.__entry = performance.now(); });
   await p.click('text=Start game');
