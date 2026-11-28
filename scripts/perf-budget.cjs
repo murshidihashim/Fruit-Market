@@ -34,7 +34,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
     let seed = 777;
     Math.random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 2 ** 32; };
     localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false }));
-    // Every tip seen, and the guided first sale had (PLAN-113), so Day 1 is played by hand and measured as before.
+    // Every tip seen, as a phone keeps them (with the mark of a skipped guided first sale, PLAN-113), so no tip covers the table.
     localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2', 'firstsale-skip', 'marketday']));
     window.__long = [];
     new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__long.push([Math.round(e.duration), e.startTime]))).observe({ type: 'longtask', buffered: true });
@@ -111,7 +111,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
         if (await t.count() && Math.random() < 0.7) { await t.first().click(); continue; }
         await p.click('text=/Done buying|Skip buying/'); continue;
       }
-      // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
+      // "The Bell" pop-up: it opens only from its i button since PLAN-064; close it if it is up.
       if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); continue; }
       // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
       if (await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }

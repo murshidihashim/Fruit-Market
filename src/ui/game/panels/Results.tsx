@@ -16,7 +16,8 @@ import { fx, playSound } from '../../fx';
 import { PropSprite, RoofBand } from '../../icons';
 import { achievementFor, syncLooks, toggleLook, worn, wornIn, wornSounds } from '../../looks';
 import { finishGame, LEAGUE, snapshot, type GameSummary } from '../../progress';
-import { stageByNo, stageLabel } from '../../campaign';
+import { stageByNo } from '../../campaign';
+import { resultsLabel } from '../../modes';
 import { bestSale, bestSaleDay, bestSaleWords, shownLook } from '../../progressView';
 import { FramedFace, LookSwatch, Pip, PriceTag, StampGrid, myColour, onWord, shownAvatar } from '../../stampCard';
 import { cardSize, closeLines, nextReward, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
@@ -27,9 +28,10 @@ import { DailyResult } from './DailyResult';
 import { SprintResult } from '../../Sprint';
 import { LEAGUE_TO_SPRINT } from '../../playMenu';
 import { decisiveMoment, noSalesLine } from '../resultsWords';
+import { LINK_COPIED, NOT_COPIED, copyText } from '../../share';
 
 /** Every stall's cash at the end of each day, so you can see where the game was won. */
-function CashChart({ s, viewer }: { s: GameState; viewer: number }) {
+function CashChart({ s, viewer, named }: { s: GameState; viewer: number; named?: boolean }) {
   const h = s.history ?? [];
   if (h.length < 2) return null;
   const W = 300, H = 110, P = 8;
@@ -42,7 +44,7 @@ function CashChart({ s, viewer }: { s: GameState; viewer: number }) {
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Each stall's cash at the end of each day">
         {s.players.map((_, i) => <polyline fill="none" stroke-linejoin="round" stroke={SEAT_COLOURS[i % SEAT_COLOURS.length]} stroke-width={i === viewer ? 4 : 2.5} points={h.map((d, k) => `${x(k)},${y(d.cash[i])}`).join(' ')} />)}
       </svg>
-      <div class="sbk-key">{s.players.map((pl, i) => <span><i aria-hidden="true" style={{ background: SEAT_COLOURS[i % SEAT_COLOURS.length] }} />{i === viewer ? 'You' : pl.name}</span>)}</div>
+      <div class="sbk-key">{s.players.map((pl, i) => <span><i aria-hidden="true" style={{ background: SEAT_COLOURS[i % SEAT_COLOURS.length] }} />{i === viewer && !named ? 'You' : pl.name}</span>)}</div>
     </div>
   );
 }
@@ -51,26 +53,35 @@ const RANKS = ['1ST', '2ND', '3RD', '4TH', '5TH', '6TH'];
 const LEVEL_WORD = { easy: 'Easy', normal: 'Normal', hard: 'Hard' } as const;
 
 /**
+ * REP-140 B-14: a Pass & Play game, several people at one phone (offline, two or more people at the table). Its results
+ * name every player in the count and never say "you"; every other mode speaks to the person (or this phone's owner).
+ */
+export const namedResults = (s: GameState, online?: boolean): boolean => !online && s.players.filter((p) => p.kind === 'human').length > 1;
+
+/**
  * The words of the final count for one viewer. Rules 18: most cash wins, then most fruit sold; stalls still level
  * share the win and the place (there is no seat-number tie-break), so 1ST can be printed on more than one stall.
+ * `named` (Pass & Play, REP-140 B-14): the words name the players, with no "you" or "I".
  */
-export function finishWords(s: GameState, viewer: number): { win: boolean; shared: boolean; headline: string; margin: string; medals: string[]; mine: string } {
+export function finishWords(s: GameState, viewer: number, named = false): { win: boolean; shared: boolean; headline: string; margin: string; medals: string[]; mine: string } {
   const order = ranking(s);
   const first = winners(s);
   const place = places(s);
-  const win = first.includes(viewer);
+  const win = !named && first.includes(viewer);
   const shared = first.length > 1;
   const champ = s.players[win ? viewer : order[0]];
   const gap = order.length > 1 ? champ.cash - s.players[order[1]].cash : 0;
   const others = first.filter((i) => i !== viewer).map((i) => s.players[i].name);
   const sharers = first.map((i) => s.players[i].name);
+  const both = sharers.join(' and ');
   return {
     win, shared,
     // The plain form, no exclamation mark (PLAN-090): the page's own style sets the headline in capitals.
-    headline: shared ? (win ? `You share the win with ${others.join(' and ')}` : `${sharers.join(' and ')} share the win`) : win ? 'You win' : `${champ.name} wins`,
+    headline: shared ? (win ? `You share the win with ${others.join(' and ')}` : `${both} share the win`) : win ? 'You win' : `${champ.name} wins`,
     margin: shared ? 'Level on cash and on fruit sold.' : gap === 0 ? 'Tied on cash, so fruit sold decided it.' : `By $${gap}.`,
     medals: place.map((k) => RANKS[k - 1]),
-    mine: win ? (shared ? 'I shared the win' : 'I won') : `I came ${RANKS[place[viewer] - 1].toLowerCase()}`,
+    mine: named ? (shared ? `${both} shared the win` : `${champ.name} won`)
+      : win ? (shared ? 'I shared the win' : 'I won') : `I came ${RANKS[place[viewer] - 1].toLowerCase()}`,
   };
 }
 
@@ -176,6 +187,7 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
       onDone();
     })();
     return () => { alive = false; A.resetHurry(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- the stamps land once, as the results open (from the summary counted then)
   }, []);
 
   const base = stampsToReach(level);
@@ -233,8 +245,8 @@ function BestSaleBox({ s, owner, tag }: { s: GameState; owner: number; tag: stri
  * that day; and, for a person who sold nothing all game, that plainly ("You ended with your starting cash and made no
  * sales."), where the best sale would otherwise be.
  */
-function MomentBox({ s, owner }: { s: GameState; owner: number }) {
-  const m = decisiveMoment(s, owner);
+function MomentBox({ s, owner, named }: { s: GameState; owner: number; named?: boolean }) {
+  const m = decisiveMoment(s, named ? -1 : owner);
   const none = noSalesLine(s, owner);
   if (!m && !none) return null;
   return (
@@ -332,6 +344,102 @@ function RewardBox({ fresh, sum, avatar, show }: { fresh: Look[]; sum: GameSumma
   );
 }
 
+/** The places at this table: every stall as a tile with its awning, portrait and cash, in finishing order. */
+function Podium({ s, owner, named, medals, lookOfSeat }: { s: GameState; owner: number; named: boolean; medals: string[]; lookOfSeat: (i: number) => LookSet | undefined }) {
+  const order = ranking(s);
+  const place = places(s);
+  const cols = order.length <= 4 ? order.length : 3;
+  return (
+    <ol class="jp-pods podium" style={{ '--n': cols }} aria-label="Places at this table">
+      {order.map((i) => {
+        const pl = s.players[i];
+        const look = lookOfSeat(i);
+        const sub = titleOf(look) ?? (pl.kind === 'ai' ? `${LEVEL_WORD[pl.level ?? 'normal']} computer` : '');
+        const you = i === owner && !named;
+        const name = you ? 'You' : pl.name;
+        return (
+          <li class={`jp-pod ${you ? 'me' : ''} ${place[i] === 1 ? 'first' : ''}`}
+            title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}`}>
+            <span class="jp-sr">{`${medals[i]}: ${name}${sub ? `, ${sub}` : ''}, $${pl.cash}`}</span>
+            <i class="jp-pl" aria-hidden="true">{place[i]}</i>
+            <Awning p={i} look={look} thin />
+            <span class="jp-pod-face" aria-hidden="true"><FramedFace who={shownAvatar(s.players, i)} size={place[i] === 1 ? 46 : 38} look={look} /></span>
+            <b class="jp-pod-nm" aria-hidden="true">{name}</b>
+            {look?.stamp && <span class="sbk-stamp" aria-hidden="true">Sold out</span>}
+            <strong class="jp-pod-cs" aria-hidden="true">${pl.cash}</strong>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/**
+ * The results' buttons, in words (PLAN-091, PLAN-113, PLAN-114, PLAN-118): the main button ("Rematch"; the Daily
+ * market's "Home", played once a day; a League stage's Next stage when it was cleared, else Retry; the Sprint's Try
+ * again), the line over it that says what it starts (online, the room's own line about who is waiting replaces it), and
+ * Retry's full name for a cleared League stage.
+ */
+export function resultsButtons(s: GameState, online: boolean, cleared: boolean): { main: string; what: string; retry: string } {
+  const league = s.config.league;
+  const sprint = !!s.config.sprint;
+  const retry = league !== undefined && league < LEAGUE.length ? `Retry stage ${league + 1}` : 'Retry';
+  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : retry) : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
+  const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? leagueNext(league, cleared) : 'Rematch: same stalls, same length, a new market';
+  return { main, what, retry };
+}
+
+/** Shares the result with the phone's share sheet; with none (a computer) the link is copied and `said` says whether
+ *  it was (REP-140 B-18). */
+async function shareResult(text: string, said: (words: string) => void): Promise<void> {
+  if (navigator.share) {
+    try { await navigator.share({ text, url: location.origin }); } catch { /* the share sheet was closed: nothing to say */ }
+    return;
+  }
+  said(await copyText(`${text} ${location.origin}`) ? LINK_COPIED : NOT_COPIED);
+}
+
+/** The game's last best customers not yet met, and the like: "Nearly there" (stamps.ts closeLines). */
+function nearlyThere(avatar: string | undefined): CloseLine[] {
+  const snap = snapshot();
+  const met = new Set(customersServed(snap));
+  return closeLines(snap, (k) => lookOf(k).title, CUSTOMER_CARDS.map((c) => c.name).filter((k) => !met.has(k)), avatar);
+}
+
+/** The headline and the line under it: who won, and by how much. PLAN-113: the headline says where you finished when
+ *  you did not win ("Kiki wins · You are 3rd"). `champSeat`: the stall the page celebrates. */
+export function resultsHead(s: GameState, owner: number, named: boolean, words: ReturnType<typeof finishWords>): { headline: string; margin: string; champSeat: number } {
+  const order = ranking(s);
+  const place = places(s);
+  const champSeat = words.win ? owner : order[0];
+  const second = order.length > 1 && !words.shared ? order[1] : -1;
+  const gap = second >= 0 ? s.players[champSeat].cash - s.players[second].cash : 0;
+  const margin = gap > 0 ? `By $${gap} over ${second === owner && !named ? 'you' : s.players[second].name}.` : words.margin;
+  const headline = words.win || named || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
+  return { headline, margin, champSeat };
+}
+
+/** The foot of the results: the line over the main button (`rematchNote`: online, the room's own line), the main button,
+ *  Share, a cleared League stage's Retry, Home, the reaction button, and what Share did. */
+function ResultsActs({ note, rematchNote, main, sent, onRematch, onShare, retry, onExit, react, said }: {
+  note: string; rematchNote: boolean; main: string; sent?: boolean; onRematch: () => void; onShare: () => void;
+  retry: { label: string; go: () => void } | null; onExit: (() => void) | null; react?: ComponentChildren; said: string | null;
+}) {
+  return (
+    <div class="sbk-acts jp-acts">
+      {rematchNote ? <p class="rematch-note"><b>{note}</b></p> : note && <p class="jp-what">{note}</p>}
+      <button class="sbk-btn jp-main" disabled={sent} onClick={onRematch}>{main}</button>
+      <div class="jp-two">
+        <button class="jp-sec" data-a="share" onClick={onShare}>Share</button>
+        {retry && <button class="jp-sec" data-a="stage-retry" onClick={retry.go} aria-label={retry.label}>Retry</button>}
+        {onExit && <button class="jp-sec" onClick={onExit}>Home</button>}
+        {react}
+      </div>
+      {said && <p class="jp-said" role="status" data-a="share-said">{said}</p>}
+    </div>
+  );
+}
+
 export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, rematchSent, online, onPlayAs, react, onSprint }: {
   s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean;
   /** PLAN-118: a Market League stage again, the same stage (offered beside Next stage when the stage was cleared). */
@@ -351,49 +459,31 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
   const [sum] = useState(() => finishGame(s, owner, !!online));
   // New looks are handed out after the game is counted, so a level reached or a tier earned counts too.
   const [newLooks] = useState(() => syncLooks());
-  const [close] = useState<CloseLine[]>(() => {
-    const snap = snapshot();
-    const met = new Set(customersServed(snap));
-    return closeLines(snap, (k) => lookOf(k).title, CUSTOMER_CARDS.map((c) => c.name).filter((k) => !met.has(k)), s.players[owner]?.avatar);
-  });
+  const [close] = useState<CloseLine[]>(() => nearlyThere(s.players[owner]?.avatar));
   const [landed, setLanded] = useState(!sum);
   const cleared = sum?.cleared ?? false;
   const order = ranking(s);
-  const place = places(s);
-  const words = finishWords(s, owner);
-  const win = words.win;
-  const champSeat = win ? owner : order[0];
+  // REP-140 B-14: Pass & Play names the players in the count (headline, margin, places, the deciding moment, share).
+  const named = namedResults(s, online);
+  const words = finishWords(s, owner, named);
+  const { headline, margin, champSeat } = resultsHead(s, owner, named, words);
   const recap = gameRecap(s, owner);
   const league = s.config.league;
   // Offline, the person's stall shows what they have on now; online every stall shows what the room was told.
   const lookOfSeat = (i: number): LookSet | undefined => (!online && i === owner ? worn() : s.players[i].look);
-  const second = order.length > 1 && !words.shared ? order[1] : -1;
-  const gap = second >= 0 ? s.players[champSeat].cash - s.players[second].cash : 0;
-  const margin = gap > 0 ? `By $${gap} over ${second === owner ? 'you' : s.players[second].name}.` : words.margin;
   const nudge = !online && !s.config.daily && league === undefined && onPlayAs ? close.find((c) => c.avatar && c.name) : undefined;
-  // PLAN-113: the headline says where you finished when you did not win ("Kiki wins · You are 3rd").
-  const headline = win || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
   const sprint = !!s.config.sprint;
-  const mode = sprint ? ' · Sprint' : s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, ${stageLabel(league)}` : online ? ' · Online' : '';
-  const share = async () => {
-    const text = `Fruit Market: ${words.mine} with $${s.players[owner].cash} after ${s.config.days} days.`;
-    try {
-      if (navigator.share) await navigator.share({ text, url: location.origin });
-      else await navigator.clipboard.writeText(`${text} ${location.origin}`);
-    } catch { /* cancelled or not allowed */ }
-  };
+  // REP-140 A-06: the mode's name is modes.ts's ("Sprint", "Market League, stage 3", "Online").
+  const modeName = resultsLabel(s.config, !!online);
+  const mode = modeName ? ` · ${modeName}` : '';
+  // REP-140 B-18: with no share sheet (a computer), the link is copied and the page says so, or says it could not be.
+  const [shareSaid, setShareSaid] = useState<string | null>(null);
+  const share = () => shareResult(`Fruit Market: ${words.mine} with $${s.players[named ? champSeat : owner].cash} after ${s.config.days} days.`, setShareSaid);
   // A tap on the page (not on a button) hurries the stamps.
   const hurry = (e: MouseEvent) => { if (!landed && !(e.target as Element).closest?.('button')) A.hurryUp(); };
-  // The board's words (PLAN-091): "Rematch"; and "Home" (the owner, 2026-11-13; the board said "Main menu"). The Daily market is played once a day, so its main button
-  // goes back to the main menu.
-  // PLAN-118: a League stage's results offer Retry for the same stage; Next stage comes first when it was cleared.
-  const retry = league !== undefined && league < LEAGUE.length ? `Retry stage ${league + 1}` : 'Retry';
-  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : retry) : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
-  // PLAN-113: one line over the big button says what it starts (online, the room's own line about who is waiting).
-  // PLAN-114: the Sprint's Try again plays the same Sprint from the start; the best score of the day counts.
-  const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? leagueNext(league, cleared) : 'Rematch: same stalls, same length, a new market';
+  // The board's words: "Rematch" and "Home" (the owner, 2026-11-13; the board said "Main menu").
+  const { main, what, retry } = resultsButtons(s, !!online, cleared);
   const myLook = lookOfSeat(owner);
-  const cols = order.length <= 4 ? order.length : 3;
   return (
     <section class="sbk sbk-res results jp-res" onClick={hurry}>
       <div class="sbk-in" style="flex: 1 0 auto">
@@ -408,32 +498,13 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
 
         {/* PLAN-123: the places at this table, apart from any board's (the Daily market and the Sprint have their own) */}
         {order.length > 1 && <span class="sbk-lab jp-pods-lab">Places at this table</span>}
-        <ol class="jp-pods podium" style={{ '--n': cols }} aria-label="Places at this table">
-          {order.map((i) => {
-            const pl = s.players[i];
-            const look = lookOfSeat(i);
-            const sub = titleOf(look) ?? (pl.kind === 'ai' ? `${LEVEL_WORD[pl.level ?? 'normal']} computer` : '');
-            const name = i === owner ? 'You' : pl.name;
-            return (
-              <li class={`jp-pod ${i === owner ? 'me' : ''} ${place[i] === 1 ? 'first' : ''}`}
-                title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}`}>
-                <span class="jp-sr">{`${words.medals[i]}: ${name}${sub ? `, ${sub}` : ''}, $${pl.cash}`}</span>
-                <i class="jp-pl" aria-hidden="true">{place[i]}</i>
-                <Awning p={i} look={look} thin />
-                <span class="jp-pod-face" aria-hidden="true"><FramedFace who={shownAvatar(s.players, i)} size={place[i] === 1 ? 46 : 38} look={look} /></span>
-                <b class="jp-pod-nm" aria-hidden="true">{name}</b>
-                {look?.stamp && <span class="sbk-stamp" aria-hidden="true">Sold out</span>}
-                <strong class="jp-pod-cs" aria-hidden="true">${pl.cash}</strong>
-              </li>
-            );
-          })}
-        </ol>
+        <Podium s={s} owner={owner} named={named} medals={words.medals} lookOfSeat={lookOfSeat} />
 
         {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
         {league !== undefined && cleared && onSprint && <button type="button" class="jp-sec jp-to-sprint" data-a="league-sprint" onClick={onSprint}>{LEAGUE_TO_SPRINT}</button>}
 
         {/* The Sprint's box has its own deciding moment. */}
-        {!sprint && <MomentBox s={s} owner={owner} />}
+        {!sprint && <MomentBox s={s} owner={owner} named={named} />}
         <BestSaleBox s={s} owner={owner} tag={tagOfLook(myLook)} />
 
         {sum && <div class="sbk-sec"><StampsEarned sum={sum} onDone={() => setLanded(true)} /></div>}
@@ -453,7 +524,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
 
         <div class="sbk-more">
           {s.config.daily && !sprint && <DailyResult s={s} />}
-          <CashChart s={s} viewer={owner} />
+          <CashChart s={s} viewer={owner} named={named} />
           {(recap.best.length > 0 || recap.worst.length > 0) && (
             <div class="sbk-box recap">
               {recap.best.length > 0 && <><span class="sbk-lab">Your best moments</span>{recap.best.map((t) => <div class="sbk-rc">{t}</div>)}</>}
@@ -462,16 +533,8 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           )}
         </div>
 
-        <div class="sbk-acts jp-acts">
-          {rematchNote ? <p class="rematch-note"><b>{rematchNote}</b></p> : what && <p class="jp-what">{what}</p>}
-          <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
-          <div class="jp-two">
-            <button class="jp-sec" onClick={share}>Share</button>
-            {league !== undefined && cleared && onRetry && <button class="jp-sec" data-a="stage-retry" onClick={onRetry} aria-label={retry}>Retry</button>}
-            {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
-            {react}
-          </div>
-        </div>
+        <ResultsActs note={rematchNote || what} rematchNote={!!rematchNote} main={main} sent={rematchSent} onRematch={onRematch} onShare={share}
+          retry={league !== undefined && cleared && onRetry ? { label: retry, go: onRetry } : null} onExit={!s.config.daily || sprint ? onExit : null} react={react} said={shareSaid} />
       </div>
     </section>
   );

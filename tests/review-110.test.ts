@@ -9,11 +9,11 @@ import { pulse, wantText } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { canGetLine, orderResultText } from '../src/ui/game/panels/OrderPanel';
 import { unsentChoice } from '../src/ui/game/panels/Popovers';
-import { pickAwayLine } from '../src/ui/Online';
+import { pickAwayLine } from '../src/ui/onlineWords';
 import { loadSettings, loadUndo, saveSettings, saveUndo } from '../src/ui/store';
 import type { PublicSeat } from '../src/net/protocol';
-import { rushOver, takingsRows } from '../src/ui/game/panels/SalesSummary';
-import { daySoldLine } from '../src/ui/panel';
+import { rushOver } from '../src/ui/game/panels/SalesSummary';
+import { daySoldLine, takingsRows } from '../src/ui/game/dayWords';
 import { CustomerChar, boughtAny } from '../src/ui/table';
 
 // PLAN-110 (REP-122, the smaller bugs and polish): the numbers the screens show.
@@ -200,14 +200,16 @@ describe('S11: the Freshness patterns switch is gone', () => {
     const st = loadSettings();
     // PLAN-112: "Show reactions" came later; settings saved before it load with it on.
     // PLAN-123: the Reduced motion switch came later; settings saved before it load with it off.
-    expect(st).toEqual({ sound: false, haptics: true, fast: true, tips: true, music: false, analytics: false, reactions: true, still: false });
+    // REP-140 B-15: the unused `tips` field is dropped as it loads, like `patterns`
+    expect(st).toEqual({ sound: false, haptics: true, fast: true, music: false, analytics: false, reactions: true, still: false });
     expect('patterns' in st).toBe(false);
     saveSettings({ ...st, sound: true });
     expect(JSON.parse(mem.get('fm.settings')!)).not.toHaveProperty('patterns');
   });
 
   it('no screen or style reads it any more', () => {
-    for (const f of ['src/ui/App.tsx', 'src/ui/Game.tsx', 'src/ui/styles.css']) expect(readFileSync(f, 'utf8')).not.toMatch(/patterns/i);
+    for (const f of ['src/ui/App.tsx', 'src/ui/Game.tsx']) expect(readFileSync(f, 'utf8')).not.toMatch(/patterns/i);
+    // (no style rule reads it: from the page's own rules, scripts/style-checks.cjs, PLAN-130)
   });
 });
 

@@ -1,0 +1,80 @@
+{
+  "id": "PLAN-132",
+  "title": "Match records: keep every finished game as a replayable, nameless record",
+  "problem": "The game keeps only anonymous counts, so nothing is known about how real players buy, stock and price; every balance figure comes from computer games. The owner wants the game more skill based and competitive (REP-145) and asked: \"plan option 2, keep full match records\".",
+  "scope": [
+    "A match record: the set-up (mode, stalls, days, options, computer levels, perks), the seed, the rules, computer-player and app versions, every person's moves in order, and how the game ended. The engine is deterministic, so the whole game replays from it. About 3 to 6 KB for a 10-day game",
+    "No name, account ID, device ID, room code or IP address in a record; typed stall names become seat numbers; each record has a random number of its own; no link between two games by one player",
+    "Sent when a game ends or is left: solo, pass-and-play, League, Daily and Sprint from the app; online matches from the room server",
+    "Kept in a new store on the game server (a SQLite Durable Object, one per month) for 12 months, then deleted; live and preview separate",
+    "The Settings switch \"Share anonymous stats\" becomes \"Share game data\" and covers records; online, a match is kept only if every person in it has the switch on",
+    "Limits against abuse: size cap, the existing per-IP rate limit, shape checks, unknown versions refused",
+    "A reader for the owner: a key-protected download and `npm run matches`, which replays records and prints tables",
+    "docs/privacy.html and docs/ANALYTICS.md updated; tests that no identifier can enter a record"
+  ],
+  "exclusions": [
+    "No player number linking games (ratings would need a separate decision)",
+    "No rule, balance or save change; no change to what other players see online",
+    "No paid service: if the Cloudflare plan's storage limit is too small, stop and ask",
+    "No backup of the records (PLAN-003 covers backups)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify, with new tests: a record replays to the same final cash for every seat; a record holds no name, ID or code; with sharing off nothing is sent",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "On the preview copy: a solo, a Daily and an online game each produce one record, and `npm run matches` replays them",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The Cloudflare plan's storage limits written down; size per 1,000 games measured",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "Older app versions and saved games still play and submit Daily scores",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "awaiting approval",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-146"
+  ],
+  "decisions": [
+    "DEC-139"
+  ],
+  "changes": {
+    "added": [
+      "Finished games are kept as nameless records for balancing (can be switched off in Settings)"
+    ],
+    "changed": [
+      "The Settings switch is called \"Share game data\""
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "To help balance the game, finished games are now kept as nameless records, with no name or ID. Switch it off in Settings under \"Share game data\""
+  ]
+}

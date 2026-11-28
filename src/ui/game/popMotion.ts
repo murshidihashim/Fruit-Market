@@ -55,6 +55,7 @@ export function usePopFrom(root: RefObject<HTMLElement>, card: string, under: st
     moving.current = [fade, draw, ...rise];
     draw.finished.then(() => { if (stepNow.current === 'draw') setStep('shown'); }, () => { /* cancelled: the pop-up has gone */ });
     return () => { for (const a of moving.current) a.cancel(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- the card is drawn from its place once, as it opens (its place is looked up again as it closes)
   }, []);
   /** Ends every move under way: the card is open at once. */
   const hurry = () => {

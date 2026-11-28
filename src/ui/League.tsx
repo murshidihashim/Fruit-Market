@@ -7,17 +7,17 @@
 // its goals are the league's own (campaign.ts): this screen only shows them.
 import { useState } from 'preact/hooks';
 import { Face } from './art';
-import { CARDS, nextStep, stepValue } from './achievements';
-import { ALL_STAGES, EXPERTS, LEAGUE, MASTERY_STAGES, STAR_COUNT, expertOpen, stageByNo, stageStars, starGoals, type Stage } from './campaign';
+import { ALL_STAGES, EXPERTS, LEAGUE, STAR_COUNT, expertOpen, stageByNo, stageStars, starGoals, type Stage } from './campaign';
 import { fx } from './fx';
-import { worn } from './looks';
+import { setupAvatar, worn } from './looks';
 import { isReduced } from './motion';
-import { leagueConfig, leagueStage, myStars, snapshot } from './progress';
+import { leagueConfig, leagueStage, myStars } from './progress';
+import { nextTrophy } from './leagueTrophy';
 import { stageGoal, stageLine, stageRivals } from './progressView';
 import { RANKS } from './stamps';
-import { Awning, BackArrow, FramedFace, TrophyPic, myColour, shownAvatar } from './stampCard';
+import { Awning, BackArrow, FramedFace, TrophyPic, myColour } from './stampCard';
 import { MasteryList, StageMoment, Stars } from './StageMoment';
-import { partsOf } from '../net/looks';
+import { partsOf, type LookSet } from '../net/looks';
 import './league.css';
 
 /** A cleared stage's mark. */
@@ -57,42 +57,8 @@ export function roadState(i: number, at: number, stars: readonly string[]): Road
   return i < at ? 'done' : i === at ? 'now' : 'later';
 }
 
-/** The next League trophy tier, with its progress and where its stars come from. */
-export interface NextTrophy { title: string; got: number; goal: number; card: (typeof CARDS)[number]; where: string }
-
-/** "stage 1, Village Square, and stage 7, Read the Rival": the stages a mastery trophy counts, by number and name. */
-const stagesWords = (nos: readonly number[]): string => nos.map((n) => `stage ${n + 1}, ${LEAGUE[n]?.title ?? ''}`).join(', and ');
-
-/** Where a League trophy's stars come from, in words (PLAN-123: the mastery trophies count two named stages only). */
-export function trophyWhere(card: (typeof CARDS)[number]): string {
-  const k = (Object.keys(MASTERY_STAGES) as (keyof typeof MASTERY_STAGES)[]).find((x) => card.id === `mastery_${x}`);
-  return k ? `Counts the stars of ${stagesWords(MASTERY_STAGES[k])}.` : 'Counts every League star.';
-}
-
-/**
- * The next League trophy tier within reach, with its progress: of the League stars card and the three mastery cards
- * (all counted in stars), the tier still to earn. PLAN-123 (preview finding 8): a trophy the stage you are on can add
- * stars to comes first: the mastery trophy about this stage's skill, then the League stars trophy (every star counts);
- * a mastery trophy counts the stars of two named stages only, so "Contract Trader" no longer shows while you learn to
- * undercut Rosa. Then the one nearest to done. `at`: the stage you are on. Null when every tier is held.
- */
-export function nextTrophy(at = leagueStage()): NextTrophy | null {
-  const snap = snapshot();
-  const have = myStars();
-  const here = stageByNo(Math.min(at, LEAGUE.length - 1));
-  const open = here ? starGoals(here).some((m) => !have.includes(m.id)) : false;
-  const helps = (card: (typeof CARDS)[number]): number => {
-    if (!open) return 0;
-    const k = (Object.keys(MASTERY_STAGES) as (keyof typeof MASTERY_STAGES)[]).find((x) => card.id === `mastery_${x}`);
-    return k ? (MASTERY_STAGES[k].includes(Math.min(at, LEAGUE.length - 1)) ? 2 : 0) : 1;
-  };
-  const cands = CARDS.filter((c) => c.group === 'league' && c.unit === 'stars').flatMap((card) => {
-    const st = nextStep(card, snap);
-    return st ? [{ card, title: card.title, got: Math.min(stepValue(card, st, snap), st.goal), goal: st.goal, where: trophyWhere(card), helps: helps(card) }] : [];
-  });
-  const best = cands.sort((a, b) => b.helps - a.helps || b.got / b.goal - a.got / a.goal || a.goal - b.goal)[0];
-  return best ? { card: best.card, title: best.title, got: best.got, goal: best.goal, where: best.where } : null;
-}
+// The next League trophy within reach (Home's League card shows it too) is leagueTrophy.ts's (REP-140 A-08).
+export { nextTrophy, trophyWhere, type NextTrophy } from './leagueTrophy';
 
 /** "Opens at 12 stars · you have 9" */
 const opensAt = (st: Stage, have: number): string => `Opens at ${st.expert?.stars ?? 0} stars · you have ${have}`;
@@ -100,20 +66,13 @@ const opensAt = (st: Stage, have: number): string => `Opens at ${st.expert?.star
 /** The screen itself, with the stage chosen (`sel`) given: it holds no state of its own. */
 export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: number; onPick: (stage: number) => void }) {
   const at = leagueStage();
-  const done = at >= LEAGUE.length;
   const stars = myStars();
   const st = stageByNo(sel) ?? LEAGUE[0];
   const state = roadState(sel, at, stars);
-  const rivals = stageRivals(st);
   const cleared = state === 'done';
   const expert = !!st.expert;
-  // Your picture as the stage will show it: the league seats you without a shopkeeper of your own, and the table shows
-  // your chosen one, or the first one free when a rival on this stage is that shopkeeper (looks.ts shownAvatar).
-  const cfg = leagueConfig(sel, '', '');
-  const me = shownAvatar(cfg.players.map((p) => ({ avatar: p.avatar ?? '', kind: p.kind })), 0);
   const look = worn();
   const trophy = nextTrophy();
-  const label = expert ? `Expert stage${cleared ? ' · cleared' : ''}` : done && sel === LEAGUE.length - 1 ? `All ${LEAGUE.length} stages cleared` : `Stage ${sel + 1} of ${LEAGUE.length}${cleared ? ' · cleared' : ''}`;
   const playable = state !== 'later';
   const play = expert ? (cleared ? 'Replay this expert stage' : 'Play this expert stage') : cleared ? `Replay stage ${sel + 1}` : `Play stage ${sel + 1}`;
   return (
@@ -125,24 +84,7 @@ export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: numbe
       </header>
       <main class="sbk-scroll">
         <div class="sbk-in">
-          <section class="jp-lg-now" aria-labelledby="jp-lg-title">
-            <span class="sbk-lab jp-yel">{label}</span>
-            <h2 id="jp-lg-title">{st.title}</h2>
-            <span>{stageGoal(st)}</span>
-            <div class="jp-lg-vs">
-              <span class="jp-round"><Face who={me} size={58} worn={partsOf(look)} /></span>
-              <span class="jp-vs" aria-hidden="true">vs</span>
-              <span class="jp-lg-rivals">{rivals.map((r) => <span class="jp-round" title={r.name}><Face who={r.avatar} size={rivals.length > 1 ? 44 : 58} /></span>)}</span>
-            </div>
-            <span class="lg-rivals-line">{stageLine(st)}</span>
-            <StageMoment st={st} words={st.before} />
-            <p class="jp-lg-lesson">{st.lesson}</p>
-            <MasteryList stage={sel} have={stars} />
-            {playable
-              ? <button type="button" class="jp-go" onClick={() => { fx.tap(); onPlay(sel); }}>{play}</button>
-              : <p class="lg-closed">{opensWhen(sel, stars)}</p>}
-          </section>
-
+          <StageNow st={st} sel={sel} state={state} at={at} stars={stars} look={look} />
           {trophy && (
             <div class="lg-trophy">
               <span class="lg-trophy-pic" aria-hidden="true"><TrophyPic pic={trophy.card.pic} /></span>
@@ -153,35 +95,71 @@ export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: numbe
               </span>
             </div>
           )}
-
-          <section class="lg-chapter" aria-labelledby="lg-ch1">
-            <div class="lg-ch-head">
-              <Awning colour={myColour(look)} />
-              <div class="lg-ch-sign">
-                <span class="sbk-lab">{`Chapter 1 · ${RANKS[0].name}`}</span>
-                <h2 id="lg-ch1">Village Square</h2>
-                <span class="sbk-sub">{`${stageStarsIn(LEAGUE, stars)} of ${LEAGUE.length * 3} stars`}</span>
-              </div>
-            </div>
-            <ol class="lg-road" aria-label="The stages of Chapter 1">
-              {LEAGUE.map((x, i) => <RoadStop st={x} n={i} state={roadState(i, at, stars)} sel={sel} stars={stars} onPick={onPick} />)}
-            </ol>
-          </section>
-
-          <section class="lg-chapter lg-experts" aria-labelledby="lg-ex">
-            <div class="lg-ch-sign">
-              <span class="sbk-lab">Expert stages</span>
-              <h2 id="lg-ex">Harder markets</h2>
-              <span class="sbk-sub">{`${stageStarsIn(EXPERTS, stars)} of ${EXPERTS.length * 3} stars · each opens once you hold enough stars`}</span>
-            </div>
-            <ol class="lg-road lg-road-ex" aria-label="The expert stages">
-              {EXPERTS.map((x, k) => <RoadStop st={x} n={LEAGUE.length + k} state={roadState(LEAGUE.length + k, at, stars)} sel={sel} stars={stars} onPick={onPick} />)}
-            </ol>
-          </section>
+          <LeagueRoad at={at} sel={sel} stars={stars} look={look} onPick={onPick} />
           <p class="sbk-sub jp-lg-foot" data-a="league-foot">{starsFoot(stars)}</p>
         </div>
       </main>
+      {/* REP-140 B-01: the stage's Play button stays at the foot of the screen, in view without scrolling */}
+      {playable && <footer class="jp-foot"><button type="button" class="jp-go" onClick={() => { fx.tap(); onPlay(sel); }}>{play}</button></footer>}
     </div>
+  );
+}
+
+/** The chosen stage: where it stands, its title and goal, you against its rivals, its moment, lesson and stars. */
+function StageNow({ st, sel, state, at, stars, look }: { st: Stage; sel: number; state: RoadState; at: number; stars: readonly string[]; look: LookSet }) {
+  const cleared = state === 'done';
+  const rivals = stageRivals(st);
+  // Your picture as the stage will show it: the league seats you without a shopkeeper of your own, and the table shows
+  // your chosen one, or the first one free when a rival on this stage is that shopkeeper (looks.ts shownAvatar).
+  const me = setupAvatar(leagueConfig(sel, '', ''));
+  const label = st.expert ? `Expert stage${cleared ? ' · cleared' : ''}` : at >= LEAGUE.length && sel === LEAGUE.length - 1 ? `All ${LEAGUE.length} stages cleared` : `Stage ${sel + 1} of ${LEAGUE.length}${cleared ? ' · cleared' : ''}`;
+  return (
+    <section class="jp-lg-now" aria-labelledby="jp-lg-title">
+      <span class="sbk-lab jp-yel">{label}</span>
+      <h2 id="jp-lg-title">{st.title}</h2>
+      <span>{stageGoal(st)}</span>
+      <div class="jp-lg-vs">
+        <span class="jp-round"><Face who={me} size={58} worn={partsOf(look)} /></span>
+        <span class="jp-vs" aria-hidden="true">vs</span>
+        <span class="jp-lg-rivals">{rivals.map((r) => <span class="jp-round" title={r.name}><Face who={r.avatar} size={rivals.length > 1 ? 44 : 58} /></span>)}</span>
+      </div>
+      <span class="lg-rivals-line">{stageLine(st)}</span>
+      <StageMoment st={st} words={st.before} />
+      <p class="jp-lg-lesson">{st.lesson}</p>
+      <MasteryList stage={sel} have={stars} />
+      {state === 'later' && <p class="lg-closed">{opensWhen(sel, stars)}</p>}
+    </section>
+  );
+}
+
+/** Chapter 1 as a road of its twelve stages under the Roadside Table's awning, then the expert stages. */
+function LeagueRoad({ at, sel, stars, look, onPick }: { at: number; sel: number; stars: readonly string[]; look: LookSet; onPick: (stage: number) => void }) {
+  return (
+    <>
+      <section class="lg-chapter" aria-labelledby="lg-ch1">
+        <div class="lg-ch-head">
+          <Awning colour={myColour(look)} />
+          <div class="lg-ch-sign">
+            <span class="sbk-lab">{`Chapter 1 · ${RANKS[0].name}`}</span>
+            <h2 id="lg-ch1">Village Square</h2>
+            <span class="sbk-sub">{`${stageStarsIn(LEAGUE, stars)} of ${LEAGUE.length * 3} stars`}</span>
+          </div>
+        </div>
+        <ol class="lg-road" aria-label="The stages of Chapter 1">
+          {LEAGUE.map((x, i) => <RoadStop st={x} n={i} state={roadState(i, at, stars)} sel={sel} stars={stars} onPick={onPick} />)}
+        </ol>
+      </section>
+      <section class="lg-chapter lg-experts" aria-labelledby="lg-ex">
+        <div class="lg-ch-sign">
+          <span class="sbk-lab">Expert stages</span>
+          <h2 id="lg-ex">Harder markets</h2>
+          <span class="sbk-sub">{`${stageStarsIn(EXPERTS, stars)} of ${EXPERTS.length * 3} stars · each opens once you hold enough stars`}</span>
+        </div>
+        <ol class="lg-road lg-road-ex" aria-label="The expert stages">
+          {EXPERTS.map((x, k) => <RoadStop st={x} n={LEAGUE.length + k} state={roadState(LEAGUE.length + k, at, stars)} sel={sel} stars={stars} onPick={onPick} />)}
+        </ol>
+      </section>
+    </>
   );
 }
 

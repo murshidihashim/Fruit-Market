@@ -1,12 +1,13 @@
 # Current state · Fruit Market
 
-Updated 2026-11-28 08:50 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-27 08:20 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live and preview:** 1.31.5 (main eb2d1ae, tagged v1.31.5, published 2026-11-25: the new How to play, PLAN-129), on 1.31.4 (table polish, PLAN-128), on 1.31.3 (the calmer game screen, PLAN-127), on 1.31.2 (price-tag icon, Shade Cloth shows your stock, no guided first sale; PLAN-126), on 1.31.1 (Desktop site note) and 1.31.0 (REP-139): the PLAN-123 polish pass, the Shopfront Home (PLAN-124), four modes with Quick Match up to 6 stalls and the one-page set-up (PLAN-125). Rules version 20, protocol 5, computer-player version 8.
-- **Working branch:** `ccr-608a8c5d-g7t4ma`, level with main plus records.
-- **Active package:** none in progress (PLAN-129 released in 1.31.5).
-- **Design direction waiting on the owner (REP-143, after REP-140 to REP-142):** the owner wants the game more skill based and more competitive, and likes favour cards sold by secret bid. Recommended first package: more fruit on the table (bigger lorries, buy 5), measured, then favours and upgrades by secret bid. Open questions: who the competition is (people online or the computer), and standard rules or a competitive switch. Nothing approved.
+- **Live:** 1.32.0 (main 8636dbd, tagged v1.32.0, published 2026-11-27, Deploy LIVE run 54): the REP-140 audit fixes (PLAN-130, REP-141). Preview follows main once CI on main finishes. Before it: 1.31.5 (the new How to play, PLAN-129), 1.31.4 (table polish), 1.31.3, 1.31.2, 1.31.1 and 1.31.0 (REP-139). Rules version 20, protocol 5, computer-player version 8.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main 8636dbd plus records.
+- **Active package:** none. PLAN-130 (DEC-137) released in 1.32.0: every REP-140 finding except C-02. Owner questions open: C-02, the Private Room host-alone start rule (server change), Home or Market as the tab's one name.
+- **Design work on branch `ccr-608a8c5d-g7t4ma` (another session):** REP-142 to REP-145, how to make the game more strategic, skill based and competitive (the owner likes favour cards sold by secret bid; nothing approved). PLAN-132 (DEC-139, REP-146), full match records, is awaiting the owner's approval.
+- **Open from REP-140:** C-02, Nest Egg wins 47.5% of Sprints; the owner chooses: out of the Sprint offer, a smaller bonus in short games, or leave it. Private Room host alone with computers cannot press Start (a server start-rule change, owner's approval); Home and Market both name one tab. Still cut or faint: names in 6-stall boxes at 320 to 390, the level word in a full 6-stall set-up at 320 to 360, 7 px ticket text, night rows' contrast. Found and left: focus drops to the page on "Leave the match?" (as before); with Reduced motion "LAST 3 DAYS" can stay up; stepped pop-up moves.
 - **Left for later (REP-135 section 4):** expert stages easier than their base stages (RA-07); Ah Chen wins 42% of Sprints through the Charmer perk (RA-14); 16 empty stall-level rewards (levels 12 to 30); host lines after shared wins, stage 10 day count, Perk label contrast, Play menu punctuation, the Daily card's League line too frequent, weekly line "7 days" when 5 count, old-version message wording, reaction button below the fold at 320, small text in Wardrobe and Stamp book, How to play without the League or Sprint; game-table labels at 10 to 11 px; the print kit's tie wording.
 - **Next chapters:** League chapters of ten, each its own plan (REP-134 section 5).
 - **Commits:** author Murshidi Hashim, committer Claude, set per commit; run web checks and commits as separate commands.
@@ -14,7 +15,7 @@ Updated 2026-11-28 08:50 (Asia/Kuala_Lumpur), session checkpoint. Only what is n
 - Weekly Player numbers report runs Mondays 09:07 (PLAN-101).
 
 ## How work is done now
-When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
+When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. For code splits and style merges, also walk both builds side by side with `scripts/walk-compare.cjs` (REP-141): screenshots alone missed screens. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
 
 ## Sources
 Designs `docs/studio/review-18/mockups` (Rush-D chosen and built, DEC-109); design page https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx; pictures `docs/studio/art-drafts/cards-18`; studies `docs/studio/review-18`; balance scripts `docs/studio/review-17/balance/scripts18` (patch `orderPlus2` = the owner's standing-order proposal).
@@ -32,6 +33,8 @@ stopped and recommend the next small task. Wait for my approval before implement
 <!-- records:pending:start (generated by npm run records) -->
 ## Pending approvals (generated)
 
+- DEC-139: Keep full match records (nameless, replayable) (awaiting approval)
 - PLAN-003: Package C, paid part: capacity and cost evidence (proposed)
 - PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
+- PLAN-132: Match records: keep every finished game as a replayable, nameless record (awaiting approval)
 <!-- records:pending:end -->

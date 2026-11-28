@@ -11,10 +11,13 @@ import { priorityNote, priorityWouldReturn } from '../evening';
 import { FullScreenButton } from '../../FullScreenButton';
 import { TrapBox, useFocusTrap } from '../../focusTrap';
 import { Wardrobe } from '../../Wardrobe';
+import { HowTo } from '../../HowTo';
+import { setBaseSpeed, setStill } from '../../motion';
+import { FAST_PLAY, REDUCED_MOTION, phoneStill } from '../../settingWords';
 import { useRef, useState } from 'preact/hooks';
-import type { GameState } from '../../../engine/game';
+import type { Customer, GameState } from '../../../engine/game';
 import { usePopFrom } from '../popMotion';
-import { loadSettings, saveSettings } from '../../store';
+import { loadSettings, saveSettings, type Settings } from '../../store';
 import { Toggle } from '../../Toggle';
 import type { GameController } from '../useGameController';
 
@@ -67,13 +70,57 @@ export function unsentChoice(s: GameState, mine: boolean): string | null {
   return null;
 }
 
+/** A favour card you hold, opened from the dock or the evening: the whole card, why it cannot be played now (or what
+ *  playing it means), then Play (when it can be played now) and Close. It is the card of the stall this phone plays for
+ *  now (`actor`: online its own seat, which in the evening need not be the stall whose turn it is). */
+export function FavourPopView({ s, actor, idx, onPlay, onClose }: { s: GameState; actor: number; idx: number; onPlay: () => void; onClose: () => void }) {
+  const id = s.players[actor].favours[idx];
+  const why = canPlayFavour(s, actor, idx);
+  return (
+    <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
+      <FavourCard id={id} hold={handLimit(s.players[actor])} eager />
+      {why && <p class="cd-pop-why">{why}</p>}
+      {/* Rules 19: a Priority card played after one from a stall earlier in today's line-up goes back to the hand. */}
+      {!why && id === 'priority' && priorityWouldReturn(s, actor) && <p class="cd-pop-why">{priorityNote(s, actor)}</p>}
+      {/* S3 (DEC-120): Undo takes back purchases only, so a card played on a buying turn is said to stay played. */}
+      {!why && s.phase === 'buy' && <p class="cd-pop-why">{UNDO_AFTER_CARD}</p>}
+      <div class="cd-pop-btns">
+        {!why && <button type="button" class="btn primary" onClick={onPlay}>Play</button>}
+        <button type="button" class="btn ghost" onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+}
+
+/** A customer's own card, opened from their ticket (PLAN-083): the whole card with today's prices; a standing order
+ *  collected today shows its order card. The card's legend is the key to the prices. */
+export function CustomerPopView({ s, tip }: { s: GameState; tip: Customer }) {
+  const order = tip.order ? ORDER_CARDS.find((x) => x.name === tip.name) : undefined;
+  const qty = (i: number) => (tip.wants[i].qty <= 0 ? tip.original?.[i]?.qty ?? 0 : tip.wants[i].qty);
+  return (
+    <div class="cd-pop-in">
+      {order && tip.order
+        ? <OrderCard card={order} qty={tip.original?.[0]?.qty ?? tip.wants[0]?.qty ?? 0} due="Due today" bid={tip.order.price} stake={tip.order.stake} />
+        : <TradingCard who={tip.name} guest={!!GUEST_EVENT[tip.name]} eager
+            wants={tip.wants.map((w, i) => ({ fruit: w.fruit, qty: qty(i), max: effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />}
+      <small class="cd-pop-hint">Tap to close</small>
+    </div>
+  );
+}
+
 /** `room`: online, the room's code (ON-08: the menu names it, and Home asks first, since the match goes on). */
 export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController; coach: Tip | null; onExit: () => void; onWear?: (look: Record<string, string>) => void; room?: string }) {
   const [wardrobe, setWardrobe] = useState(false);
   // ON-08: online, Home first asks whether to leave the match.
   const [leaving, setLeaving] = useState(false);
-  // S19: the sound switch, as in Settings.
+  // S19: the sound switch, as in Settings. REP-140 B-15: Fast play and Reduced motion too, the same settings as the
+  // Settings screen, each taking effect at once; and How to play, which opens over the game and closes back to it.
   const [sound, setSound] = useState(() => loadSettings().sound);
+  const [fast, setFast] = useState(() => loadSettings().fast);
+  const [still, setStillOn] = useState(() => loadSettings().still);
+  const [howto, setHowto] = useState(false);
+  const phone = phoneStill();
+  const setting = (patch: Partial<Settings>) => saveSettings({ ...loadSettings(), ...patch });
   const closeMenu = () => { setLeaving(false); c.setMenu(false); };
   const unsent = unsentChoice(c.s, c.myBidTurn);
   // `actor`: the stall this phone plays for now (online its own seat, which in the evening need not be `active`).
@@ -82,7 +129,7 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
     <>
   {coach && (
     // While pricing, the tip sits at the top so it never covers the Seal button.
-    <div class={`coach ${c.s.phase === 'bid' || c.s.phase === 'stall' ? 'top' : ''}`} role="note">
+    <div class={`coach ${c.s.phase === 'bid' || c.s.phase === 'stall' ? 'top' : ''}`} role="note" data-tip={coach.id}>
       <b>{coach.title}</b>
       <span>{coach.text}</span>
       <div class="coach-btns">
@@ -94,54 +141,37 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
 
   {/* A favour card you hold, opened from the dock or the evening: the whole card, then Play (when it can be played
       now) and Close. A tap beside the card closes it too. */}
-  {cardInfo !== null && s.players[actor]?.favours[cardInfo] && (() => {
-    const id = s.players[actor].favours[cardInfo];
-    const why = canPlayFavour(s, actor, cardInfo);
-    return (
-      <div class="cd-pop" role="dialog" aria-label={`Favour card: ${FAVOURS[id].title}`} onClick={(e) => { e.stopPropagation(); setCardInfo(null); }}>
-        <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
-          <FavourCard id={id} hold={handLimit(s.players[actor])} eager />
-          {why && <p class="cd-pop-why">{why}</p>}
-          {/* Rules 19: a Priority card played after one from a stall earlier in today's line-up goes back to the hand. */}
-          {!why && id === 'priority' && priorityWouldReturn(s, actor) && <p class="cd-pop-why">{priorityNote(s, actor)}</p>}
-          {/* S3 (DEC-120): Undo takes back purchases only, so a card played on a buying turn is said to stay played. */}
-          {!why && s.phase === 'buy' && <p class="cd-pop-why">{UNDO_AFTER_CARD}</p>}
-          <div class="cd-pop-btns">
-            {!why && <button type="button" class="btn primary" onClick={() => c.reallyPlay(cardInfo)}>Play</button>}
-            <button type="button" class="btn ghost" onClick={() => setCardInfo(null)}>Close</button>
-          </div>
-        </div>
-      </div>
-    );
-  })()}
+  {cardInfo !== null && s.players[actor]?.favours[cardInfo] && (
+    // B-08 (PLAN-130): keyboard focus stays in the pop-up (Play and Close); Escape closes it.
+    <TrapBox class="cd-pop" role="dialog" aria-modal="true" aria-label={`Favour card: ${FAVOURS[s.players[actor].favours[cardInfo]].title}`} onEscape={() => setCardInfo(null)} onClick={(e) => { e.stopPropagation(); setCardInfo(null); }}>
+      <FavourPopView s={s} actor={actor} idx={cardInfo} onPlay={() => c.reallyPlay(cardInfo)} onClose={() => setCardInfo(null)} />
+    </TrapBox>
+  )}
 
   {pulseInfo && (
-    <div class="tip-pop" onClick={() => setPulseInfo(false)}>
+    // B-08 (PLAN-130): opened from a lane's head by the keyboard too; Escape, Enter or Space closes it, as a tap does.
+    <TrapBox class="tip-pop" role="dialog" aria-modal="true" aria-label="What customers want" onEscape={() => setPulseInfo(false)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPulseInfo(false); } }} onClick={() => setPulseInfo(false)}>
       <b>What customers want</b>
       <span>Each lane shows how many fruits today’s customers potentially want. Use this to plan your purchases.</span>
       <small>Tap to close.</small>
-    </div>
+    </TrapBox>
   )}
   {/* A customer's own card, opened from their ticket (PLAN-083): the whole card with today's prices; a standing order
       collected today shows its order card. The card's legend is the key to the prices. Tap anywhere to close. */}
-  {tip && (() => {
-    const order = tip.order ? ORDER_CARDS.find((x) => x.name === tip.name) : undefined;
-    const qty = (i: number) => (tip.wants[i].qty <= 0 ? tip.original?.[i]?.qty ?? 0 : tip.wants[i].qty);
-    return (
-      <div class="cd-pop" role="dialog" aria-label={lookOf(tip.name).title} onClick={(e) => { e.stopPropagation(); setTip(null); }}>
-        <div class="cd-pop-in">
-          {order && tip.order
-            ? <OrderCard card={order} qty={tip.original?.[0]?.qty ?? tip.wants[0]?.qty ?? 0} due="Due today" bid={tip.order.price} stake={tip.order.stake} />
-            : <TradingCard who={tip.name} guest={!!GUEST_EVENT[tip.name]} eager
-                wants={tip.wants.map((w, i) => ({ fruit: w.fruit, qty: qty(i), max: effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />}
-          <small class="cd-pop-hint">Tap to close</small>
-        </div>
-      </div>
-    );
-  })()}
+  {tip && (
+    // B-09 (PLAN-130): opened from the card's button by Enter or Space too. Focus moves onto the pop-up, Escape, Enter
+    // or Space closes it (as a tap does), and focus goes back to the card.
+    <TrapBox class="cd-pop" role="dialog" aria-modal="true" aria-label={lookOf(tip.name).title} onEscape={() => setTip(null)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTip(null); } }}
+      onClick={(e) => { e.stopPropagation(); setTip(null); }}>
+      <CustomerPopView s={s} tip={tip} />
+    </TrapBox>
+  )}
 
 
   {wardrobe && onWear && <div class="wd-overlay"><Wardrobe onBack={() => setWardrobe(false)} onChange={onWear} /></div>}
+  {howto && <div class="wd-overlay ht-overlay" role="dialog" aria-modal="true" aria-label="How to play"><HowTo onDone={() => setHowto(false)} /></div>}
   {menu && (
     <div class="modal-bg" onClick={closeMenu}>
       {room && leaving ? (
@@ -162,7 +192,10 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
             : <p class="muted">Your game is saved automatically.</p>}
           {unsent && <p class="gm-warn">{unsent}</p>}
           <button class="btn primary wide" onClick={closeMenu}>{room ? 'Back to the match' : 'Resume'}</button>
-          <Toggle on={sound} set={(v) => { const st = loadSettings(); saveSettings({ ...st, sound: v }); setSound(v); }} title="Sound" text="Coins, cards and cheers." />
+          <Toggle on={sound} set={(v) => { setting({ sound: v }); setSound(v); }} title="Sound" text="Coins, cards and cheers." />
+          <Toggle on={fast} set={(v) => { setting({ fast: v }); setFast(v); setBaseSpeed(v); }} title={FAST_PLAY.title} text={FAST_PLAY.text} />
+          <Toggle on={still || phone} set={(v) => { setting({ still: v }); setStillOn(v); setStill(v); }} title={REDUCED_MOTION.title} text={REDUCED_MOTION.text(phone)} />
+          <button class="btn wide" data-a="menu-howto" onClick={() => { setMenu(false); setHowto(true); }}>How to play</button>
           <FullScreenButton />
           {onWear && <button class="btn wide" onClick={() => { setMenu(false); setWardrobe(true); }}>Wardrobe</button>}
           <button class="btn wide" onClick={room ? () => setLeaving(true) : onExit}>Home</button>

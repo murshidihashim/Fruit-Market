@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import * as A from '../src/ui/anim';
 import { NIGHT, NO_SALES_READ, bellLength, bellOpening } from '../src/ui/game/animator';
 import { BEAT, CSS_MS, EASE, FEEL, FRAME, SPEED, type MotionRoot } from '../src/ui/motion';
@@ -9,7 +9,6 @@ import { SHEET, SHEET_IN, SHEET_OUT, sheetChange, sheetOn, type SheetGhost, type
 // for scripts and stylesheets, the shared move with its lift-off and landing calls, the shared slide, and the sheet.
 
 const read = (f: string) => readFileSync(f, 'utf8');
-const sheets = readdirSync('src/ui').filter((f) => f.endsWith('.css')).map((f) => ({ f, css: read(`src/ui/${f}`) }));
 
 /** A stand-in for the page, where the stylesheets read the speed and the lengths. */
 function page() {
@@ -96,7 +95,9 @@ describe('the lengths are named in one place (motion.ts)', () => {
     const files = ['src/ui/anim.ts', 'src/ui/sheet.ts', 'src/ui/cashShown.ts', 'src/ui/panel.tsx', 'src/ui/Game.tsx', 'src/ui/game/animator.tsx', 'src/ui/game/rush.ts',
       'src/ui/game/useGameController.ts', 'src/ui/game/panels/NightShift.tsx', 'src/ui/game/panels/RushTable.tsx', 'src/ui/game/panels/ActionBar.tsx',
       // the round table before the rush (PLAN-099)
-      'src/ui/game/tableBeats.ts', 'src/ui/game/tableNow.ts', 'src/ui/game/panels/DaySheet.tsx'];
+      'src/ui/game/tableBeats.ts', 'src/ui/game/tableNow.ts', 'src/ui/game/panels/DaySheet.tsx',
+      // PLAN-130: the controller's parts
+      'src/ui/game/turnDriver.ts', 'src/ui/game/beatPlayer.ts', 'src/ui/game/stepKind.ts', 'src/ui/game/useTableState.ts', 'src/ui/game/tableLayout.ts', 'src/ui/game/tableParts.tsx'];
     const bare = [/\b(?:wait|hold|held|pause|ms|moveMs|timer)\(\s*\d{2,}/, /\bduration:\s*\d{2,}/, /\bdelay:\s*\d{2,}/, /setTimeout\([^\n]*,\s*\d{2,}\s*\)/];
     const found = files.flatMap((f) => read(f).split('\n').map((l, i) => ({ at: `${f}:${i + 1}`, l })).filter((x) => !/^\s*(\/\/|\*|\/\*)/.test(x.l) && bare.some((re) => re.test(x.l))).map((x) => `${x.at}: ${x.l.trim()}`));
     expect(found).toEqual([]);
@@ -186,39 +187,26 @@ describe('one speed for scripts and stylesheets', () => {
   });
 
   it('the labels over a stall are pauses to read, so reduced motion keeps them (they used to shrink to a twentieth)', () => {
+    // a favour played: favour-secret.test.ts 'the label is a pause to read, so reduced motion keeps it'; an upgrade
+    // built: day-sheets.test.ts 'with reduced motion the label over the stall is held for a pause to read'
     const src = read('src/ui/game/animator.tsx');
-    expect(src).toContain('A.hold(A.BEAT.label.read)');
     // PLAN-123: Skip no longer holds a "+1 favour card" label per skipped customer before the takings; each favour card
     // is shown on its stall at once as Skip settles the rush.
     expect(src).not.toContain('+1 favour card');
     expect(src).toContain('A.hold(A.BEAT.label.bonus)');
-    expect(src).not.toMatch(/A\.wait\(A\.BEAT\.label/);
   });
 
   it('the stylesheets read the speed and the lengths under those names only', () => {
-    const used = new Set<string>();
-    for (const { css } of sheets) for (const m of css.matchAll(/var\(--t-([a-z-]+)/g)) used.add(m[1]);
-    expect([...used].filter((name) => !(name in CSS_MS))).toEqual([]);
+    // Read in the browser from the page's own rules (scripts/style-checks.cjs, PLAN-130): every length a rule reads
+    // (var(--t-...)) is one the page sets, which are these (the test above); no rule reads the two older names for the
+    // speed (the rush only, the night only); no rule styles the morning's old news card (.tk-news-face, PLAN-096); every
+    // move of the round table (PLAN-084, PLAN-092) and of the night is a length from the clock times --mk, with none of
+    // its own, the table's by rush-rows, sheet-in and sheet-out, the night's by dusk and rise-after.
     for (const name of ['sheet-in', 'sheet-out', 'news-turn', 'rush-rows', 'sky', 'dusk', 'rise', 'rise-after', 'stamp']) expect(CSS_MS).toHaveProperty(name);
-    // the two older names for the speed (the rush only, the night only) are gone
-    const sources = [...sheets.map((s) => s.css), read('src/ui/game/panels/RushTable.tsx'), read('src/ui/game/panels/NightShift.tsx')].join('\n');
+    // the two older names for the speed are gone from the scripts too
+    const sources = [read('src/ui/game/panels/RushTable.tsx'), read('src/ui/game/panels/NightShift.tsx')].join('\n');
     expect(sources).not.toMatch(/--rs-k|--ns-k/);
-    // the moves the stylesheets make on the table follow the one speed (motion.css's own rule for the morning's old
-    // news card, .tk-news-face, went with the unused styles in PLAN-096: no screen draws that card any more)
-    const motion = read('src/ui/motion.css');
-    expect(motion).not.toMatch(/tk-news/);
-    // the rush has its own stylesheet (PLAN-084; the round table, PLAN-092): the tags turn up, and the stage comes and goes, at the one speed
-    const rush = read('src/ui/rushTable.css');
-    for (const name of ['rush-rows', 'sheet-in', 'sheet-out']) expect(rush).toContain(`calc(var(--mk, 1) * var(--t-${name}))`);
-    expect(rush).not.toMatch(/(?:animation|transition)[^;{}]*\b\d+(?:\.\d+)?m?s\b/);
-    const night = read('src/ui/ticket-ui.css');
-    expect(night).toContain('animation: tk-dusk calc(var(--mk, 1) * var(--t-dusk))');
-    expect(night).toContain('calc(var(--mk, 1) * var(--t-rise-after))');
-    // motion.css comes after the table's other stylesheets, so its rules win
-    const main = read('src/main.tsx');
-    expect(main.indexOf("'./ui/motion.css'")).toBeGreaterThan(main.indexOf("'./ui/ticket-ui.css'"));
-    expect(main.indexOf("'./ui/ticket-ui.css'")).toBeGreaterThan(main.indexOf("'./ui/ticket.css'"));
-    expect(main.indexOf("'./ui/rushTable.css'")).toBeGreaterThan(main.indexOf("'./ui/motion.css'"));
+    // (the order the sheets load in: css-layers.test.ts 'the table's sheets load in one order')
   });
 });
 
@@ -371,7 +359,7 @@ describe('the shared move (anim.ts fly)', () => {
     for (let i = 0; i < 9; i++) void A.fly('box', 'shelf', 'x');
     await vi.advanceTimersByTimeAsync(0);
     expect(t.drawn.map((d) => d.className)).toEqual([...Array<string>(A.PLAIN_FROM).fill('sprite mv'), ...Array<string>(9 - A.PLAIN_FROM).fill('sprite mv plain')]);
-    expect(read('src/ui/motion.css')).toContain('.fx-layer .sprite.plain { filter: none; }');
+    // (a "plain" copy is drawn without the shadow the others have: read in the browser, scripts/style-checks.cjs, PLAN-130)
   });
 
   it('measures first, then moves: pieces that start together are all measured before any copy is drawn', async () => {
@@ -544,25 +532,18 @@ describe('the shared slide (anim.ts boxOf, flipFrom, flipTo)', () => {
 
 describe('no stepped landings or pops', () => {
   it('the landing, the stamp, the old card pop and the results\' places are smooth', () => {
+    // (the pieces in the air, the stamps and every move on the table in a whole game, read in the browser: never
+    // stepped: scripts/smoke.cjs with scripts/table-checks.cjs)
+    // PLAN-130 (A-05): the morning and takings cards, the "LAST DAY" stamp (.phase-banner), the pieces in the air and
+    // the results' stamps and places are read in the browser instead of in the style sheets: scripts/table-checks.cjs
+    // (its SMOOTH list) fails the solo playthrough on any stepped move of theirs, CSS animation, transition or script.
+    // What is left here is the script's own curve list.
     expect(read('src/ui/anim.ts')).not.toMatch(/steps\(\d/);
-    const css = read('src/ui/styles.css');
-    const rule = (sel: string) => css.split('\n').find((l) => l.startsWith(sel))!;
-    for (const sel of ['.morning-card, .sales-card {', '.phase-banner {']) {
-      expect(rule(sel)).toMatch(/animation: /);
-      expect(rule(sel)).not.toMatch(/steps\(/);
-    }
-    expect(rule('.phase-banner {')).toContain('animation: banner var(--t-stamp) ease-out forwards');
-    // The results' places: the first results' ".pod" rule is gone with that screen (PLAN-091); the places of the
-    // results today (stampbook.css, .sbk-pod) are not animated by the stylesheet at all, so nothing there can step.
-    expect(css).not.toMatch(/^\.pod\b/m);
-    const book = read('src/ui/stampbook.css');
-    expect(book).not.toMatch(/steps\(/);
-    expect(book).not.toMatch(/animation\s*:/);
   });
 
-  it('with reduced motion the "LAST DAY" stamp is simply there (it used to stay invisible)', () => {
-    expect(read('src/ui/motion.css')).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.phase-banner \{ opacity: 1; \}/);
-  });
+  // With reduced motion the "LAST DAY" stamp is simply there (it used to stay invisible): read in the browser with
+  // reduced motion asked for (scripts/style-checks.cjs, "with reduced motion nothing moves and the LAST DAY stamp is
+  // simply there", PLAN-130).
 });
 
 // ---------- the sheet ----------
@@ -675,12 +656,12 @@ describe('the sheet: the middle panel slides onto the table and off again (sheet
   it('the night keeps its own beat (dusk falls): it does not slide in by this rule, and no picture of it is kept', () => {
     clock();
     const g = pictures();
-    const night = panel('mid-panel night-shift tk-night');
-    expect(sheetChange(null, night, g)).toBe(0);
-    expect(night.slides).toEqual([]);
+    const dusk = panel('mid-panel night-shift tk-night');
+    expect(sheetChange(null, dusk, g)).toBe(0);
+    expect(dusk.slides).toEqual([]);
     // drawn afresh as the day changes, then gone at dawn: nothing is kept either time
     const next = panel('mid-panel night-shift tk-night');
-    expect(sheetChange(night, next, g)).toBe(0);
+    expect(sheetChange(dusk, next, g)).toBe(0);
     expect(sheetChange(next, null, g)).toBe(0);
     expect(next.slides).toEqual([]);
     expect(g.did.filter((x) => x !== 'clear' && x !== 'stay')).toEqual([]);
@@ -712,18 +693,14 @@ describe('the sheet: the middle panel slides onto the table and off again (sheet
   });
 
   it('the table underneath is not touched: the picture\'s place lies in the panels\' own cell, takes no taps and has no size of its own', () => {
-    const game = read('src/ui/Game.tsx');
-    expect(game).toMatch(/<div class=\{`centre \$\{mid \? 'covered' : ''\}`\} ref=\{sheet\.centre\}>/);
-    expect(game).toContain('<div class="tk-sheet" ref={sheet.host} aria-hidden="true" />');
-    const css = read('src/ui/motion.css');
-    const rule = css.slice(css.indexOf('#app .tkt > .centre > .tk-sheet, '), css.indexOf('}', css.indexOf('#app .tkt > .centre > .tk-sheet, ')));
-    for (const part of ['all: unset', 'grid-area: mid', 'z-index: 3', 'pointer-events: none', 'min-height: 0']) expect(rule).toContain(part);
-    expect(rule).not.toMatch(/(?<![-\w])(height|width|margin|padding):/);
-    // the panels lie above it (ticket.css) and the picture is out of reach of the page
-    expect(read('src/ui/ticket.css')).toContain('#app .tkt > .centre > .mid-panel, #app .tkt > .centre > .morning-card, #app .tkt > .centre > .sales-card { z-index: 4;');
+    // (the place takes no taps and is not read out: scripts/smoke.cjs with scripts/table-checks.cjs, "the sheet's picture can be reached";
+    // when the middle is covered: table-layout.test.ts)
+    // In the panels' cell, filling it with no margin or padding of its own, taking no taps, and under the panels: read
+    // in the browser (scripts/style-checks.cjs, "the picture of a sheet that has just left", PLAN-130).
+    // the picture is out of reach of the page
     const sheet = read('src/ui/sheet.ts');
     expect(sheet).toContain("attachShadow({ mode: 'closed' })");
-    expect(sheet).toContain("host.setAttribute('inert', '')");
+    // (inert: checked in the browser, above)
     // nothing waits for a slide: no animation event or promise is listened to, here or in the move
     for (const f of ['src/ui/sheet.ts', 'src/ui/anim.ts']) expect(read(f)).not.toMatch(/\.finished|onfinish|animationend|transitionend/);
   });

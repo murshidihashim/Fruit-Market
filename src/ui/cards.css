@@ -260,21 +260,23 @@
 .wc *, .wc *::before, .wc *::after { box-sizing: border-box; }
 .wc :where(i, em) { font-style: normal; }
 .wc .x-fruit { display: block; flex: none; }
-.wc-kind { flex: none; display: flex; justify-content: space-between; gap: 8px; padding: 6px 9px; background: var(--x-ink); color: var(--x-paper); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.wc-kind { flex: none; display: flex; justify-content: space-between; gap: 8px; padding: 6px 9px; background: var(--x-ink); color: var(--x-paper); font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 .wc-kind b { font-weight: 800; color: var(--x-mustard); }
 .wc-kind span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .wc-body { display: flex; gap: 10px; padding: 9px; }
 .wc-main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.wc-ttl { font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; }
+.wc-ttl { font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; overflow-wrap: break-word; }
+/* REP-140 B-07: on the narrowest phones a title's longest word (SUPERFOOD, INSPECTOR, BREAKDOWN) fits beside the picture */
+@media (max-width: 359px) { .wc-ttl { font-size: 1.125rem; } }
 .wc .wc-txt { margin: 0; line-height: 1.3; }
-.wc-foot { flex: none; padding: 6px 9px; background: var(--x-kraft); text-align: center; font: 800 0.5625rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.wc-foot { flex: none; padding: 6px 9px; background: var(--x-kraft); text-align: center; font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
 .wc-dots { display: flex; flex-wrap: wrap; gap: 5px; }
 .wc-dots i { flex: none; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--x-ink); background: var(--lane); }
 .wc-rw { display: flex; align-items: center; gap: 5px; }
 
 /* today's event: the picture beside the title, what it changes on mustard chips, then the card's words */
 .wc .wc-evpic { flex: none; width: 128px; height: 92px; border: 2px solid var(--x-ink); }
-.wc-chip { align-self: flex-start; display: inline-flex; align-items: baseline; gap: 5px; padding: 5px 7px; background: var(--x-mustard); font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.wc-chip { align-self: flex-start; display: inline-flex; align-items: baseline; gap: 5px; padding: 5px 7px; background: var(--x-mustard); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
 .wc-chip b { flex: none; font: 400 0.8125rem/1 var(--f-display); letter-spacing: 0; white-space: nowrap; }
 /* a price's badge (.cd-pb), at phone size: the chip stays as tall as one without */
 .wc-chip:has(.cd-pb) { align-items: center; padding-top: 3px; padding-bottom: 3px; padding-left: 3px; }
@@ -294,7 +296,7 @@
 .wc-lt span { display: grid; place-items: center; height: 18px; }
 .wc-lt .wc-lt-h { height: 24px; background: var(--lane); }
 .wc-lt-h .x-fruit { width: 18px; height: 18px; padding: 2px; border-radius: 50%; background: var(--x-paper); }
-.wc-lt-l { justify-items: start; padding: 0 6px; font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.wc-lt-l { justify-items: start; padding: 0 6px; font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; }
 .wc-lt-l.on { background: var(--x-ink); color: var(--x-mustard); }
 .wc-lt-n { background: var(--lane); color: var(--lane-ink); font: 400 0.8125rem/1 var(--f-display); }
 .wc-lt-n.nil { color: color-mix(in srgb, var(--lane-ink) 55%, var(--lane)); }
@@ -307,12 +309,12 @@
 .wc-ttl-o { font-size: 1.3125rem; }
 .wc-order .wc-rw .x-fruit { width: 22px; height: 22px; }
 .wc-order .wc-dots i { width: 14px; height: 14px; }
-.wc-lab { font: 800 0.625rem/1.2 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.wc-lab { font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .wc-stats { display: flex; gap: 6px; padding: 10px; }
 .wc-stat { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 6px 8px; border: 2px solid var(--x-ink); }
 .wc-stat.y { background: var(--x-mustard); }
 .wc-stat b { font: 400 1.25rem/1 var(--f-display); }
-.wc-stat span { font: 800 0.5625rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.wc-stat span { font: 800 0.6875rem/1.2 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
 
 /* a customer in the rush: the picture, each fruit they came for with its price tag, the legend; the heading and the
    legend in the customer type's colours (PLAN-106) */
@@ -323,8 +325,8 @@
 .wc-cust .wc-rw .x-fruit { width: 20px; height: 20px; }
 .wc-tag { flex: none; margin-left: auto; padding: 4px 7px 4px 13px; background: var(--x-ink); color: var(--x-mustard); font: 400 0.875rem/1 var(--f-display); clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%); }
 .wc-rw.later { opacity: 0.4; }
-.wc-leg { flex: none; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: var(--bar, var(--x-ink)); color: var(--bar-ink, var(--x-paper)); box-shadow: inset 0 2px 0 var(--bar-edge, transparent); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
-.wc-lamp { flex: none; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0; }
+.wc-leg { flex: none; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: var(--bar, var(--x-ink)); color: var(--bar-ink, var(--x-paper)); box-shadow: inset 0 2px 0 var(--bar-edge, transparent); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.wc-lamp { flex: none; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0; }
 .wc-lamp + .wc-lamp, .wc-leg span + .wc-lamp { margin-left: 12px; }
 .wc-lamp.off { background: none; color: var(--bar-dim, var(--x-lamp-off)); box-shadow: inset 0 0 0 1px var(--bar-dim, var(--x-lamp-off)); }
 .wc-leg .no { color: var(--bar-dim, var(--x-lamp-off)); }
@@ -361,10 +363,13 @@
 .tkc-rw > b { flex: none; margin-left: auto; font: 400 12px/1 var(--f-display); }
 .tkc-rw.up > b { color: var(--c-0a7443); }
 .tkc-rw.down > b { color: var(--x-slate); }
-.tkc-rw.done > * { opacity: 0.35; }
+/* B-11 (PLAN-130): a done line's fruit and dots fade; its numbers turn slate, which still reads (they were faded to 1.4:1) */
+.tkc-rw.done > .x-fruit, .tkc-rw.done .tkc-dots { opacity: 0.35; }
+.tkc-rw.done :is(.tkc-n, b) { color: var(--x-slate); }
 .tkc-rw.done::after { content: '✓'; flex: none; margin-left: 2px; font: 800 11px/1 var(--f-label); color: var(--x-green); }
 .tkc-bd { flex: none; margin-top: auto; display: flex; gap: 3px; padding: 3px 4px; background: var(--bar, var(--x-ink)); box-shadow: inset 0 1.5px 0 var(--bar-edge, transparent); }
-.tkc-lamp { flex: none; width: 12px; height: 12px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); font: 800 8px/1 var(--f-label); }
+/* B-10 (PLAN-130): the freshness letters are 11 px (they were 8 px), in 14 px rounds */
+.tkc-lamp { flex: none; width: 14px; height: 14px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); font: 800 11px/1 var(--f-label); }
 .tkc-lamp.off { background: none; color: var(--bar-dim, var(--x-lamp-off)); box-shadow: inset 0 0 0 1px var(--bar-dim, var(--x-lamp-off)); }
 /* face down: four fixed squares, one per fruit, filled for the fruit wanted */
 .tkc-dn { flex: 1 1 auto; display: grid; grid-template-columns: repeat(2, 26px); gap: 4px; align-content: center; justify-content: center; padding: 6px 0; background: var(--x-ink); }
@@ -394,20 +399,20 @@
 .uo-row::-webkit-scrollbar, .fav-row::-webkit-scrollbar { display: none; }
 .uo { flex: none; width: 150px; box-sizing: border-box; display: flex; flex-direction: column; border: 3px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); font-family: var(--f-label); letter-spacing: 0; text-align: left; }
 .uo *, .fav * { box-sizing: border-box; }
-.uo-kind { flex: none; padding: 5px 7px; background: var(--x-ink); color: var(--x-paper); font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.uo-kind { flex: none; padding: 5px 7px; background: var(--x-ink); color: var(--x-paper); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .uo .uo-pic { flex: none; width: 100%; height: 54px; border-bottom: 2px solid var(--x-ink); }
 .uo-nm { margin: 8px 7px 0; font: 400 1.0625rem/1 var(--f-display); text-transform: uppercase; }
 .uo-cost { align-self: flex-start; margin: 7px 7px 0; padding: 4px 7px; background: var(--x-mustard); font: 400 1.0625rem/1 var(--f-display); }
 .uo-tx { margin: 7px 7px 8px; font: 600 0.6875rem/1.3 var(--f-label); }
-.uo-ft { flex: none; margin-top: auto; padding: 5px 7px; background: var(--x-kraft); text-align: center; font: 800 0.5rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.uo-ft { flex: none; margin-top: auto; padding: 5px 7px; background: var(--x-kraft); text-align: center; font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
 /* a favour card you hold: the whole card is the button that opens it */
 .fav { flex: 1 0 150px; min-width: 0; display: flex; flex-direction: column; padding: 0; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-paper); color: var(--x-ink); font-family: var(--f-label); letter-spacing: 0; text-align: left; cursor: pointer; }
 .fav.ready { box-shadow: 0 0 0 3px var(--x-mustard); }
-.fav-kind { flex: none; display: flex; justify-content: space-between; padding: 5px 7px; background: var(--x-ink); color: var(--x-paper); font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.fav-kind { flex: none; display: flex; justify-content: space-between; padding: 5px 7px; background: var(--x-ink); color: var(--x-paper); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .fav-kind b { font-weight: 800; color: var(--x-mustard); }
 .fav .fav-pic { flex: none; width: 100%; height: 48px; border-bottom: 2px solid var(--x-ink); }
 .fav-nm { margin: 7px 7px 0; font: 400 0.875rem/1 var(--f-display); text-transform: uppercase; }
-.fav-when { margin-top: 6px; padding: 4px 7px; background: var(--x-mustard); font: 800 0.5rem/1.2 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.fav-when { margin-top: 6px; padding: 4px 7px; background: var(--x-mustard); font: 800 0.6875rem/1.2 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
 .fav-tx { margin: 6px 7px 7px; font: 600 0.6875rem/1.3 var(--f-label); }
 .fav-play { min-height: 44px; margin: auto 7px 7px; display: grid; place-items: center; border: 2px solid var(--x-ink); background: var(--x-paper); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
 /* a favour card on the shelf dock: a slip with its picture and name */
@@ -425,9 +430,6 @@
 .cd-pop .cd-pop-btns .btn { flex: 1 1 0; min-height: 52px; border: 0; border-radius: 0; box-shadow: none; background: var(--x-ink); color: var(--x-mustard); font: 400 1.0625rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; }
 .cd-pop .cd-pop-btns .btn.ghost { background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink); }
 .cd-pop-hint { align-self: center; color: var(--x-paper); font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
-
-/* picking a shopkeeper: the cards of the carousel are the picker's width (screens.css) */
-.cp-card { --card-w: 14.75rem; }
 
 /* PLAN-116 (REP-133 B-08): a small card off the table (Home, the set-up screen, the Quick match wait) opens whole on a
    tap (cardZoom.tsx). Over the whole screen, above a pop-up; a shopkeeper's card is drawn wider than a customer's. */
@@ -447,3 +449,80 @@
 #app .tkt .ev-pop.drawing .wc-flip .wc-flip-back { transform: none; }
 #app .tkt .ev-pop.drawing .wc-flip .wc-flip-face { transform: rotateY(180deg); }
 #app .tkt .ev-pop:focus { outline: none; }
+/* REP-140 B-05: over the translucent backdrop the morning's parts make one solid card: no gap between them, and each
+   part (the dawn rows, the notes, the lorry, tomorrow) on paper, so the table under it never shows through. The event
+   card keeps its own faces (it turns over); the lorry's ink edge sits on the event card's. */
+#app .tkt .event-sheet.ev-pop .morning-card { gap: 0; }
+#app .tkt .event-sheet.ev-pop .morning-card > :is(.dw, .tk-unload) { background: var(--tk-paper); }
+#app .tkt .event-sheet.ev-pop .morning-card > .tk-unload { gap: 0; }
+#app .tkt .event-sheet.ev-pop .morning-card > .tk-unload > .tk-note { padding: 6px 9px; }
+#app .tkt .event-sheet.ev-pop .morning-card > .wc-flip + .tk-unload { margin-top: -3px; }
+#app .tkt > .actionbar .btn small, #app .tkt > .centre > .pp-lock .btn small {
+  all: unset; font: 700 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; color: var(--tk-paper);
+}
+#app .tkt > .actionbar .btn:disabled, #app .tkt > .centre > .pp-lock .btn:disabled { opacity: 0.45; cursor: default; }
+#app .tkt > .centre > .pp-lock .btn.tk-auto {
+  flex: 0 0 auto; max-width: 42%; padding: 0 10px; background: var(--tk-paper); color: var(--tk-ink);
+  box-shadow: inset 0 0 0 3px var(--tk-ink); font-size: 0.9375rem;
+}
+#app .tkt > .centre > .pp-lock .btn.tk-auto small { color: var(--tk-ink); font-size: 0.75rem; letter-spacing: 0.02em; }
+#app .tkt > .actionbar .btn.ghost, #app .tkt > .actionbar .btn.skip {
+  flex: 0 0 auto; min-width: 52px; background: var(--tk-paper); color: var(--tk-ink);
+  box-shadow: inset 0 0 0 3px var(--tk-ink); font-size: 0.9375rem;
+}
+#app .tkt > .actionbar .btn.ghost.undo-after { flex-direction: column; gap: 3px; padding: 0 10px; line-height: 1; }
+#app .tkt > .actionbar .btn.ghost.undo-after small {
+  font: 700 0.75rem/1 var(--tk-txt); letter-spacing: 0.02em; color: var(--tk-ink); text-transform: none;
+}
+#app .tkt .order-panel .btn.step {
+  border: 0; border-radius: 0; box-shadow: none; background: var(--tk-ink); color: var(--tk-yel);
+  font-family: var(--tk-disp); font-weight: 400; text-transform: uppercase;
+}
+#app .tkt .modal .btn:not(.primary), #app .tkt .coach .btn.skip {
+  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink);
+}
+#app .modal .btn.primary small { color: var(--x-paper); }
+#app .modal .btn:disabled { opacity: 0.45; }
+#app .modal .btn:active:not(:disabled) { transform: translateY(2px); }
+#app .tk-page .btn {
+  min-height: 52px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper);
+  color: var(--x-ink); font: 800 0.875rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
+}
+#app .tk-page .btn.primary {
+  box-shadow: none; background: var(--x-ink); color: var(--x-mustard); font: 400 1.25rem/1.05 var(--f-display);
+  letter-spacing: 0.02em;
+}
+#app .tk-page .btn:disabled { opacity: 0.45; }
+#app .tk-page .btn:active:not(:disabled) { transform: translateY(2px); }
+#app .tk-page .dots span.on { width: 22px; background: var(--x-ink); }
+@media not all and (min-width: 900px) and (min-height: 560px) {
+  #app .game.gx.tkt > .coach .btn { min-height: 44px; }
+}
+#app .game.tkt .tb-buys.each .x-fruit { width: 11px; height: 11px; }
+#app .game.tkt .tb-buys:not(.each) .x-fruit { width: 10px; height: 10px; }
+#app .game.tkt .tb-dock.c8 .favchip > span { display: none; }
+#app .game.tkt .tb-dock.c8 .favchip { padding: 0; }
+@media (max-width: 379px) {
+  #app .game.tkt .tb-buys.each .x-fruit { width: 10px; height: 10px; }
+}
+@media (max-height: 779px) {
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip .x-fruit { width: 14px; height: 14px; }
+}
+#app .tkt .cd-pop.sr-pop { position: fixed; z-index: 60; }
+#app .tkt .street .tkc-pc { height: var(--pic); }
+@media (max-height: 650px) {
+  #app .tkt .street-wrap .street .tkc-pc { display: none; }
+  #app .tkt .street-wrap .street .tkc-dn { grid-template-columns: repeat(2, 22px); gap: 3px; padding: 4px 0; }
+  #app .tkt .street-wrap .street .tkc-dn span { width: 22px; height: 22px; }
+  #app .tkt .street-wrap .street .tkc-dn .x-fruit { width: 15px; height: 15px; }
+}
+@media (max-height: 779px) {
+  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip > span { display: none; }
+  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip { padding: 0; }
+}
+@media (max-height: 650px) {
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street .tkc-pc { display: block; }
+}
+#app .howto.tk-page .btn.ht-btn-s { min-height: 28px; padding: 0 8px; font-size: 0.6875rem; letter-spacing: 0.04em; }
+#app .howto.tk-page .cd small, #app .howto.tk-page .tkc small { color: inherit; }
+#app .jo .seg button.on small { color: var(--j-paper); }

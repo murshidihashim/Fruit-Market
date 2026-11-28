@@ -36,17 +36,22 @@ const NOT_A_SHEET = '.market-stall, .tk-sheet, .pp-lock';
  * row is drawn above it (rushTable.css), so that row stays in reach.
  */
 export function markCovered(game: HTMLElement, centre: HTMLElement, sheet: boolean): void {
-  centre.querySelector(':scope > .market-stall')?.toggleAttribute('inert', sheet);
+  // Every box is measured before any mark changes (C-04, PLAN-130): a mark changes the style of the part it is put on,
+  // and measuring after it would lay the table out again, once for every row (inert does not move anything, so the
+  // boxes are the same either way).
   const sheets = [
     ...(sheet ? [...centre.children].filter((el): el is HTMLElement => el instanceof HTMLElement && !el.matches(NOT_A_SHEET)) : []),
     ...game.querySelectorAll<HTMLElement>(':scope > .rush-table:not(.leaving)'),
   ].filter((el) => el.offsetHeight > 0).map(laidOut);
   const lifted = !!game.querySelector(':scope > .rush-table');
-  for (const row of game.querySelectorAll<HTMLElement>(ROWS)) {
-    const b = laidOut(row);
+  const rows = [...game.querySelectorAll<HTMLElement>(ROWS)];
+  const boxes = rows.map(laidOut);
+  centre.querySelector(':scope > .market-stall')?.toggleAttribute('inert', sheet);
+  rows.forEach((row, i) => {
+    const b = boxes[i];
     const above = lifted && row.parentElement?.classList.contains('street-wrap');
     row.toggleAttribute('inert', !above && b.bottom > b.top && sheets.some((s) => covers(s, b)));
-  }
+  });
 }
 
 /**

@@ -54,6 +54,7 @@ export function useFocusTrap(ref: RefObject<HTMLElement>, onEscape?: () => void)
       const now = document.activeElement;
       if (before && before.isConnected && (!now || now === document.body || box.contains(now))) before.focus({ preventScroll: true });
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- set up once, as the pop-up opens; focus goes back as it closes
   }, []);
 }
 

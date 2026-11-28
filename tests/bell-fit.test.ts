@@ -10,10 +10,11 @@ import { activePlayer, beginBuying, decideTie, finishReveal, newGame, outCount, 
 import * as A from '../src/ui/anim';
 import { toStaticHtml } from '../src/ui/cards';
 import { fx } from '../src/ui/fx';
-import { bellRings } from '../src/ui/game/animator';
+import { bellRings, reveal } from '../src/ui/game/animator';
 import { TiePanel, tieWords } from '../src/ui/game/panels/PricingTable';
 import { PreView } from '../src/ui/game/panels/RushTable';
 import { seatOrder } from '../src/ui/game/rush';
+import { crateSound } from '../src/ui/game/tableBeats';
 import { preTable, type PreFacts, type TableStep } from '../src/ui/game/tableNow';
 import { tieStory } from '../src/ui/game/tieStory';
 
@@ -168,21 +169,25 @@ describe('the bell\'s script and the flip', () => {
       expect(sounds.map((x) => x.mock.calls.length), reduced ? 'reduced motion' : 'usual pace').toEqual([0, 0, 1, 0]);
       sounds.forEach((x) => x.mockRestore());
     }
-    const ctrl = read('src/ui/game/useGameController.ts');
-    expect(ctrl).toContain('if (open !== null && !bellUp.current) fx.bell();');
-    // the bell's own sound is the one the player wears, the brass hand bell when none is chosen
-    expect(read('src/ui/fx.ts')).toContain('bell: () => (BELLS[wornSounds().bell] ?? BELLS.bell_brass)(),');
-    // a crate opening has its own small sound, but not as the bell first shows (reduced motion opens every crate then)
-    expect(read('src/ui/game/panels/RushTable.tsx')).toContain('if (was !== null && c.bell > was) fx.tap();');
+    // the game table's own setter: beat-player.test.ts 'rings once as the bell first shows anything'. The sound is the
+    // bell the player wears: sounds.test.ts 'the rush and the bell sound as the player chose'.
+    // A crate opening has its own small sound, but not as the bell first shows (reduced motion opens every crate then).
+    expect([crateSound(null, 0), crateSound(null, 4), crateSound(0, 1), crateSound(2, 4), crateSound(3, 3), crateSound(3, null)]).toEqual([false, false, true, true, false, false]);
   });
 
-  it('at the flip before a question the rows are shut together with the new state, so no open row is drawn before the bell', () => {
-    const ctrl = read('src/ui/game/useGameController.ts');
-    const shut = ctrl.indexOf('if (flip) setBell(A.isReduced() ? next.players.length : 0);');
-    expect(shut).toBeGreaterThan(0);
-    expect(shut).toBeLessThan(ctrl.indexOf('setS(next);'));
-    expect(ctrl.indexOf('setS(next);')).toBeLessThan(ctrl.indexOf('await bellRings(next, setBell);'));
+  it('a rush after the flip does not ring the bell again; without the flip it rings first', async () => {
+    const s = rush(asks[0], false);
+    for (const rung of [true, false]) {
+      fakeClock(true);
+      const seen: (number | null)[] = [];
+      const done = reveal(s, 0, () => {}, (open) => { seen.push(open); }, rung);
+      await vi.runAllTimersAsync();
+      await done;
+      expect(seen.filter((x) => x !== null).length > 0, rung ? 'rung at the flip' : 'rung now').toBe(!rung);
+    }
   });
+  // At the flip before a question the rows are shut together with the new state: beat-player.test.ts 'at the flip the
+  // rows are shut together with the new state, so no open row is drawn before the bell'.
 });
 
 describe('the question says when the card would change nothing', () => {
@@ -214,8 +219,8 @@ describe('the two buttons', () => {
     const html = toStaticHtml(h(TiePanel, { s: publicView(s, asked), viewer: asked, asked, onDecide: () => undefined }));
     expect(html).toMatch(/<div class="pp-lock ds-tie-lock"><button type="button" class="btn primary wide big">Play it<\/button><button type="button" class="btn ghost wide big">Keep it<\/button><\/div>/);
     expect(html).toContain('data-a="tie-note"');
-    // in the round table's foot (PLAN-099)
-    expect(read('src/ui/rushTable.css')).toContain('#app .tkt .rt-foot > .ds-tie-lock { all: unset; flex: 1 1 auto; display: flex; flex-direction: row-reverse;');
+    // in the round table's foot (PLAN-099), drawn the other way round: read in the browser (scripts/style-checks.cjs,
+    // "the question at a tie lies in the round table's foot", PLAN-130)
     // the scripts' own words
     const smoke = read('scripts/smoke.cjs');
     for (const sel of ['[data-a="tie-note"]', '.pp-lock .btn.ghost', '.pp-lock .btn.primary']) expect(smoke).toContain(sel);
@@ -229,25 +234,14 @@ describe('the two buttons', () => {
   });
 });
 
-describe('the round table before the rush (rushTable.css; the bell\'s rows and bell.css are gone, PLAN-099)', () => {
-  it('moves by position, size and fade only, on the table\'s clock, and takes its colours from the palette', () => {
-    expect(read('src/main.tsx')).not.toContain('bell.css');
-    const all = read('src/ui/rushTable.css');
-    const css = all.slice(all.indexOf('Before the rush (PLAN-099, flow A)')).replace(/\/\*[\s\S]*?\*\//g, '');
-    expect(css).not.toMatch(/rotate|skew|#[0-9a-fA-F]{3,8}\b|rgb\(|hsl\(/);
-    // every move at the one speed: a length read from the clock, times --mk
-    for (const t of css.match(/(?:transition|animation):[^;]+;/g) ?? []) {
-      if (/: none;$/.test(t)) continue;
-      expect(t).toMatch(/calc\(var\(--mk, 1\) \* var\(--t-[a-z-]+\)\)/);
-      expect(t).not.toMatch(/\b\d+(?:\.\d+)?m?s\b/);
-    }
-    // the only frames of its own: the pricing sheet coming up from the table's foot (position only)
-    expect(css.match(/@keyframes [\w-]+ \{[^}]*\}/g)).toEqual(['@keyframes rt-sheet-in { from { transform: translateY(100%); }']);
-    // reduced motion: every end state at once
-    expect(css).toContain('@media (prefers-reduced-motion: reduce) {');
-    // the rows of the table are not laid out here
-    expect(css).not.toMatch(/#app \.tkt > \.(seats|my-stall|actionbar|tk-top)\b/);
-    // the old rows, the old question layout and the bell's sheet are gone from the day's sheet
-    expect(read('src/ui/daysheet.css')).not.toMatch(/ds-stall|ds-bell|ds-pz|ds-tie|sh-day\.full|ds-price|ds-brief|ds-rivals/);
-  });
-});
+// The round table before the rush (the bell's rows and bell.css are gone, PLAN-099) moves by position, size and fade
+// only, on the table's clock, and takes its colours from the palette. Read in the browser instead of in the
+// stylesheets (PLAN-130):
+//   by position, size and fade only, never turned or stepped, as a game is played: scripts/table-checks.cjs;
+//   every rule of the round table takes its colours from the palette and times each move by a length read from the
+//   clock, times --mk, and reduced motion shows every end state at once: scripts/style-checks.cjs (the page's own
+//   rules, and "with reduced motion nothing moves"); hex colours anywhere: palette.test.ts;
+//   the rows of the table are laid out by their own sheets alone: css-layers.test.ts 'a part is styled in one sheet';
+//   the old rows and the bell's sheet are gone, and the day's sheet no longer asks the question at a tie:
+//   scripts/style-checks.cjs (the page's own rules); bell.css is not loaded: css-layers.test.ts 'the table's sheets
+//   load in one order'.

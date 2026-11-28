@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { BASE_BUY, FAVOUR_HAND_LIMIT, FRUIT, FRUITS, MARKET_DAY_EVERY } from '../src/engine/data';
-import { OKAY_LESS, SOFT_LESS, toStaticHtml } from '../src/ui/cards';
+import { toStaticHtml } from '../src/ui/cards';
+import { OKAY_LESS, SOFT_LESS } from '../src/ui/stageWords';
 import { newGame } from '../src/engine/game';
 import { FIRST_TIME_KEY, FirstTimeText, dismissFirstTime, firstTimeMoment, hasFinishedGame, nthWord, showFirstTime } from '../src/ui/FirstTime';
 import { saveStats } from '../src/ui/store';
@@ -125,15 +126,9 @@ describe('first-time pop-up: who sees it', () => {
   });
 
   it('is drawn by the game in place of the morning card, not in the lobby', () => {
-    const game = readFileSync('src/ui/Game.tsx', 'utf8');
-    expect(game).toContain("const [firstTime, setFirstTime] = useState(() => !!online && showFirstTime());");
-    expect(game).toContain('const firstUp = firstTime && firstTimeMoment(s, !!online, c.votedMe);');
-    // The morning card (and its news) waits. This player's Start buying lies under the pop-up, out of reach.
-    const morning = game.indexOf("if (s.phase === 'morning' && firstUp) return null;");
-    expect(morning).toBeGreaterThan(-1);
-    expect(morning).toBeLessThan(game.indexOf('<MorningCard s={s} viewer={viewer} lost={c.lastNight}'));
-    // Got it is remembered before the pop-up goes.
-    expect(game).toContain('dismissFirstTime(); setFirstTime(false);');
+    // The morning card (and its news) waits while it is up: table-layout.test.ts 'the night over everything; on the
+    // first morning the perk or the morning card, and nothing while the "First time?" pop-up holds it up'. It comes up
+    // in an online game on Day 1 and Got it lets the morning go on: scripts/e2e-online.cjs (".ft-pop", "Got it").
     expect(readFileSync('src/ui/Online.tsx', 'utf8')).not.toMatch(/FirstTime/);
   });
 });

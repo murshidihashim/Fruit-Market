@@ -14,6 +14,8 @@ import { installTelemetry } from './net/telemetry';
 import { startAccountSync } from './ui/account';
 
 installTelemetry();
+// PLAN-131: iPhone Safari shows a button's pressed look (:active) only on a page that listens for touches.
+document.addEventListener('touchstart', () => undefined, { passive: true });
 startAccountSync();
 
 render(<App />, document.getElementById('app')!);

@@ -8,7 +8,7 @@ import {
   type Customer, type GameState,
 } from '../src/engine/game';
 import { StallBar, StallPanelView, autoCrate, startingCrate } from '../src/ui/panel';
-import { stallWanted } from '../src/ui/boardModel';
+import { customersWanted, orderWanted } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { RULES_VERSION } from '../src/net/protocol';
 import { endBuying } from './stall-step';
@@ -125,7 +125,7 @@ describe('Fill your crate (rows since PLAN-072)', () => {
   it('"Auto load" puts out what is wanted (the owner, 2026-11-13): the oldest pieces a buyer takes, never more than wanted', () => {
     // An Everyday buyer wants 3 apples: the soft ones are not for them, so the two fresh ones go out, and no more.
     const s = stocking([buyer(1, 'apple', 3, 9, 'everyday')]);
-    expect(stallWanted(s, 0, 'apple')).toBe(3);
+    expect((customersWanted(s, 0, 'apple') + orderWanted(s, 0, 'apple'))).toBe(3);
     const auto = autoCrate(s, 0, startingCrate(s, 0));
     expect(auto.apple![0]).toBe(0);
     expect(auto.apple![FRESH('apple')]).toBe(2);
@@ -160,7 +160,7 @@ describe('Fill your crate (rows since PLAN-072)', () => {
           expect(validateCrate(s, 0, crate)).toBeNull();
           for (const f of Object.keys(crate) as FruitId[]) {
             const out = crate[f]!.reduce((a, n) => a + n, 0);
-            expect(out).toBeLessThanOrEqual(stallWanted(s, 0, f));
+            expect(out).toBeLessThanOrEqual((customersWanted(s, 0, f) + orderWanted(s, 0, f)));
             crate[f]!.forEach((n, pos) => {
               expect(n).toBeLessThanOrEqual(s.players[0].stock[f][pos]);
               if (n) expect(pos).toBeLessThan(FRUIT[f].ripe.length);

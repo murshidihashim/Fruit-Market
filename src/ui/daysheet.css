@@ -9,7 +9,7 @@
    Imported after rushTable.css, so a rule here wins over the older ones for the same parts.
    ===================================================================== */
 #app .tkt > .centre > .sh-day { gap: 0; padding: 0; font: 600 0.75rem/1.3 var(--tk-txt); letter-spacing: 0; scrollbar-width: none; }
-#app .tkt > .centre > .sh-day::-webkit-scrollbar { display: none; }
+.tkt > .centre > .sh-day::-webkit-scrollbar { display: none; }
 /* A short phone: the middle of the table is too low for stocking, so there the sheet starts under the customers'
    tickets and ends at the foot of your shelf, drawn larger than its cell by a margin measured from the rows
    (game/reach.ts writes --rise and --drop on it). It lies above the rivals and your shelf then (5). Under the takings
@@ -20,23 +20,12 @@
 #app .tkt .sh-day *, #app .tkt .sh-day *::before, #app .tkt .sh-day *::after { box-sizing: border-box; }
 #app .tkt .sh-day :where(i, em) { font-style: normal; }
 #app .tkt .sh-day .x-fruit { display: block; flex: none; }
-
-/* The first-game tip for stocking asks for a row of its own (styles.css, .coach-row), which this table does not have:
-   the tip then opened a second column and squeezed the whole table. It lies at the foot of the middle instead, as the
-   other tips do, over the sheet's last lines until it is closed. (At the round table it lies over the customers'
-   tickets: rushTable.css.) */
-#app .game.gx.tkt.coach-row > .coach, #app .game.gx.tkt.coach-row > .coach.top { grid-area: mid; align-self: end; margin: 0 auto 8px; }
-/* on a short phone the sheet ends at the foot of your shelf, and so does the tip */
-@media (max-height: 760px) {
-  #app .game.gx.tkt.coach-row > .coach, #app .game.gx.tkt.coach-row > .coach.top { grid-area: auto; grid-column: 1 / -1; grid-row: mid-start / dock-end; }
-}
-
 /* ---------- shared marks (the stocking sheet, and the pricing sheet at the round table) ---------- */
-#app .tkt .ds-lab { font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
+#app .tkt .ds-lab { font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
 #app .tkt .ds-lab-row { flex: none; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 #app .tkt .ds-lamp {
   flex: none; width: 12px; height: 12px; border-radius: 50%; display: grid; place-items: center; background: var(--tk-paper); color: var(--tk-ink);
-  font: 800 0.5rem/1 var(--tk-txt); box-shadow: inset 0 0 0 1px var(--tk-ink);
+  font: 800 0.6875rem/1 var(--tk-txt); box-shadow: inset 0 0 0 1px var(--tk-ink);
 }
 #app .tkt .ds-lamp.lg { width: 18px; height: 18px; font-size: 0.6875rem; }
 #app .tkt .ds-lamp.st-okay { background: var(--tk-yel); }
@@ -45,22 +34,18 @@
 #app .tkt .ds-info { flex: none; padding: 6px 8px; background: var(--tk-kraft); }
 #app .tkt .ds-info.warn { background: var(--c-fbd5d2); }
 #app .tkt .ds-note { flex: none; display: flex; flex-direction: column; gap: 4px; padding: 8px 9px; background: var(--tk-kraft); }
-#app .tkt .ds-kind { flex: none; padding: 4px 6px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+#app .tkt .ds-kind { flex: none; padding: 4px 6px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 #app .tkt .ds-none { color: var(--c-2f3a3e); }
 #app .tkt .ds-out { display: flex; align-items: center; gap: 5px; }
 #app .tkt .ds-out b { font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
-#app .tkt .ds-out em { font: 800 0.625rem/1 var(--tk-txt); }
+#app .tkt .ds-out em { font: 800 0.6875rem/1 var(--tk-txt); }
 /* − and +, and the number between them */
-#app .tkt .sh-day .ds-st {
-  all: unset; flex: none; width: 44px; min-height: 44px; display: grid; place-items: center; cursor: pointer;
-  background: var(--tk-ink); color: var(--tk-yel); font: 400 1.375rem/1 var(--tk-disp);
-}
 #app .tkt .sh-day .ds-st:disabled { background: var(--c-bdbebe); color: var(--c-2f3a3e); cursor: default; opacity: 1; }
 /* Favoured Trade played on a tied price: its stamp on the tag at the round table, shown as the card lands
    (animator.tsx holds it back until then) */
 #app .tkt .ds-stamp {
   position: absolute; right: -9px; top: -9px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--tk-red-d); color: var(--tk-paper); box-shadow: 0 0 0 2px var(--tk-paper); font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.02em;
+  background: var(--tk-red-d); color: var(--tk-paper); box-shadow: 0 0 0 2px var(--tk-paper); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0;
 }
 :root.fm-hold-stamp #app .tkt .ds-stamp { visibility: hidden; }
 
@@ -81,7 +66,7 @@
 #app .tkt .ds-txt b { font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
 /* PLAN-123: what tonight costs a row, as a tag: "Spoils tonight" on yellow (as the shelf's chip for the same pieces),
    "Loses Premium tomorrow" in an ink outline */
-#app .tkt .ds-txt .ds-warn { align-self: flex-start; padding: 1px 5px; font: 800 0.625rem/1.1 var(--tk-txt); font-style: normal; letter-spacing: 0.04em; text-transform: uppercase; border: 1.5px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); }
+#app .tkt .ds-txt .ds-warn { align-self: flex-start; padding: 1px 5px; font: 800 0.6875rem/1.1 var(--tk-txt); font-style: normal; letter-spacing: 0.04em; text-transform: uppercase; border: 1.5px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); }
 #app .tkt .ds-txt .ds-warn.bad { background: var(--tk-yel); }
 #app .tkt .sh-day .mini-step { all: unset; flex: none; display: flex; align-items: stretch; }
 #app .tkt .sh-day .ds-amt {
@@ -90,7 +75,7 @@
 }
 #app .tkt .sh-day .ds-amt.still { border-right: 0; }
 #app .tkt .sh-day .ds-amt span { font: 400 1.375rem/1 var(--tk-disp); }
-#app .tkt .sh-day .ds-amt small { font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; color: var(--tk-slate); }
+#app .tkt .sh-day .ds-amt small { font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0; white-space: nowrap; text-transform: none; color: var(--tk-slate); }
 
 /* ---------- drawn closer, a step at a time, when the sheet's parts are taller than the room it has ----------
    The room is measured (DaySheet.tsx fit), never assumed: the table's rows above and below decide it. The step is
@@ -122,11 +107,17 @@
 /* The − and + keep a place to tap 40 px tall and wide at every step (PLAN-096): an unseen area over the row's own
    2 px edge, and at the closest step over half the 4 px between two rows as well, so two rows' areas never overlap;
    across, 2 px past the outer side of each where a narrow phone draws them 40 px wide. Nothing is moved. */
-#app .tkt .sh-day .ds-st { position: relative; }
-#app .tkt .sh-day .ds-st::before { content: ''; position: absolute; top: -2px; bottom: -2px; left: 0; right: 0; }
-#app .tkt .sh-day .mini-step > .ds-st:first-child::before { left: -2px; }
-#app .tkt .sh-day .mini-step > .ds-st:last-child::before { right: -2px; }
-#app .tkt .sh-day[data-tight='3'] .ds-st::before { top: -3px; bottom: -3px; }
+#app .tkt .sh-day .ds-st {
+  all: unset; flex: none; width: 44px; min-height: 44px; display: grid; place-items: center; cursor: pointer;
+  background: var(--st-bg, var(--tk-ink)); color: var(--st-fg, var(--tk-yel)); font: 400 1.375rem/1 var(--tk-disp); position: relative;
+  touch-action: manipulation;
+}
+/* PLAN-131: pressed, the moment a finger lands (the colours swap; nothing moves) */
+.tkt .sh-day .ds-st:active:not(:disabled) { --st-bg: var(--tk-yel); --st-fg: var(--tk-ink); }
+.tkt .sh-day .ds-st::before { content: ''; position: absolute; top: -2px; bottom: -2px; left: 0; right: 0; }
+.tkt .sh-day .mini-step > .ds-st:first-child::before { left: -2px; }
+.tkt .sh-day .mini-step > .ds-st:last-child::before { right: -2px; }
+.tkt .sh-day[data-tight='3'] .ds-st::before { top: -3px; bottom: -3px; }
 /* the closest step is still too tall for the middle cell: the sheet lies over your shelf as well */
 #app .tkt > .centre > .sh-day.own[data-over] { z-index: 6; margin-bottom: calc(0px - var(--drop, 0px)); }
 /* last of all (a six-box shelf on a narrow, tall phone) it lies over the rows above it too, up to the customers'
@@ -138,7 +129,6 @@
 /* on a small phone with a full shelf, while the tip is up, the sheet lies over the customers' tickets too (no control
    is there; DaySheet.tsx fit) */
 #app .tkt > .centre > .sh-day.own[data-top] { z-index: 6; margin-top: calc(0px - var(--rise-full, 0px)); }
-#app .game.gx.tkt.coach-row:has(.sh-day[data-over]) > .coach { grid-area: auto; grid-column: 1 / -1; grid-row: mid-start / dock-end; }
 /* a narrow phone: the same sheet, a little tighter (as the rest of the table, ticket.css) */
 @media (max-width: 379px) {
   #app .tkt .ds-stock { padding-left: 8px; padding-right: 8px; }

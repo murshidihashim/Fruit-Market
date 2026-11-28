@@ -55,7 +55,8 @@ Never run `npm run deploy:web` or `wrangler deploy` (without `--env staging`) wi
 ## Code map
 - `src/engine/`: pure rules, AI, story text, daily config. No UI.
 - `src/ui/`: Preact screens. `Game.tsx` is layout; `game/useGameController.ts` holds state and turns;
-  `game/animator.tsx` handles animations; `game/panels/*` are the panels; `pixel.tsx` has the sprites.
+  `game/animator.tsx` handles animations; `game/panels/*` are the panels; `art.tsx` draws the pictures
+  (from `deckArt.ts`, `exchangeArt.ts` and `fruitIcons.tsx`).
 - `src/net/`: online client, protocol, telemetry, daily leaderboard client.
 - `server/`: Cloudflare Worker plus Durable Objects (rooms, stats, leaderboard, quick match).
 - `tests/`: vitest. `scripts/`: e2e, performance budget, screenshots, visual diff, balance.

@@ -3373,10 +3373,84 @@
         "evidence": "Owner, 2026-11-24: \"swap position between rival stalls and wholesale market board; make the animation when clicking the today's event button to be drawing a card, and when the card is fully shown, show a translucent-ish background instead of the current white background; tomorrow customer cards should be animated to enter the today's customer slot when fruit is aging, time it to be in sync; show the results after demand has been fulfilled when your takings is being shown ... make it so that players can tap on each stalls (inclusive of rival) to see this, this results should show info on type of fruit, to which character and what price, keep the design consistent; design a popup for first time players entering the market day page, explain to the players on what is different, what cards are there, and what can they build\"",
         "date": "2026-11-24"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-128",
       "reviewTrigger": "After the owner sees it.",
       "reports": []
+    },
+    {
+      "id": "DEC-137",
+      "title": "Fix every REP-140 finding that needs no rule change",
+      "question": "Which audit findings should be fixed?",
+      "choice": "All of them except C-02 (Nest Egg in the Sprint), as PLAN-130.",
+      "rationale": "One League star could never be earned, several start screens hide their main button, and the code is hard to change safely; none of the fixes changes the rules.",
+      "impact": {
+        "player": "The stage 11 star can be earned; start buttons in view; clearer words in Pass & Play and the lobbies; better on small phones, keyboards and screen readers; a quicker start.",
+        "technical": "Controller and long screens split, behaviour tests, merged styles, screens loaded on demand, dead code removed.",
+        "data": "None. Saves, online messages and rules unchanged."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-26, after REP-140: \"fix everything which doesnt require a rule change\"",
+        "date": "2026-11-26"
+      },
+      "delivery": "released",
+      "plan": "PLAN-130",
+      "reviewTrigger": "When the fixes are on the preview.",
+      "reports": [
+        "REP-140",
+        "REP-141"
+      ]
+    },
+    {
+      "id": "DEC-138",
+      "title": "Fix the price buttons' slow and missed taps on iPhone",
+      "question": "The pricing buttons are laggy on iPhone Safari and sometimes miss a tap. Fix it?",
+      "choice": "Yes, as PLAN-131: tell Safari a double tap is not a zoom, stop text selection on iPhone, and show the buttons pressed.",
+      "rationale": "Safari ignores the page's no-zoom setting and the unprefixed user-select, so quick taps become double taps and are lost. The fix is three small style changes and one listener; the rules are untouched.",
+      "impact": {
+        "player": "Every tap on − and + counts, at once, and the button shows it was pressed. Text can no longer be selected by accident on iPhone.",
+        "technical": "touch-action: manipulation on the page; -webkit-user-select on body; :active colours on the steppers; an empty touchstart listener.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-27: \"the pricing button is laggy especially on iphone/safari, sometimes it doesnt register clicks, fix this\"",
+        "date": "2026-11-27"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-131",
+      "reviewTrigger": "When the owner has tried it on an iPhone.",
+      "reports": []
+    },
+    {
+      "id": "DEC-139",
+      "title": "Keep full match records (nameless, replayable)",
+      "question": "Should the game keep a record of every finished match, beyond today's anonymous counts?",
+      "choice": "Proposed: yes. Each finished game is kept as its set-up, seed and moves, with no name or ID, for 12 months, under the same Settings switch as the anonymous stats.",
+      "rationale": "Real match data is needed to make the game more skill based and competitive (REP-145); today every balance figure comes from computer games.",
+      "impact": {
+        "player": "Nothing changes in play. The privacy page and the Settings switch say that games are kept without names.",
+        "technical": "A record format, a new store on the game server, sending from the app and the room server, a reader script.",
+        "data": "Changes the rule \"anonymous counters only\": whole games are kept, still with no identifier, for 12 months."
+      },
+      "cost": "RM0 expected; the Cloudflare plan's storage limit is to be confirmed first.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "not started",
+      "plan": "PLAN-132",
+      "reviewTrigger": "After two weeks of records on the live game.",
+      "reports": [
+        "REP-146"
+      ]
     }
   ],
   "history": [
@@ -4941,24 +5015,48 @@
       "text": "Owner: \"push it live\" for PLAN-129. Release candidate 1.31.5."
     },
     {
-      "at": "2026-11-25 14:22",
-      "text": "1.31.5 published on the owner's word (\"push it live\"): pull request #39 passed CI and merged as eb2d1ae; Deploy LIVE game run 53 passed and tagged v1.31.5; the live game serves 1.31.5 (index-dXL8eGli.js) with the seven How to play pages. PLAN-129 released."
+      "at": "2026-11-26 15:48",
+      "text": "Audit of live 1.31.5 (REP-140), on the owner's request, findings only: rules engine PASS and every mode reaches its results; no Blocker; Major: a League star that can never be earned (C-01), Nest Egg dominant in the Sprint (C-02, owner decision), main buttons below the fold on several start screens (B-01); code health Majors A-01 and A-02. Live is 1.31.5 (published 2026-11-25 from another session); the records still show it as a candidate (A-11). No change made."
     },
     {
-      "at": "2026-11-26 16:38",
-      "text": "REP-140, a design study at the owner's request (more planning and actions; a varied early, middle and end). 1,200 computer games measured day by day (docs/studio/review-21): cash is idle from Day 5, days 4 to the end are alike, a favour card and an upgrade come about once a game, most sales have one seller. Six proposals (notice board, three seasons, town fair ribbons, favours for sale, upgrade and Day 9 repairs, reserving from the lorry). Nothing approved or built."
+      "at": "2026-11-26 16:10",
+      "text": "Owner approved fixing every REP-140 finding that needs no rule change (DEC-137, PLAN-130). C-02, Nest Egg in the Sprint, stays open for the owner's choice. Records corrected (A-11): 1.31.5 (PLAN-129) was published on 2026-11-25 from main eb2d1ae and tagged v1.31.5."
     },
     {
-      "at": "2026-11-27 12:52",
-      "text": "Owner on REP-140: \"the only idea that i like is D\" (favours for sale by secret bid); the other five proposals are set aside. REP-141 gives eleven more mechanics that leave the day as it is (a growing auction, one of each upgrade, phone orders, the night hawker every night, an auction crate, tipping the driver, the chalkboard boast, paying for a peek, a voucher for the regular, an opening loan, stall stars). Nothing approved or built."
+      "at": "2026-11-26 18:46",
+      "text": "PLAN-130 wave 1 merged (2e85c13): player fixes, accessibility and small phones, and cleanup; npm run verify PASS (1373 passed, none skipped). The new records warning (A-11) found release 1.3.0 (PLAN-042, PLAN-043) still a candidate while tagged v1.3.0 at c728d92 on 2026-11-04; corrected to published."
     },
     {
-      "at": "2026-11-27 15:21",
-      "text": "REP-142 at the owner's request (\"more ideas, maybe ideas/mechanics applied in other board games\"): sixteen mechanics borrowed in kind from other board games (a helper to send, a job for the day, a wake-up track, big-sale bonuses, first-sale coins, regulars, customer sets, declaring the crate, backing a stall, haggle chips, a seconds box, three other forms of the evening sale, swapping at the market, selling to a rival). Nothing approved or built."
+      "at": "2026-11-27 05:05",
+      "text": "PLAN-130 implemented on branch ccr-d8bcd65d-gblqqb (6b24168), REP-141: wave 2 split the game controller and screens, replaced most source-text tests (about 257 to 34) with behaviour and browser checks, merged the layered styles, and loads rarely used screens on demand (main script 588 to 407 kB). npm run verify PASS (1430); browser run PASS except the performance budget on this machine, leaks 0. An independent random walk found 4 style changes and 1 keyboard-focus change from wave 2; all fixed and walked again clean. Correction to DEC-137's impact (data: none): a signed-in player's saved name is now cleaned as the room server cleans names (A-06); no limit or anti-abuse rule changed. Not on the preview yet."
     },
     {
-      "at": "2026-11-28 08:50",
-      "text": "Owner: \"i need the game to be more skill based and more competitive\". REP-143 narrows the ideas to that aim: more fruit on the table so most sales are price duels (S1), favours and upgrades by secret bid (S2), walk-ins face up (S3), one mind-game at the bell (S4), rated matches and same-deal duels (S5), an after-game review (S6). Nothing approved or built."
+      "at": "2026-11-27 07:35",
+      "text": "Owner, after REP-141: \"push to live\". Release 1.32.0 prepared (PLAN-130) from branch ccr-d8bcd65d-gblqqb; it goes to main by pull request, CI runs verify:full (including the performance budget), then the live deploy."
+    },
+    {
+      "at": "2026-11-27 07:45",
+      "text": "Records correction: the branch's line \"2026-11-25 02:00\" (1.31.4 published, live bundle index-E-_sWjyy.js) had been merged into the middle of main's history, which CI's append-only check refused for release 1.32.0. It is moved out; the same publication is recorded in main's line of 2026-11-25 13:49."
+    },
+    {
+      "at": "2026-11-27 08:17",
+      "text": "1.32.0 published on the owner's word (\"push to live\"): pull request #40 passed CI (verify:full, E2E OK, performance budget OK at 60 ms) and merged as 8636dbd; Deploy LIVE game run 54 passed and tagged v1.32.0; the live game serves index-CKg8jn4W.js, the same as a local build of 8636dbd. PLAN-130 released."
+    },
+    {
+      "at": "2026-11-27 18:39",
+      "text": "Owner reported the pricing button laggy and missing taps on iPhone Safari and asked for a fix (DEC-138, PLAN-131). Cause found without an iPhone: the page never said a double tap is not a zoom, and body's user-select lacked Safari's prefix; a tap's own work measured about 20 ms with the processor slowed 4x."
+    },
+    {
+      "at": "2026-11-27 18:42",
+      "text": "PLAN-131 implemented (6c0dc61): npm run verify PASS (1434). Not tested on an iPhone or in Safari: none is available in this session. Owner: \"push it live after the fix\". Release 1.32.1 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy."
+    },
+    {
+      "at": "2026-11-28 09:04",
+      "text": "Branch ccr-608a8c5d-g7t4ma merged with main (1.32.1). Its four design reports, written 2026-11-26 to 2026-11-28 as REP-140 to REP-143 while main used REP-140 and REP-141 for the audit, are renumbered REP-142 to REP-145: a design study of rules 20 measured over 1,200 computer games (REP-142), two rounds of further mechanics (REP-143, REP-144) and a direction for a more skill-based, competitive game (REP-145). The owner likes favour cards sold by secret bid; nothing is approved."
+    },
+    {
+      "at": "2026-11-28 09:04",
+      "text": "Owner asked whether match data is stored (it is not: anonymous counts only) and then: \"plan option 2, keep full match records\". PLAN-132 and DEC-139 written, awaiting approval (REP-146): nameless, replayable records kept 12 months. Nothing built."
     }
   ]
 }

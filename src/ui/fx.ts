@@ -27,6 +27,7 @@ function tone(freq: number, dur: number, type: OscillatorType = 'sine', gain = 0
 
 function buzz(style: ImpactStyle) {
   if (!loadSettings().haptics) return;
+  // No vibration on this device (the web, or a phone without one): the tap stays silent, which is not an error.
   Haptics.impact({ style }).catch(() => {});
 }
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { FRUIT, FRUITS, stageAt, trackLength } from '../src/engine/data';
-import { beginBuying, buy, count, newGame, type GameConfig, type GameState } from '../src/engine/game';
-import { MOOD_WORDS, lifeLabel, marketColumn, mood, pulse, stockChips, wantText } from '../src/ui/boardModel';
+import { FRUIT, FRUITS, slotLife, stageAt, trackLength } from '../src/engine/data';
+import { beginBuying, count, newGame, type GameConfig, type GameState } from '../src/engine/game';
+import { marketColumn, pulse, wantText } from '../src/ui/boardModel';
 
 function cfg(n: number, seed = 1): GameConfig {
   return {
@@ -33,32 +33,13 @@ describe('market board', () => {
     }
   });
 
-  it('labels how long fruit lasts', () => {
-    expect(lifeLabel('apple', 0)).toBe('last day');
-    expect(lifeLabel('apple', 1)).toBe('1 night');
-    expect(lifeLabel('apple', 5)).toBe('5 nights');
+  it('labels how long fruit lasts (the engine\'s words, data.ts slotLife)', () => {
+    expect(slotLife('apple', 0)).toBe('last day');
+    expect(slotLife('apple', 1)).toBe('1 night');
+    expect(slotLife('apple', 5)).toBe('5 nights');
     const ripe = FRUIT.mango.ripe.length;
-    expect(lifeLabel('mango', ripe)).toBe('ripens in 1');
-    expect(lifeLabel('mango', ripe + 1)).toBe('ripens in 2');
-  });
-
-  it('turns a stall into chips with the same counts as the stock', () => {
-    for (let seed = 1; seed <= 20; seed++) {
-      let s = buying(seed);
-      const p = s.order[s.turn];
-      // buy whatever is first available, a few times
-      for (let k = 0; k < 3; k++) {
-        const f = FRUITS.find((x) => s.market[x].some((n) => n > 0));
-        if (!f) break;
-        const pos = s.market[f].findIndex((n) => n > 0);
-        try { s = buy(s, p, f, pos); } catch { break; }
-      }
-      const groups = stockChips(s.players[p].stock);
-      for (const g of groups) {
-        expect(g.chips.reduce((a, c) => a + c.n, 0)).toBe(count(s.players[p].stock, g.f));
-        for (const c of g.chips) expect(c.stage).toBe(stageAt(g.f, c.pos));
-      }
-    }
+    expect(slotLife('mango', ripe)).toBe('ripens in 1');
+    expect(slotLife('mango', ripe + 1)).toBe('ripens in 2');
   });
 });
 
@@ -78,19 +59,10 @@ describe('demand vs supply chips', () => {
     }
   });
 
-  it('picks the right colour and words', () => {
+  it('says how many are wanted, and "?" while a face-down walk-in may want some', () => {
     const z = (demand: number, supply: number, more = false) => ({ f: 'apple' as const, demand, supply, more });
-    expect(mood(z(0, 3))).toBe('none');
-    expect(mood(z(2, 0))).toBe('open');
-    expect(mood(z(2, 2))).toBe('good');
-    expect(mood(z(2, 3))).toBe('war');
     expect(wantText(z(2, 0, true))).toBe('2+');
     expect(wantText(z(0, 0, true))).toBe('?');
     expect(wantText(z(0, 0))).toBe('0');
-  });
-
-  it('the legend speaks of orders, which is what the bar counts (REP-089 3.2)', () => {
-    expect(MOOD_WORDS).toEqual({ good: 'enough orders: prices stay high', war: 'more fruit than orders: price war', open: 'nobody has any yet' });
-    for (const t of Object.values(MOOD_WORDS)) expect(t).not.toMatch(/buyers/);
   });
 });

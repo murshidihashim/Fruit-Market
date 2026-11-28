@@ -8,10 +8,10 @@
    ===================================================================== */
 
 /* ---------- the shell and the bottom bar ---------- */
-#app .jh-shell { height: 100%; display: flex; flex-direction: column; background: var(--x-paper); }
-#app .jh-shell > .home.hm { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
-#app .jh-shell > .page { flex: 1 1 auto; min-height: 0; height: auto; }
-#app .jh-nav3 {
+.jh-shell { height: 100%; display: flex; flex-direction: column; background: var(--x-paper); }
+.jh-shell > .home.hm { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
+.jh-shell > .page { flex: 1 1 auto; min-height: 0; height: auto; }
+.jh-nav3 {
   flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--c-efe9df); border-top: 2px solid var(--x-ink);
   /* on a wide screen the three tabs stay under the 520 px column, the bar itself runs edge to edge */
   padding: 0 max(env(safe-area-inset-right), calc((100% - 520px) / 2)) env(safe-area-inset-bottom) max(env(safe-area-inset-left), calc((100% - 520px) / 2));
@@ -22,7 +22,7 @@
   font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase;
 }
 #app .jh-nav3 button.on { background: var(--c-ddd4c6); color: var(--x-ink); box-shadow: inset 0 3px 0 var(--x-ink); }
-#app .jh-nav3 button:focus-visible { outline: 3px solid var(--x-sky-d); outline-offset: -3px; }
+.jh-nav3 button:focus-visible { outline: 3px solid var(--x-sky-d); outline-offset: -3px; }
 @media (max-height: 599px) { #app .jh-nav3 button { min-height: 48px; padding: 4px; gap: 2px; } }
 
 /* ---------- the title row and the profile chip ---------- */
@@ -32,6 +32,13 @@
 }
 .home.hm.jh .jh-pmain { flex: 1 1 auto; min-width: 0; min-height: 50px; display: flex; align-items: center; gap: 6px; padding: 4px 0 4px 6px; text-align: left; }
 .home.hm.jh .jh-pface { flex: none; line-height: 0; }
+.sbk-face {
+  position: relative; display: inline-grid; place-items: center; flex: none; padding: 1px;
+  border: 1.5px solid var(--c-1f272a); background: var(--c-fffcf5); line-height: 0;
+}
+.sbk-face.fr-painted { outline: 1.5px solid var(--c-1f272a); outline-offset: 1px; }
+.sbk-face.fr-lantern { outline: 1.5px dashed var(--c-b62528); outline-offset: 1px; }
+.sbk-face.fr-carved { outline: 3px double var(--c-1f272a); outline-offset: 0; }
 .home.hm.jh .jh-pface .sbk-face { border-width: 2px; padding: 0; border-radius: 50%; background: var(--j-tint); }
 .home.hm.jh .jh-pface .sbk-face .xf, .home.hm.jh .jh-pface .sbk-face .xf-img, .home.hm.jh .jh-pface .sbk-face .xf-clip { border-radius: 50%; }
 .home.hm.jh .jh-ptx { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -44,7 +51,7 @@
 
 /* ---------- the Market tab ---------- */
 .home.hm.jh .hm-rest { padding: 0 16px 10px; }
-.home.hm.jh .hm-rest > .jh-room, .home.hm.jh .hm-rest > .save-notice { margin: 0; }
+.home.hm.jh .hm-rest > .jh-room { margin: 0; }
 .home.hm.jh .jh-panel { flex: 1 0 auto; display: flex; flex-direction: column; }
 
 /* the hero card: a stall in dark melon green, an awning on top, the mode's name, then its body */
@@ -76,10 +83,7 @@
 .home.hm.jh .jh-me { line-height: 0; }
 .home.hm.jh .jh-me .sbk-face, .home.hm.jh .jh-lgvs .sbk-face, .home.hm.jh .jh-trow .sbk-face { border-radius: 50%; border-width: 2px; padding: 0; background: var(--j-tint); }
 .home.hm.jh .jh-me .sbk-face { border-width: 3px; border-color: var(--j-ink); }
-.home.hm.jh .jh-me .sbk-face .xf, .home.hm.jh .jh-me .sbk-face .xf-img, .home.hm.jh .jh-me .sbk-face .xf-clip,
-.home.hm.jh .jh-lgvs .sbk-face .xf, .home.hm.jh .jh-lgvs .sbk-face .xf-img, .home.hm.jh .jh-lgvs .sbk-face .xf-clip,
-.home.hm.jh .jh-trow .sbk-face .xf, .home.hm.jh .jh-trow .sbk-face .xf-img, .home.hm.jh .jh-trow .sbk-face .xf-clip,
-.home.hm.jh .jh-round .xf { border-radius: 50%; }
+.home.hm.jh .jh-me .sbk-face .xf, .home.hm.jh .jh-me .sbk-face .xf-img, .home.hm.jh .jh-me .sbk-face .xf-clip, .home.hm.jh .jh-lgvs .sbk-face .xf, .home.hm.jh .jh-lgvs .sbk-face .xf-img, .home.hm.jh .jh-lgvs .sbk-face .xf-clip, .home.hm.jh .jh-trow .sbk-face .xf, .home.hm.jh .jh-trow .sbk-face .xf-img, .home.hm.jh .jh-trow .sbk-face .xf-clip, .home.hm.jh .jh-round .xf { border-radius: 50%; }
 .home.hm.jh .jh-round { display: inline-flex; border: 3px solid var(--j-ink); border-radius: 50%; background: var(--j-tint); line-height: 0; }
 .home.hm.jh .jh-hwait { display: flex; flex-direction: column; gap: 5px; }
 .home.hm.jh .jh-hwait .jh-lb { color: var(--j-paper); }
@@ -93,7 +97,6 @@
 .home.hm.jh .jh-next3 b { color: var(--j-yel); font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 3px; }
 
 /* the Market League */
-.home.hm.jh .jh-why { font: 700 0.8125rem/1.25 var(--f-label); color: var(--j-ink); }
 .home.hm.jh .jh-lgpic { position: relative; flex: 1 1 0; min-height: 64px; max-height: 260px; line-height: 0; box-shadow: inset 0 0 0 2px var(--j-ink); }
 .home.hm.jh .jh-lgart, .home.hm.jh .jh-lgart img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .home.hm.jh .jh-lgvs { position: absolute; left: 5px; bottom: 5px; display: flex; align-items: center; gap: 3px; padding: 3px 6px 3px 3px; background: var(--j-ink); color: var(--j-paper); }
@@ -153,7 +156,6 @@
 .home.hm.jh .jh-new:active { transform: translateY(3px); box-shadow: inset 0 0 0 3px var(--j-ink), 0 2px 0 var(--j-ink); }
 
 /* ---------- the Stall tab ---------- */
-.home.hm.jh.jh-stalltab .hm-rest { padding-bottom: 16px; }
 .home.hm.jh .jh-acct { min-height: 48px; padding: 0 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------- your stall ---------- */
@@ -213,10 +215,9 @@
 .home.hm.jh .jh-gp { flex: none; font: 400 1rem/1 var(--f-display); }
 
 /* ---------- compact Market (under 760 px high) and roomy Market ---------- */
-.home.hm.jh .jh-why, .home.hm.jh .jh-x { display: none; }
+.home.hm.jh .jh-why { font: 700 0.8125rem/1.25 var(--f-label); color: var(--j-ink); display: none; }
 @media (min-height: 760px) {
   .home.hm.jh .jh-why { display: block; }
-  .home.hm.jh .jh-way { min-height: 60px; }
   .home.hm.jh .jh-way span { display: block; }
   .home.hm.jh .jh-hhd h2 { font-size: 1.5rem; }
   .home.hm.jh .jh-hhd { padding: 10px 12px 9px; }
@@ -224,7 +225,9 @@
   .home.hm.jh .jh-hawn { height: 18px; }
   .home.hm.jh .jh-hero .jh-dcard { --card-w: 112px; }
   .home.hm.jh .jh-way { min-height: 64px; }
+  /* !important: a face carries its size in its own style attribute (art.tsx), which only !important outranks */
   .home.hm.jh .jh-vs .jh-me .xf, .home.hm.jh .jh-vs .jh-me .sbk-face > .xf { width: 64px !important; height: 64px !important; }
+  /* !important: a face carries its size in its own style attribute (art.tsx), which only !important outranks */
   .home.hm.jh .jh-vs .jh-round .xf { width: 50px !important; height: 50px !important; }
   .home.hm.jh .jh-vs i { font-size: 1.5rem; }
   .home.hm.jh .jh-tab { min-height: 52px; }
@@ -239,8 +242,6 @@
 }
 /* the smallest phones (under 600 px high): a lower band, a shorter card */
 @media (max-height: 599px) {
-  .home.hm.jh .hm-in .hm-lanes { height: 26px; }
-  .home.hm.jh .hm-in .hm-lane i { width: 20px; height: 20px; }
   .home.hm.jh .hm-in .hm-lane i .x-fruit { width: 16px; height: 16px; }
   .home.hm.jh .jh-hawn { height: 10px; }
   .home.hm.jh .jh-hhd { gap: 2px; padding: 5px 8px; }
@@ -249,7 +250,9 @@
   .home.hm.jh .jh-hb { gap: 5px; padding: 6px; }
   .home.hm.jh .jh-way { min-height: 44px; padding: 4px 8px; }
   .home.hm.jh .jh-ways2 { gap: 5px; }
+  /* !important: a face carries its size in its own style attribute (art.tsx), which only !important outranks */
   .home.hm.jh .jh-vs .jh-me .xf, .home.hm.jh .jh-vs .jh-me .sbk-face > .xf { width: 34px !important; height: 34px !important; }
+  /* !important: a face carries its size in its own style attribute (art.tsx), which only !important outranks */
   .home.hm.jh .jh-vs .jh-round .xf { width: 28px !important; height: 28px !important; }
   .home.hm.jh .jh-lgpic { min-height: 48px; }
   .home.hm.jh .jh-hero .jh-dcard { --card-w: 72px; }
@@ -270,12 +273,14 @@
   .home.hm.jh .jh-cont b { font-size: 1.25rem; }
 }
 @media (max-width: 339px) {
+  /* !important: a face carries its size in its own style attribute (art.tsx), which only !important outranks */
   .home.hm.jh .jh-keeper .xf, .home.hm.jh .jh-keeper .sbk-face > .xf { width: 50px !important; height: 50px !important; }
   .home.hm.jh .jh-sign b { font-size: 0.8125rem; }
   .home.hm.jh .jh-counter { zoom: 0.8; }
   .home.hm.jh .jh-ib { width: 72px; }
   .home.hm.jh .jh-way b { font-size: 0.8125rem; }
   .home.hm.jh .jh-tab b { font-size: 0.75rem; letter-spacing: 0.02em; }
+  /* !important: a face carries its size in its own style attribute (art.tsx), which only !important outranks */
   .home.hm.jh .jh-pface .sbk-face > .xf { width: 28px !important; height: 28px !important; }
   .home.hm.jh .jh-pmain { gap: 5px; padding-left: 5px; }
   .home.hm.jh .jh-hhd h2 { font-size: 1rem; }
@@ -284,6 +289,7 @@
 /* ---------- the Daily intro ---------- */
 .sbk.jh-intro .jh-in { padding: 12px 12px 24px; gap: 12px; box-sizing: border-box; }
 .sbk.jh-intro .jh-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: inherit; }
+.jh-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
 .sbk.jh-intro .jh-kinds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); box-shadow: inset 0 0 0 2.5px var(--k-ink); }
 .sbk.jh-intro .jh-kinds button { min-height: 44px; text-align: center; font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
 .sbk.jh-intro .jh-kinds button.on { background: var(--k-ink); color: var(--k-yel); }
@@ -306,10 +312,6 @@
 .sbk.jh-intro .jh-irules p { font: 600 0.875rem/1.35 var(--f-label); }
 .sbk.jh-intro .jh-irules p.jh-iecho { padding-left: 8px; border-left: 4px solid var(--k-yel); font-weight: 700; }
 .sbk.jh-intro .jh-igo { display: flex; flex-direction: column; gap: 8px; }
-.sbk.jh-intro .jh-igo .jp-go { display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: inset 0 0 0 3px var(--k-ink), 0 4px 0 var(--k-ink); margin: 0 0 4px; }
-.sbk.jh-intro .jh-go2 {
-  min-height: 48px; text-align: center; box-shadow: inset 0 0 0 2.5px var(--k-ink); font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
-}
 /* the card's own margins (the page's ".sbk p" rule would take them away) */
 .sbk.jh-intro .jh-icard .cd-quirk { margin: calc(var(--u) * 6) calc(var(--u) * 9) 0; }
 .sbk.jh-intro .jh-icard .cd-txt { margin-top: calc(var(--u) * 8); }
@@ -327,9 +329,7 @@
 /* PLAN-125 follow-up: on a tablet or computer screen Home uses a wider column, and the hero card keeps its own height
    (centred between the title and the bottom bar) instead of stretching down a tall window. Phones are unchanged. */
 @media (min-width: 760px) {
-  .home.hm.jh .hm-in { max-width: 720px; }
-  #app .jh-nav3 { padding-left: max(env(safe-area-inset-left), calc((100% - 720px) / 2)); padding-right: max(env(safe-area-inset-right), calc((100% - 720px) / 2)); }
-  .home.hm.jh .hm-rest { justify-content: center; }
+  .jh-nav3 { padding-left: max(env(safe-area-inset-left), calc((100% - 720px) / 2)); padding-right: max(env(safe-area-inset-right), calc((100% - 720px) / 2)); }
   .home.hm.jh .jh-panel { flex: 0 0 auto; margin: 0; }
   .home.hm.jh .jh-hero, .home.hm.jh .jh-hb { flex: 0 0 auto; }
   .home.hm.jh .jh-hb { gap: 14px; padding: 14px; }

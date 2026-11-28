@@ -4,9 +4,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { h } from 'preact';
 import { RIVALS } from '../src/engine/data';
 import { toStaticHtml } from '../src/ui/cards';
-import { LocalSetup, seatShopkeepers } from '../src/ui/Setup';
-import { Online, pickState, seatBand } from '../src/ui/Online';
-import { QUICK_NOTE, QUICK_SIZES, WAYS, foundLine, quickOf, vsComputerConfig } from '../src/ui/playMenu';
+import { LocalSetup, localGame, seatShopkeepers } from '../src/ui/Setup';
+import { Online } from '../src/ui/Online';
+import { RoomLength } from '../src/ui/OnlineRoom';
+import { PlayMenu } from '../src/ui/Home';
+import { pickState, seatBand } from '../src/ui/onlineWords';
+import { LENGTHS, QUICK_NOTE, QUICK_SIZES, WAYS, foundLine, quickOf, vsComputerConfig } from '../src/ui/playMenu';
+import { unripeSetupText } from '../src/ui/rulesText';
 import type { PublicSeat } from '../src/net/protocol';
 
 // The screens drawn once, as a string: each hook gives its first value; nothing is fetched.
@@ -63,6 +67,18 @@ describe('the one-page set-up (Setup.tsx LocalSetup)', () => {
     expect(html).toContain('aria-label="Add a person at stall 3"');
     expect(html).toContain('aria-label="Add a computer at stall 3"');
     expect(html).not.toMatch(/one phone/i);
+  });
+
+  it('starts the full game with you first, then each stall as set (REP-140 A-02: the set-up\'s game, as a function)', () => {
+    const [me, a, b] = RIVALS;
+    const cfg = localGame({ name: 'Mblabla', avatar: me.avatar }, [{ kind: 'human', level: 'normal', name: 'Ana' }, { kind: 'ai', level: 'hard', name: '' }],
+      [a.avatar, b.avatar], ['Ana', 'Player 3'], 14, 99);
+    expect(cfg.players).toEqual([
+      { name: 'Mblabla', kind: 'human', avatar: me.avatar },
+      { name: 'Ana', kind: 'human', avatar: a.avatar },
+      { name: b.name, kind: 'ai', level: 'hard', avatar: b.avatar, quip: b.quip },
+    ]);
+    expect(cfg).toMatchObject({ days: 14, unripe: true, upgrades: true, events: true, marketDays: true, core: false, street: false, pulse: false, seed: 99 });
   });
 
   it('gives every person a different shopkeeper and the computers the ones left, in the order shown', () => {
@@ -132,5 +148,29 @@ describe('the Private Room page (Online.tsx)', () => {
     expect(pickState(seat({}))).toBe('Choosing');
     expect(pickState(seat({ confirmed: true }))).toBe('Confirmed');
     expect(pickState(seat({ connected: false }))).toBe('Away');
+  });
+});
+
+describe('the game lengths (REP-122 C-02, REP-133 B-14)', () => {
+  /** The choices of a drawn "Game length" segment, in order. */
+  const lengths = (html: string) => {
+    const seg = /aria-label="Game length">([\s\S]*?)<\/div>/.exec(html)?.[1] ?? '';
+    return [...seg.matchAll(/>([A-Za-z]+)<small>(\d+) days<\/small>/g)].map((m) => `${m[1]} ${m[2]}`);
+  };
+  const LIST = LENGTHS.map((l) => `${l.word} ${l.days}`);
+
+  it('the set-up page and the room offer the Play menu\'s list, shortest first; the Play page has none', () => {
+    expect(LIST).toEqual(['Quick 8', 'Standard 10', 'Long 14']);
+    for (const mode of ['computer', 'phone'] as const) expect(lengths(toStaticHtml(h(LocalSetup, { mode, onBack: noop, onStart: noop }))), mode).toEqual(LIST);
+    expect(lengths(toStaticHtml(h(RoomLength, { days: 10, host: true, onDays: noop })))).toEqual(LIST);
+    // a guest sees the host's choice in words
+    expect(toStaticHtml(h(RoomLength, { days: 14, host: false, onDays: noop }))).toContain('Long · 14 days');
+    expect(toStaticHtml(h(PlayMenu, { onBack: noop, onQuick: noop, onRoom: noop, onComputer: noop, onOnePhone: noop }))).not.toContain('Game length');
+  });
+
+  it('the set-up page has no rules switches (PLAN-063: the full game, always)', () => {
+    const html = toStaticHtml(h(LocalSetup, { mode: 'computer', onBack: noop, onStart: noop }));
+    expect(html).not.toContain(unripeSetupText());
+    expect(html).not.toMatch(/\$1 now|Unripe fruit|Market Days|role="switch"/);
   });
 });

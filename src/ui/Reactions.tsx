@@ -144,6 +144,7 @@ export function ReactPicker({ client, onClose }: { client: OnlineClient; onClose
     if (ready) return;
     const t = setTimeout(() => force((n) => n + 1), REACT_GAP_MS - (Date.now() - client.reactedAt) + 20);
     return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- the wait is worked out once, as the picker turns not ready (the room's gap is fixed)
   }, [ready]);
   const send = (id: ReactionId) => {
     if (!client.react(id)) return;
@@ -162,7 +163,7 @@ export function ReactPicker({ client, onClose }: { client: OnlineClient; onClose
         <div class="rx-grid line">
           {lines.map((r) => <button type="button" class="rx-choice" disabled={!ready} onClick={() => send(r.id)}>{r.show}</button>)}
         </div>
-        <p class="small muted rx-note">{ready ? 'Everyone in the room sees it over your seat.' : 'One reaction every 2 seconds.'}</p>
+        <p class="small muted rx-note">{ready ? 'Everyone in the room sees it over your stall.' : 'One reaction every 2 seconds.'}</p>
       </Popup>
     </div>
   );

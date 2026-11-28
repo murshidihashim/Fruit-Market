@@ -54,3 +54,7 @@ export function questionIn(root: Element): void {
   const q = root.querySelector('.rt-ask');
   if (q && !A.isReduced()) q.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: A.ms(A.FEEL.sheetIn), easing: A.EASE.sheet });
 }
+
+/** A crate opening at the bell has its own small sound, but not as the bell first shows (with reduced motion every crate
+ *  is open then): that moment has the bell's own sound alone (PLAN-091). `was`, `now`: how many rows were open, and are. */
+export const crateSound = (was: number | null, now: number | null): boolean => was !== null && now !== null && now > was;

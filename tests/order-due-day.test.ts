@@ -9,7 +9,7 @@ import { FRUIT, ORDER_CARDS, type FruitId } from '../src/engine/data';
 import {
   beginBuying, bidOrder, emptyStock, newGame, openStall, submitPrices, type Customer, type GameConfig, type GameState,
 } from '../src/engine/game';
-import { customersWanted, orderWanted, stallWantText, stallWanted } from '../src/ui/boardModel';
+import { customersWanted, orderWanted, stallWantText } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { PriceSheetView, StallBar, autoCrate, orderPriceNote, shelfRowText, stakeAtRisk, startingCrate } from '../src/ui/panel';
 import { endBuying, passEvening } from './stall-step';
@@ -65,7 +65,7 @@ describe('S2: a standing order on its due day, as its holder stocks', () => {
     expect(o.qty).toBe(3);
     expect(customersWanted(s, 0, f)).toBe(0);
     expect(orderWanted(s, 0, f)).toBe(3);
-    expect(stallWanted(s, 0, f)).toBe(3);
+    expect((customersWanted(s, 0, f) + orderWanted(s, 0, f))).toBe(3);
     expect(stallWantText(s, 0, f)).toBe(`3 for ${title}`);
     expect(shelfRowText(s, 0, f, FRESH(f))).toBe(`3 for ${title}`);
     // Auto load puts the three in; the main button never offers to sell nothing while the order can be delivered.
@@ -101,7 +101,7 @@ describe('S2: a standing order on its due day, as its holder stocks', () => {
     const f = f0();
     const { s, o, title } = dueDay({ [FRESH(f)]: 2, [OKAY(f)]: 2, [SOFT]: 1 }, {}, (x) => [buyer(70, x, 2, 9, 'bargain')]);
     expect(customersWanted(s, 0, f)).toBe(2);
-    expect(stallWanted(s, 0, f)).toBe(o.qty + 2);
+    expect((customersWanted(s, 0, f) + orderWanted(s, 0, f))).toBe(o.qty + 2);
     expect(shelfRowText(s, 0, f, FRESH(f))).toMatch(new RegExp(`^3 for ${title} · 2 wanted`));
     // The Soft row is not for the order, which takes Fresh or Okay only.
     expect(shelfRowText(s, 0, f, SOFT)).toMatch(/^2 wanted/);
@@ -132,7 +132,7 @@ describe('S2: a standing order on its due day, as its holder stocks', () => {
     expect(stakeAtRisk(s, 0)).toBeUndefined();
     expect(stallWantText(s, 0, f)).toBe('Nobody wants these');
     expect(orderWanted(s, 1, f)).toBe(0);
-    expect(stallWanted(s, 1, f)).toBe(0);
+    expect((customersWanted(s, 1, f) + orderWanted(s, 1, f))).toBe(0);
     expect(stakeAtRisk(s, 1)).toBeUndefined();
   });
 });

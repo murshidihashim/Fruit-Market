@@ -1,10 +1,10 @@
-// Pricing at the bell (PLAN-059): the demand board, your crate as the price buttons, and "The Bell" notice.
+// Pricing at the bell (PLAN-059): your crate as the price buttons, and "The Bell" notice. (The demand board left the
+// screen in PLAN-085; PLAN-130 removed it and its test, REP-140 A-04.)
 import { describe, expect, it } from 'vitest';
 import { h } from 'preact';
-import { emptyStock, newGame, submitPrices, type Customer, type GameState } from '../src/engine/game';
+import { emptyStock, newGame, type Customer, type GameState } from '../src/engine/game';
 import { FRUIT, type FruitId } from '../src/engine/data';
-import { buyersAt, demandBoard } from '../src/ui/boardModel';
-import { BellNotice, PriceBar, PriceSheetView, bellOpensOnStart, startingPrices } from '../src/ui/panel';
+import { BellNotice, PriceBar, PriceSheetView, startingPrices } from '../src/ui/panel';
 import { toStaticHtml } from '../src/ui/cards';
 import { PreView } from '../src/ui/game/panels/RushTable';
 import { preTable } from '../src/ui/game/tableNow';
@@ -16,7 +16,7 @@ const buyer = (id: number, f: FruitId, qty: number, max: number, pref: Customer[
 
 /** The pricing step as the round table's sheet first draws it (PLAN-099): the rows, and the main button under them. */
 const panel = (s: GameState) => toStaticHtml([
-  h(PriceSheetView, { s, p: 0, vals: startingPrices(s, 0), notice: bellOpensOnStart(s), onPrice: () => undefined, onNotice: () => undefined }),
+  h(PriceSheetView, { s, p: 0, vals: startingPrices(s, 0), notice: false, onPrice: () => undefined, onNotice: () => undefined }),
   h(PriceBar, { s, p: 0, vals: startingPrices(s, 0), onSubmit: () => undefined }),
 ]);
 /** The round table above the sheet, at a step before the bell. */
@@ -44,35 +44,6 @@ function bell(day = 2): GameState {
   s.secondMarket = [];
   return s;
 }
-
-describe('the demand board', () => {
-  it('counts pieces wanted and out, and buyers at each price where the count changes', () => {
-    const rows = demandBoard(bell(), 0);
-    const melon = rows.find((r) => r.f === 'watermelon')!;
-    expect(melon).toMatchObject({ wanted: 5, out: 5, mine: true });
-    expect(melon.steps).toEqual([{ price: 9, buyers: 1 }, { price: 8, buyers: 3 }, { price: 7, buyers: 5 }]);
-    // Your okay apples: $1 under each top, and the Premium buyer never takes them.
-    const apple = rows.find((r) => r.f === 'apple')!;
-    expect(apple).toMatchObject({ wanted: 6, out: 2, mine: true });
-    expect(apple.steps).toEqual([{ price: 9, buyers: 1 }, { price: 8, buyers: 3 }]);
-    // A fruit you don't have reads the fresh tops; nobody wants mango, but Kiki has one out.
-    expect(rows.find((r) => r.f === 'mango')).toMatchObject({ wanted: 0, out: 1, steps: [] });
-    expect(rows.map((r) => r.f)).toEqual(['watermelon', 'apple', 'mango']);
-  });
-
-  it('every buyer count holds when the bell rings at that price as the only stall', () => {
-    const s = bell();
-    for (const price of [7, 8, 9, 10]) {
-      const n = buyersAt(s, 0, 'watermelon', price);
-      let g = structuredClone(s);
-      g.stalls = [{ watermelon: 2 }, {}, {}];
-      g.bids = [null, [], []];
-      g = submitPrices(g, 0, [{ fruit: 'watermelon', price }]);
-      const sold = g.results!.lines.reduce((a, l) => a + (l.offers.find((o) => o.player === 0)?.sold ?? 0), 0);
-      expect(sold, `$${price}`).toBe(Math.min(2, n));
-    }
-  });
-});
 
 describe('every crate is open, and your price rows', () => {
   it('each fruit you put out has its own price row; a rival is only a number of pieces, and a sealed price never shows', () => {
@@ -107,14 +78,16 @@ describe('every crate is open, and your price rows', () => {
 });
 
 describe('"The Bell" notice', () => {
-  it('never opens by itself (PLAN-064): it stays behind the i button, Day 1 included', () => {
+  it('stays behind the i button (PLAN-064: the round table opens the sheet with it closed), Day 1 included', () => {
     const day1 = panel(bell(1));
     expect(day1).not.toContain('class="bell-notice"');
     expect(day1).toContain('aria-label="How the bell works"');
     const day2 = panel(bell(2));
-    expect([1, 2, 3, 10].map((d) => bellOpensOnStart(bell(d)))).toEqual([false, false, false, false]); // never by itself (PLAN-064)
     expect(day2).not.toContain('class="bell-notice"');
     expect(day2).toContain('aria-label="How the bell works"');
+    // the i button opens it
+    const s = bell(1);
+    expect(toStaticHtml(h(PriceSheetView, { s, p: 0, vals: startingPrices(s, 0), notice: true, onPrice: () => undefined, onNotice: () => undefined }))).toContain('class="bell-notice"');
   });
 
   it("says the crier's lines, in the engine's tie order", () => {

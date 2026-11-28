@@ -62,7 +62,6 @@ const path = require('path');
         await page.click('button:has-text("Done buying"), button:has-text("Skip buying")');
         continue;
       }
-      if (await has('.fs-pop .fs-go:not([disabled])')) { await page.click('.fs-pop .fs-go'); continue; }
       if (await has('.bell-notice')) { await page.click('.bell-notice .btn'); continue; }
       if (await has('.coach .btn:not(.skip)')) { await page.click('.coach .btn:not(.skip)'); continue; }
       const add = page.locator('.stall-panel .mini-step button:last-child:not([disabled])');
@@ -152,7 +151,6 @@ const path = require('path');
         await short.click('button:has-text("Done buying"), button:has-text("Skip buying")');
         continue;
       }
-      if (await has2('.fs-pop .fs-go:not([disabled])')) { await short.click('.fs-pop .fs-go'); continue; }
       if (await has2('.bell-notice')) { await short.click('.bell-notice .btn'); continue; }
       if (await has2('.coach .btn:not(.skip)')) { await short.click('.coach .btn:not(.skip)'); continue; }
       const add = short.locator('.stall-panel .mini-step button:last-child:not([disabled])');

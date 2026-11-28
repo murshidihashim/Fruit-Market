@@ -43,8 +43,10 @@ export interface ShopProps {
   /** PLAN-124: the tab shown (App.tsx keeps it, so the browser's Back returns to Market). */
   tab: HomeTab;
   onTab: (t: HomeTab) => void;
-  /** Continue: the Continue question for that mode's game. */
+  /** Continue: straight back into that mode's game (REP-140 B-20: no question in between). */
   onContinue: (slot: SaveSlot) => void;
+  /** New game beside Continue: asks first, as starting over ends that mode's game (REP-140 B-20). */
+  onNewGame: (slot: SaveSlot) => void;
   /** Opens the Play page (Custom match). */
   onPlay: () => void;
   /** PLAN-120: open the Daily intro for the Daily market, or for the Sprint. */
@@ -196,7 +198,7 @@ function MarketTab(p: ShopProps) {
           )}
           <HeroCard mode={mode} today={p.today} games={p.games} next={nextLine()} onQuick={p.onQuick} onRoom={p.onPrivate} onComputer={p.onComputer} onOnePhone={p.onOnePhone} />
           <ModeTabs at={mode} games={p.games} onPick={pick} />
-          <PlayButton mode={mode} games={p.games} onPlay={MODE_GO[mode](p)} onContinue={p.onContinue} />
+          <PlayButton mode={mode} games={p.games} onPlay={MODE_GO[mode](p)} onContinue={p.onContinue} onNew={p.onNewGame} />
         </div>
       </div>
     </div>
@@ -308,13 +310,17 @@ function WaitingInfo({ mode, day, days, stalls, cash }: { mode?: string; day: nu
   );
 }
 
-export function ContinueBody({ mode, day, days, stalls, cash, onResume, onStartOver }: { mode?: string; day: number; days: number; stalls: number; cash: number | null; onResume: () => void; onStartOver: () => void }) {
+/**
+ * REP-140 B-20: asked when New game is tapped while a game of that mode waits (Continue goes straight back into the
+ * game). Says which game waits and that starting over ends it. Keeping the game is the main button.
+ */
+export function StartOverBody({ mode, day, days, stalls, cash, onKeep, onStartOver }: { mode?: string; day: number; days: number; stalls: number; cash: number | null; onKeep: () => void; onStartOver: () => void }) {
   return (
     <>
       <WaitingInfo mode={mode} day={day} days={days} stalls={stalls} cash={cash} />
-      <button class="btn primary big wide" onClick={onResume}>Resume</button>
-      <button class="btn wide" onClick={onStartOver}>Start over</button>
-      <p class="small muted">Starting over ends this game.</p>
+      <p class="small">Starting over ends this game.</p>
+      <button class="btn primary big wide" onClick={onKeep}>Keep my game</button>
+      <button class="btn wide" data-a="start-over" onClick={onStartOver}>Start over</button>
     </>
   );
 }

@@ -1,4 +1,4 @@
-// REP-140 measurement: how a game unfolds day by day under rules 20 (all-computer games, Hard level).
+// REP-142 measurement: how a game unfolds day by day under rules 20 (all-computer games, Hard level).
 // Run: npx vite-node docs/studio/review-21/arc.ts [games]
 // Prints one JSON object per table (stalls x days). Read-only: it plays the shipped engine and counts.
 import { aiStep } from '../../../src/engine/ai';

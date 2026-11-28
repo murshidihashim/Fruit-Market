@@ -6,7 +6,7 @@ import { beginBuying, newGame } from '../src/engine/game';
 import { SEEN_WALK_IN, marketColumn, shownColumn } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { CustomerChar, Market } from '../src/ui/table';
-import { FruitLane } from '../src/ui/HowTo';
+import { FruitLane } from '../src/ui/howtoRules';
 import { marketDaysSetupText, unripeSetupText } from '../src/ui/rulesText';
 
 // Set-up text and green fruit (REP-089 3.7): since rules 9 only mangoes arrive green, at $4 ($5 on a Price Hike day).
@@ -24,8 +24,8 @@ describe('green fruit', () => {
     const t = unripeSetupText();
     expect(t).toBe(`Every lorry brings mangoes green: from $${FRUIT.mango.cost.unripe}, ready to sell after ${FRUIT.mango.unripeSlots} nights.`);
     expect(t).not.toMatch(/\$1 now|watermelon/i);
-    const app = readFileSync('src/ui/App.tsx', 'utf8');
-    expect(app).not.toContain('$1 now'); // the New game screen has no rules switches since PLAN-063
+    // The set-up page has had no rules switches since PLAN-063: checked on the drawn page in setup-b.test.ts (REP-140
+    // A-01: no longer read from App.tsx's text).
   });
 
   it('the Market Days switch says what it turns off, and no longer mentions a Closing Day (rules 20)', () => {

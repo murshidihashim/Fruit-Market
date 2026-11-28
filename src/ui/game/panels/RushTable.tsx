@@ -26,19 +26,18 @@ import { FruitSvg } from '../../fruitIcons';
 import { fx } from '../../fx';
 import { shownAvatar } from '../../looks';
 import { tagOf, type LookSet } from '../../../net/looks';
-import { PriceBar, PriceSheetView, bellOpensOnStart, postsOf, startingPrices } from '../../panel';
+import { PriceBar, PriceSheetView, postsOf, startingPrices } from '../../panel';
 import { favourShown, lineShown, paidShown, piecesLanded, piecesLifted, useRushCard } from '../../rushShown';
 import { LANES } from '../../boardModel';
 import { Awning } from '../../table';
 import { STAGE_LETTER, STAGE_WORD } from '../../ticket';
-import { dayStep } from '../daySheet';
 import { tieStory } from '../tieStory';
-import { cratesOpen, questionIn, tableForms, tagsSealed } from '../tableBeats';
+import { crateSound, cratesOpen, questionIn, tableForms, tagsSealed } from '../tableBeats';
 import { cratesLeft, middleOf, seatOrder, tableLay, tableMin, type Place, type RushBlock, type RushCard, type RushStage, type ShowState, type TableLay } from '../rush';
-import { MAX_SHOWN, SMALL_TAGS, crateFit, openTags, preTable, seatWords, tableStep, type PreTable, type SeatTag, type TableSeat } from '../tableNow';
+import { MAX_SHOWN, SMALL_TAGS, afterRush, askedOn, crateFit, openTags, preTable, seatWords, type PreTable, type SeatTag, type TableSeat, type TableStep } from '../tableNow';
 import type { GameController } from '../useGameController';
 import { skipRush } from '../animator';
-import { dayNow } from './DaySheet';
+import { tableStepNow } from './DaySheet';
 import { TieBar, TieCard, TieWhy } from './PricingTable';
 
 /** The stage's size before it has been measured (a test draws it without a page). */
@@ -60,9 +59,11 @@ function useCardMove(el: { current: HTMLElement | null }, customerId: number, st
   useLayoutEffect(() => {
     // Once per customer: the move is measured when the card arrives.
     if (key) A.flipFrom(el.current, ticket(), { duration: A.BEAT.rush.cardIn, easing: A.EASE.sheet });
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- measured once per customer, as their card arrives
   }, [key]);
   useLayoutEffect(() => {
     if (stage === 'out') A.flipTo(el.current, ticket(), { duration: A.BEAT.rush.cardOut });
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- measured once, as the card goes back
   }, [stage]);
 }
 
@@ -98,8 +99,90 @@ function useStageSize(el: { current: HTMLElement | null }, on: boolean): [number
     const watch = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(read);
     watch?.observe(node);
     return () => watch?.disconnect();
-  }, [on]);
+  }, [on, el]);
   return size;
+}
+
+/** Your prices, on the sheet at the round table's foot: suggested once every stall is open (the planner then knows how
+ *  many pieces each rival put out), the Bell notice (only from its i button: owner, PLAN-064), and the sheet kept a
+ *  moment as it slides away when the bell is rung. */
+function usePricing(s: GameState, viewer: number, step: TableStep | null) {
+  const [vals, setVals] = useState<Record<string, number>>(() => (s.phase === 'bid' ? startingPrices(s, viewer) : {}));
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- suggested once as pricing starts (not again as a rival opens or the person changes a price)
+  useLayoutEffect(() => { if (s.phase === 'bid') setVals(startingPrices(s, viewer)); }, [s.phase, s.day, viewer]);
+  const [notice, setNotice] = useState(false);
+  const pricing = step === 'price';
+  const [sheetUp, setSheetUp] = useState(pricing);
+  useEffect(() => {
+    if (pricing) { setSheetUp(true); return undefined; }
+    const t = setTimeout(() => setSheetUp(false), A.moveMs(A.FEEL.sheetOut) + A.FRAME);
+    return () => clearTimeout(t);
+  }, [pricing]);
+  return { vals, setVals, notice, setNotice, pricing, sheetUp, posts: pricing ? postsOf(s, viewer, vals) : [] };
+}
+
+/**
+ * The room the seats leave above the pricing sheet. The sheet is drawn closer a step at a time until it leaves the table
+ * the room it needs; if even the closest step does not, its rows scroll inside it and every button stays in view. Its
+ * height changes only with its rows (`fruits`), the Favoured Trade line (`fav`) and a price that cannot be sealed (its
+ * error line, `err`): it is fitted again when one of those changes, or the stage does.
+ */
+function useSheetRoom(sheetEl: { current: HTMLDivElement | null }, stage: { current: HTMLDivElement | null }, size: [number, number] | null, pricing: boolean,
+  n: number, fruits: number, err: boolean, fav: boolean): number | null {
+  const [room, setRoom] = useState<number | null>(null);
+  const [sw, sh] = size ?? [0, 0];
+  useLayoutEffect(() => {
+    const el = sheetEl.current, st = stage.current;
+    if (!pricing || !el || !st || !sw) { setRoom(null); return undefined; }
+    const [w, h] = [sw, sh];
+    const need = tableMin(n, w, h);
+    const fit = () => {
+      delete el.dataset.tight;
+      el.style.removeProperty('max-height');
+      let left = el.offsetTop - st.offsetTop;
+      for (let t = 1; t <= 3 && left < need; t++) {
+        el.dataset.tight = String(t);
+        left = el.offsetTop - st.offsetTop;
+      }
+      if (left < need) {
+        el.style.maxHeight = `${Math.max(0, (el.offsetParent as HTMLElement | null)?.clientHeight ?? 0) - st.offsetTop - need}px`;
+        left = el.offsetTop - st.offsetTop;
+      }
+      setRoom(Math.max(0, Math.min(h, left - 4)));
+    };
+    fit();
+    return undefined;
+  }, [pricing, sw, sh, fruits, n, err, fav, sheetEl, stage]);
+  return room;
+}
+
+/** The round table's moves (game/tableBeats.ts): it forms (every crate travels from where it was to its seat; `formed`:
+ *  measured and drawn, `crates`: with crates on it), your price tags turn face down as you ring the bell, the bell comes into the middle and
+ *  every crate opens at once (animator.tsx bellRings; PLAN-123), and the Favoured Trade question comes in. */
+function useTableMotion(root: { current: HTMLElement | null }, formed: boolean, crates: boolean, viewer: number, from: A.Box | null, step: TableStep | null, bell: number | null, asked: number) {
+  useLayoutEffect(() => {
+    if (formed && root.current && crates) tableForms(root.current, viewer, from);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- the table forms once, as it is first measured with crates on it
+  }, [formed]);
+  const wasStep = useRef(step);
+  useLayoutEffect(() => {
+    const was = wasStep.current;
+    wasStep.current = step;
+    if (was === 'price' && step === 'sealed' && root.current) tagsSealed(root.current);
+  }, [step, root]);
+  const wasOpen = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const was = wasOpen.current;
+    wasOpen.current = bell;
+    if (bell === null || !root.current) return;
+    cratesOpen(root.current, was, bell);
+    // A crate opening has its own small sound; not as the bell first shows (with reduced motion every crate is open
+    // then): that moment has the bell's own sound alone (PLAN-091).
+    if (crateSound(was, bell)) fx.tap();
+  }, [bell, root]);
+  useLayoutEffect(() => {
+    if (asked >= 0 && root.current) questionIn(root.current);
+  }, [asked, root]);
 }
 
 /** The game table's round table: it decides for itself when it is on the table (game/daySheet.ts dayStep). */
@@ -122,36 +205,25 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
   const root = useRef<HTMLElement>(null);
   const sheetEl = useRef<HTMLDivElement>(null);
   const n = s.players.length;
-  const step = tableStep(dayStep(dayNow(s, viewer, c, !!online)));
+  const step = tableStepNow(s, viewer, c, !!online);
   // The rush has been played on this table today: from its last customer until the takings the crates stay open.
   const rushedOn = useRef(-1);
   if (a) rushedOn.current = s.day;
-  const after = !a && step === 'bell' && s.phase === 'reveal' && rushedOn.current === s.day;
+  const after = afterRush(!!a, step, s, rushedOn.current);
 
   // ---------- pricing: your prices, on the sheet at the table's foot ----------
-  const [vals, setVals] = useState<Record<string, number>>(() => (s.phase === 'bid' ? startingPrices(s, viewer) : {}));
-  // Prices are suggested once every stall is open (the planner then knows how many pieces each rival put out).
-  useLayoutEffect(() => { if (s.phase === 'bid') setVals(startingPrices(s, viewer)); }, [s.phase, s.day, viewer]);
-  const [notice, setNotice] = useState(() => bellOpensOnStart(s));
-  const pricing = step === 'price';
-  // The sheet slides away as the bell is rung, and is taken off the table once it has.
-  const [sheetUp, setSheetUp] = useState(pricing);
-  useEffect(() => {
-    if (pricing) { setSheetUp(true); return undefined; }
-    const t = setTimeout(() => setSheetUp(false), A.moveMs(A.FEEL.sheetOut) + A.FRAME);
-    return () => clearTimeout(t);
-  }, [pricing]);
-  const posts = pricing ? postsOf(s, viewer, vals) : [];
+  const { vals, setVals, notice, setNotice, pricing, sheetUp, posts } = usePricing(s, viewer, step);
 
   // ---------- the Favoured Trade question ----------
   const asked = step === 'tie' && !c.busy && c.active >= 0 ? c.active : -1;
   const tying = asked >= 0 && c.activeHuman && asked === viewer;
   // Once this stall has been asked, the line that says its prices are tied is not shown again today.
   const answered = useRef(-1);
-  if (tying) answered.current = s.day;
+  answered.current = askedOn(answered.current, tying, s.day);
 
   // ---------- what each seat shows ----------
   // After the last customer the crates show what is left in them (with Skip, the customers not shown are settled too).
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- what is left in the crates changes only with the day's results
   const left = useMemo(() => (after ? cratesLeft(s) : null), [after, s.results]);
   const pre: PreTable | null = !step || a ? null : preTable(s, viewer, {
     step, sent: online && c.meta ? c.meta.submitted : null, own: c.ownCrate(s, viewer),
@@ -165,65 +237,10 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
   const size = useStageSize(stage, !!drawn);
 
   // ---------- the room above the pricing sheet ----------
-  const [room, setRoom] = useState<number | null>(null);
-  const fruits = posts.length;
-  // The sheet's height changes only with its rows, the Favoured Trade line and a price that cannot be sealed (its
-  // error line): it is fitted again when one of those changes, or the stage does.
-  const err = pricing && !!validatePrices(s, viewer, posts);
-  const fav = !!s.players[viewer]?.favours.includes('favouredTrade');
-  useLayoutEffect(() => {
-    const el = sheetEl.current, st = stage.current;
-    if (!pricing || !el || !st || !size) { setRoom(null); return undefined; }
-    const [w, h] = size;
-    const need = tableMin(n, w, h);
-    // The sheet is drawn closer a step at a time until it leaves the table the room it needs; if even the closest
-    // step does not, its rows scroll inside it and every button stays in view.
-    const fit = () => {
-      delete el.dataset.tight;
-      el.style.removeProperty('max-height');
-      let left = el.offsetTop - st.offsetTop;
-      for (let t = 1; t <= 3 && left < need; t++) {
-        el.dataset.tight = String(t);
-        left = el.offsetTop - st.offsetTop;
-      }
-      if (left < need) {
-        el.style.maxHeight = `${Math.max(0, (el.offsetParent as HTMLElement | null)?.clientHeight ?? 0) - st.offsetTop - need}px`;
-        left = el.offsetTop - st.offsetTop;
-      }
-      setRoom(Math.max(0, Math.min(h, left - 4)));
-    };
-    fit();
-    return undefined;
-  }, [pricing, size?.[0], size?.[1], fruits, n, err, fav]);
+  const room = useSheetRoom(sheetEl, stage, size, pricing, n, posts.length, pricing && !!validatePrices(s, viewer, posts), !!s.players[viewer]?.favours.includes('favouredTrade'));
 
   // ---------- motion (game/tableBeats.ts) ----------
-  // The table forms: every crate travels from where it was to its seat.
-  const formed = !!size && !!drawn;
-  useLayoutEffect(() => {
-    if (formed && root.current && drawn?.pre) tableForms(root.current, viewer, from ?? null);
-  }, [formed]);
-  // Ringing the bell: your price tags turn face down.
-  const wasStep = useRef(step);
-  useLayoutEffect(() => {
-    const was = wasStep.current;
-    wasStep.current = step;
-    if (was === 'price' && step === 'sealed' && root.current) tagsSealed(root.current);
-  }, [step]);
-  // The bell: it comes into the middle and swings, then every crate opens at once (animator.tsx bellRings; PLAN-123).
-  const wasOpen = useRef<number | null>(null);
-  useLayoutEffect(() => {
-    const was = wasOpen.current;
-    wasOpen.current = c.bell;
-    if (c.bell === null || !root.current) return;
-    cratesOpen(root.current, was, c.bell);
-    // A crate opening has its own small sound; not as the bell first shows (with reduced motion every crate is open
-    // then): that moment has the bell's own sound alone (PLAN-091).
-    if (was !== null && c.bell > was) fx.tap();
-  }, [c.bell]);
-  // The question comes into the middle of the table.
-  useLayoutEffect(() => {
-    if (asked >= 0 && root.current) questionIn(root.current);
-  }, [asked]);
+  useTableMotion(root, !!size && !!drawn, !!drawn?.pre, viewer, from ?? null, step, c.bell, asked);
 
   useCardMove(card, drawn?.a?.card.customerId ?? -1, leaving || !drawn?.a ? 'leave' : drawn.a.stage, drawn?.a ? String(drawn.a.card.customerId) : '');
   if (!drawn) return null;
@@ -258,10 +275,10 @@ export function RushView({ s, a, viewer, size = STAGE_GUESS, card, stage, shared
 }
 
 /** The table before the rush without hooks (so tests can render it to a string). */
-export function PreView({ s, pre, viewer, size = STAGE_GUESS, shared, foot }: {
-  s: GameState; pre: PreTable; viewer: number; size?: [number, number]; shared?: boolean; foot?: ComponentChildren;
+export function PreView({ s, pre, viewer, size = STAGE_GUESS, shared, foot, busy }: {
+  s: GameState; pre: PreTable; viewer: number; size?: [number, number]; shared?: boolean; foot?: ComponentChildren; busy?: boolean;
 }) {
-  return <TableView s={s} pre={pre} viewer={viewer} size={size} lay={tableLay(s.players.length, size[0], size[1])} measured shared={shared} foot={foot} />;
+  return <TableView s={s} pre={pre} viewer={viewer} size={size} lay={tableLay(s.players.length, size[0], size[1])} measured shared={shared} foot={foot} busy={busy} />;
 }
 
 /**
