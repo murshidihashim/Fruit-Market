@@ -39,6 +39,7 @@
     "date": "2026-11-28"
   },
   "delivery": "implemented",
+  "release": "unreleased",
   "build": "branch claude/dazzling-johnson-8wytx6",
   "reports": [
     "REP-149"
