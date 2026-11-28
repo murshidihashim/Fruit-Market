@@ -27,10 +27,10 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     });
     players.push(P);
     await page.goto(base);
-    await page.click('[data-tab="custom"]'); // PLAN-124: Home's Custom tab, then its Play
-    await page.click('[data-a="play"]');
+    await page.click('[data-tab="custom"]'); // PLAN-132: Home's Match tab, the Quick Match tile, then Play
     // PLAN-125: the Public rooms are on the Quick Match page
-    await page.click('[data-a="quick"]');
+    await page.click('[data-a="way-quick"]');
+    await page.click('[data-a="play"]');
     await page.click('[data-a="public"]');
     if (tag === 'A') {
       // PLAN-130: Back from the Public rooms, pressed from the keyboard, leaves focus on the set-up's own Back button

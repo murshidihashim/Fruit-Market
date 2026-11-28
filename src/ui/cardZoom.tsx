@@ -22,14 +22,16 @@ export function CardPop({ title, wide, onClose, children }: { title: string; wid
 }
 
 /** A small card that opens whole on a tap (or Enter). `title` names the card for a screen reader. */
-export function CardZoom({ title, class: cls = '', wide, children }: { title: string; class?: string; wide?: boolean; children: ComponentChildren }) {
+export function CardZoom({ title, class: cls = '', wide, thumb, children }: { title: string; class?: string; wide?: boolean;
+  /** PLAN-132: what stands in for the card while it is small (a cropped picture); the whole card still opens on a tap. */
+  thumb?: ComponentChildren; children: ComponentChildren }) {
   const [open, setOpen] = useState(false);
   const show = (e: Event) => { e.stopPropagation(); fx.tap(); setOpen(true); };
   return (
     <>
       <div class={`card-zoom ${cls}`} role="button" tabIndex={0} aria-haspopup="dialog" aria-label={`${title}: see the whole card`}
         onClick={show} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(e); } }}>
-        {children}
+        {thumb ?? children}
       </div>
       {open && <CardPop title={title} wide={wide} onClose={() => setOpen(false)}>{children}</CardPop>}
     </>

@@ -54,10 +54,11 @@ export const kindName = (k: GameKind): string => KINDS[k].name;
 /** A kind inside a sentence: "Your unfinished computer game …", "… Pass & Play game …". */
 export const kindSentence = (k: GameKind): string => KINDS[k].sentence;
 
-/** Home's tabs: the mode, its save slot, the tab's word and the mode's name. */
-export const CUSTOM_MATCH = 'Custom match';
+/** Home's tabs: the mode, its save slot, the tab's word and the mode's name. PLAN-132: the owner renamed "Custom match"
+ *  to "Match" (the tab too); its id and save slot keep their names, which players never see. */
+export const CUSTOM_MATCH = 'Match';
 export const HOME_MODES: { id: HomeMode; slot: SaveSlot; tab: string; name: string }[] = [
-  { id: 'custom', slot: 'play', tab: 'Custom', name: CUSTOM_MATCH },
+  { id: 'custom', slot: 'play', tab: 'Match', name: CUSTOM_MATCH },
   { id: 'league', slot: 'league', tab: 'League', name: kindName('league') },
   { id: 'daily', slot: 'daily', tab: 'Daily', name: kindName('daily') },
   { id: 'sprint', slot: 'sprint', tab: 'Sprint', name: kindName('sprint') },

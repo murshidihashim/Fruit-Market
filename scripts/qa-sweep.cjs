@@ -134,7 +134,7 @@ function audit() {
       // Trophies has the stamp book's own back arrow (PLAN-086)
       await page.click('.sbk-back');
       await page.click('[data-nav="market"]');
-      await page.click('[data-tab="custom"]'); await page.click('[data-a="play"]'); await check('play'); await page.click('[data-a="computer"]'); await check('setup');
+      await page.click('[data-tab="custom"]'); await page.click('[data-a="way-computer"]'); await check('home-match'); await page.click('[data-a="play"]'); await check('setup');
       await page.click('button:has-text("Start game")');
       const seen = new Set();
       const once = (k) => (seen.has(k) ? false : (seen.add(k), true));

@@ -75,22 +75,22 @@ async function playSprint(page, shot, tag) {
   const shot = (n) => page.screenshot({ path: `${out}/sprint-${n}.png` });
   const fail = async (msg) => { await shot('stuck'); console.error(`Sprint e2e FAILED: ${msg} (errors: ${JSON.stringify(errors)})`); await browser.close(); process.exit(1); };
 
-  // PLAN-119: the Play menu gives each mode its job. PLAN-124: Home's Custom tab, then its Play.
+  // PLAN-132: Home's Match card holds the four ways as tiles; a tile chooses, and Play names the way it will start.
   await page.click('[data-tab="custom"]');
-  await page.click('[data-a="play"]');
-  await page.waitForSelector('[data-a="normal-game"]');
-  const group = page.locator('[data-a="normal-game"]');
-  if (!/custom match/i.test(await group.locator('h2').innerText())) return fail('the Play menu has no "Custom match" heading');
+  const card = page.locator('[data-card="custom"]');
+  if (!/^match$/i.test((await card.locator('h2').innerText()).trim())) return fail('Home has no "Match" card');
   // PLAN-125 (DEC-133): the four ways; joining with a code, the Public rooms and the game length are on their pages.
   for (const a of ['quick', 'room', 'computer', 'phone']) {
-    if ((await group.locator(`[data-a="${a}"]`).count()) !== 1) return fail(`"${a}" is not in the Custom match group`);
+    if ((await card.locator(`[data-a="way-${a}"]`).count()) !== 1) return fail(`"${a}" is not on the Match card`);
   }
-  // PLAN-120: the League, the Daily market and the Sprint left the Play page for cards of their own on Home.
-  const left = await page.locator('.jp-in [data-a="league"], .jp-in [data-a="daily"], .jp-in [data-a="sprint"]').count();
-  if (left) return fail('the Play page still has the League, the Daily market or the Sprint');
-  await shot('play-menu');
-  console.log('Play menu: the Custom match group only');
-  await page.click('.jp-bar .icon-btn');
+  await page.click('[data-a="way-phone"]');
+  if (!/pass & play/i.test(await page.locator('[data-a="play"]').innerText())) return fail('Play does not name the way that is ticked');
+  if ((await page.getAttribute('[data-a="way-phone"]', 'aria-checked')) !== 'true') return fail('the chosen way is not marked');
+  await page.click('[data-a="way-computer"]');
+  // PLAN-120: the League, the Daily market and the Sprint have cards of their own.
+  if (await card.locator('[data-a="league"], [data-a="daily"], [data-a="sprint"]').count()) return fail('the Match card holds another mode');
+  await shot('match-card');
+  console.log('Match card: the four ways, and Play names the one ticked');
   // PLAN-124: Home's four mode tabs, in order; the Sprint tab's card, then its Play, opens the Daily intro on the Sprint,
   // whose Start starts it.
   const tabs = await page.locator('[role="tablist"] [role="tab"]').evaluateAll((els) => els.map((e) => e.getAttribute('data-tab')));
