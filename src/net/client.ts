@@ -1,5 +1,6 @@
 // Browser side of online play: one WebSocket to the room, automatic reconnects,
 // and a per-room seat token kept on this device so a refresh returns you to your seat.
+import { loadSettings } from '../ui/store';
 import type { Action } from '../engine/game';
 import { PROTOCOL_VERSION, REACT_GAP_MS, RULES_VERSION, type ClientMsg, type PublicRoom, type ReactionId, type RoomConfig, type RoomView, type ServerMsg } from './protocol';
 
@@ -144,7 +145,7 @@ export class OnlineClient {
     this.emit();
     ws.onopen = () => {
       this.retry = 0;
-      this.send({ t: 'hello', token: loadToken(this.code), name: this.name, avatar: this.avatar, look: this.look, rv: RULES_VERSION, pv: PROTOCOL_VERSION });
+      this.send({ t: 'hello', token: loadToken(this.code), name: this.name, avatar: this.avatar, look: this.look, rv: RULES_VERSION, pv: PROTOCOL_VERSION, share: sharesData() });
       if (this.ping) clearInterval(this.ping);
       this.ping = setInterval(() => this.send({ t: 'ping' }), 25_000);
     };
@@ -232,4 +233,9 @@ export class OnlineClient {
     if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', this.onVisible);
     try { this.ws?.close(); } catch { /* the socket may already be closed or broken; stopping is all that is wanted */ }
   }
+}
+
+/** PLAN-132: is "Share game data" on? Said to the room, which keeps a match record only if every person's is. */
+function sharesData(): boolean {
+  try { return loadSettings().analytics !== false; } catch { return false; }
 }

@@ -1,0 +1,65 @@
+{
+  "id": "PLAN-133",
+  "title": "Match records, part 2: a random player number after a yes, sessions, progress and a test bucket",
+  "problem": "Nameless records cannot say that two games were played by the same player, so return, sessions, progression and \"do better players win more\" cannot be measured (REP-147).",
+  "scope": [
+    "A one-time question on Home after a first game: \"Help improve the game?\" Yes or No thanks; until a yes no number exists",
+    "On yes: 16 random hex digits made and kept on the phone, sent with each match record together with a random session number, games started this session, the install day, a test bucket (a or b), stall level, league stage and looks unlocked",
+    "One line per app start for a player who said yes (POST /api/s), kept with the records",
+    "Settings: \"Link my games\" (off removes the number from the phone) and \"Forget my data\" (deletes every record and session line of the number on the server, and the number on the phone)",
+    "The reader prints players, games per player, return on a later day by first mode, levels and buckets",
+    "The privacy page's new section \"A player number (only if you say yes)\""
+  ],
+  "exclusions": [
+    "No name, account ID or phone ID is ever linked to the number",
+    "No experiment yet: the two buckets play the same game",
+    "No third-party service",
+    "Online records carry no player number"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify, with tests: no number before a yes; a No leaves none; the number rides on a record; Forget my data removes it and calls the server",
+      "result": "PASS",
+      "evidence": "2026-11-28: npm run verify on the branch: 139 test files, 1445 tests passed, build OK (tests/match-records.test.ts: no number before a yes, rides on the record, Forget my data)"
+    },
+    {
+      "id": "T2",
+      "text": "On a local game server: a session line is stored; Forget my data deletes the number's record and session line",
+      "result": "PASS",
+      "evidence": "2026-11-28, local game server: a session line was stored; the forget route deleted the number's 2 rows"
+    },
+    {
+      "id": "T3",
+      "text": "The question and the Settings switches seen on a phone-sized screen",
+      "result": "NOT RUN",
+      "evidence": "The Settings screen was seen in a screenshot; the one-time question on Home was not"
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-28, after the two-part plan of REP-147: \"buld plan 2 as well\"",
+    "date": "2026-11-28"
+  },
+  "delivery": "implemented",
+  "release": "unreleased",
+  "build": "branch ccr-608a8c5d-g7t4ma",
+  "reports": [
+    "REP-147",
+    "REP-148"
+  ],
+  "decisions": [
+    "DEC-140"
+  ],
+  "changes": {
+    "added": [
+      "A one-time question about a random player number; \"Link my games\" and \"Forget my data\" in Settings"
+    ],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "The game may ask once whether it can give your phone a random player number, to count your games together. Say no and nothing changes; Settings has \"Forget my data\""
+  ]
+}

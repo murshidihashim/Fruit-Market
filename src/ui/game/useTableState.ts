@@ -6,6 +6,7 @@ import { count, winners, type Customer, type GameState } from '../../engine/game
 import type { NightJuice } from '../../engine/story';
 import type { OnlineClient } from '../../net/client';
 import type { PublicSeat, RoomView } from '../../net/protocol';
+import { noteShown } from '../../net/recorder';
 import { trackOnce } from '../../net/telemetry';
 import * as A from '../anim';
 import { holdCash } from '../cashShown';
@@ -155,6 +156,16 @@ export function useGameMoments(s: GameState, viewer: number, online: boolean): s
   useEffect(() => { if (s.phase !== 'over') trackOnce(`${gameKey}:day:${s.day}`, 'day_reached', s.day); }, [s.day]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- counted once, as the game opens
   useEffect(() => { if (online) trackOnce(`${gameKey}:start`, 'game_start', 'online'); }, []);
+  // PLAN-132: the game on screen, for its match record (an online match is recorded by the room, not here)
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- noted as the game opens and as each day begins
+  useEffect(() => { noteShown(online ? null : s); }, [s.day, online]);
+  // PLAN-132: the first-game steps, each counted once per phone
+  const me = s.players[viewer];
+  const bought = (me?.boughtToday ?? 0) > 0;
+  const sale = (s.results?.income[viewer] ?? 0) > 0;
+  useEffect(() => { if (bought) trackOnce('ftue:buy', 'first_buy'); }, [bought]);
+  useEffect(() => { if (sale) trackOnce('ftue:sale', 'first_sale'); }, [sale]);
+  useEffect(() => { if (s.day >= 2) trackOnce('ftue:day1', 'day1_done'); }, [s.day]);
   useEffect(() => {
     if (s.phase !== 'over') return;
     trackOnce(`${gameKey}:end`, 'game_end', winners(s).includes(viewer) ? 'win' : 'lose');

@@ -3441,16 +3441,43 @@
       "cost": "RM0 expected; the Cloudflare plan's storage limit is to be confirmed first.",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "Owner, 2026-11-28, after the two-part plan of REP-147: \"buld plan 2 as well\"",
+        "date": "2026-11-28"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "plan": "PLAN-132",
       "reviewTrigger": "After two weeks of records on the live game.",
       "reports": [
         "REP-146",
-        "REP-147"
+        "REP-147",
+        "REP-148"
+      ]
+    },
+    {
+      "id": "DEC-140",
+      "title": "A random player number, asked for once",
+      "question": "May one player's games be linked, and how is the player asked?",
+      "choice": "Yes, with a random number made on the phone only after the player says yes to a one-time question; it can be switched off, and \"Forget my data\" deletes it and its records. The owner's go-ahead did not answer how to ask, so the recommended first-start question was built rather than on by default.",
+      "rationale": "Return, sessions, progression and skill over time need games linked (REP-147). Asking first keeps the app's promise honest for players from 12 years old.",
+      "impact": {
+        "player": "One question after a first game; two new lines in Settings.",
+        "technical": "src/net/player.ts, a session route, a forget route, the records store.",
+        "data": "Pseudonymous data for players who say yes: games can be tied to each other, not to a person. The privacy page says so."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-28, after the two-part plan of REP-147: \"buld plan 2 as well\"",
+        "date": "2026-11-28"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-133",
+      "reviewTrigger": "Before the Play release (privacy wording, Google Play data form), and after two weeks of data.",
+      "reports": [
+        "REP-147",
+        "REP-148"
       ]
     }
   ],
@@ -5062,6 +5089,10 @@
     {
       "at": "2026-11-28 09:14",
       "text": "Owner sent a wider tracking list (timing, undo and tooltip events, first-game and menu funnels, quit context, an anonymous player ID with sessions and device details, progression, notifications, A/B buckets, a third-party service). REP-147 sorts it: timing, funnels, quit context and coarse device notes join PLAN-132 with no ID (part 1); the player number, sessions and A/B tags are part 2 and need their own approval because the app says today that no IDs are sent; no third-party service recommended yet; notifications do not exist. Still awaiting approval."
+    },
+    {
+      "at": "2026-11-28 09:36",
+      "text": "Owner: \"buld plan 2 as well\". Taken as approval of PLAN-132 (part 1) and the new PLAN-133 (the player number; DEC-140), with the recommended answers to REP-147's open questions: 12 months, a one-time question rather than on by default, the game's own server. Both built on the branch (REP-148): records store each day's facts for every mode; the room records online matches when everyone shares; the server's gate keeps names out. Not merged to main, not published."
     }
   ]
 }

@@ -10,6 +10,10 @@
 //   GET  /api/sprint?date=&me= -> the day's Market Sprint board and the week's ranking (PLAN-114; `me`: the device's
 //                                 owner hash, for its own place)        POST /api/sprint -> verified Sprint submission
 //   POST /api/account/{signup,login,sync,logout,password,delete} -> optional ID-and-password accounts (server/accounts.ts)
+//   POST /api/m            -> 204             a match record (PLAN-132): a finished or left game, with no name or ID
+//   POST /api/s            -> 204             a session begins, for a player who said yes to a player number (PLAN-133)
+//   POST /api/forget       -> { ok, deleted } deletes every record and session of a player number (PLAN-133)
+//   GET  /api/matches?month=YYYY-MM&after=N&what=rec|ses -> a page of stored records (needs the STATS_KEY secret)
 //   GET  /api/version      -> { rules }
 //   anything else          -> the static game (dist/)
 // Write endpoints are rate-limited per IP (server/limits.ts); over the limit they answer 429.
@@ -22,6 +26,7 @@ import {
 import { isoWeek } from '../src/engine/daily';
 import { allowed, ROUTE_LIMITER, type LimitedRoute, type Limiter } from './limits';
 import { UPDATE_MSG } from '../src/net/protocol';
+import { cleanRecord, cleanSession, MAX_RECORD } from '../src/net/matchRecord';
 import { RuleError } from '../src/engine/game';
 import { accountKey, handleAccount, idProblem, type AccountAction, type AccountRec } from './accounts';
 import { freshRoom, Room, roomGoneMsg, ROOM_TTL_MS, type Conn, type RoomData, type RoomIO } from './room';
@@ -34,6 +39,7 @@ interface Env {
   MATCH: DurableObjectNamespace<MatchDO>;
   ACCOUNT: DurableObjectNamespace<AccountDO>;
   LOBBY: DurableObjectNamespace<LobbyDO>;
+  RECORDS: DurableObjectNamespace<RecordsDO>;
   ASSETS: Fetcher;
   STATS_KEY?: string;
   RL_ROOMS?: Limiter;
@@ -123,6 +129,42 @@ export default {
       } catch { /* telemetry never fails loudly */ }
       return new Response(null, { status: 204, headers: CORS });
     }
+    if (url.pathname === '/api/m' || url.pathname === '/api/s') {
+      if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
+      const what = url.pathname === '/api/m' ? 'm' : 's';
+      if (await limited(req, env, what)) return new Response(null, { status: 204, headers: CORS }); // drop quietly
+      try {
+        const text = await req.text();
+        if (text.length <= MAX_RECORD) {
+          // Rebuilt field by field (matchRecord.ts): whatever was sent, only the game's own words and numbers are kept.
+          const body = what === 'm' ? cleanRecord(JSON.parse(text)) : cleanSession(JSON.parse(text));
+          await recordsOf(env, Date.now()).fetch(`https://records/put/${what === 'm' ? 'rec' : 'ses'}`, { method: 'POST', body: JSON.stringify(body) });
+        }
+      } catch { /* a record that does not pass is dropped; play is never held up */ }
+      return new Response(null, { status: 204, headers: CORS });
+    }
+    if (url.pathname === '/api/forget') {
+      if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
+      const stop = await limited(req, env, 'forget');
+      if (stop) return stop;
+      let pid: unknown;
+      try { pid = ((await readBody(req)) as { pid?: unknown }).pid; } catch (e) { return json({ error: (e as Error).message }, 400); }
+      if (typeof pid !== 'string' || !/^[0-9a-f]{16,32}$/.test(pid)) return json({ error: 'Bad number' }, 400);
+      let deleted = 0;
+      // every month a record could still be kept in (records are kept 12 months)
+      for (let k = 0; k <= KEEP_MONTHS; k++) {
+        const r = await recordsOf(env, monthsBefore(Date.now(), k)).fetch(`https://records/forget?pid=${pid}`, { method: 'POST' });
+        if (r.ok) deleted += ((await r.json()) as { deleted: number }).deleted;
+      }
+      return json({ ok: true, deleted });
+    }
+    if (url.pathname === '/api/matches') {
+      if (!env.STATS_KEY || req.headers.get('x-stats-key') !== env.STATS_KEY) return json({ error: 'Forbidden' }, 403);
+      const month = url.searchParams.get('month') ?? monthKey(Date.now());
+      if (!/^\d{4}-\d{2}$/.test(month)) return json({ error: 'Bad month' }, 400);
+      const what = url.searchParams.get('what') === 'ses' ? 'ses' : 'rec';
+      return env.RECORDS.get(env.RECORDS.idFromName(`m:${month}`)).fetch(`https://records/list/${what}?after=${Number(url.searchParams.get('after')) || 0}`);
+    }
     if (url.pathname === '/api/stats') {
       if (!env.STATS_KEY || req.headers.get('x-stats-key') !== env.STATS_KEY) return json({ error: 'Forbidden' }, 403);
       return env.STATS.get(env.STATS.idFromName('global')).fetch(`https://stats/report?days=${url.searchParams.get('days') ?? '14'}`);
@@ -206,6 +248,8 @@ export class RoomDO extends DurableObject<Env> {
       },
       persist: (d) => this.ctx.storage.put('room', d),
       now: () => Date.now(),
+      // PLAN-132: a finished match's record goes to the month's store; a failure never touches the room
+      record: (rec) => { this.ctx.waitUntil(recordsOf(this.env, Date.now()).fetch('https://records/put/rec', { method: 'POST', body: JSON.stringify(cleanRecord(rec)) }).then(() => undefined, () => undefined)); },
       randomHex: (n) => Array.from(crypto.getRandomValues(new Uint8Array(n)), (b) => b.toString(16).padStart(2, '0')).join(''),
       randomInt: (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n,
       setAlarm: (at) => { void this.ctx.storage.setAlarm(at); },
@@ -266,6 +310,68 @@ export class RoomDO extends DurableObject<Env> {
 
   async alarm(): Promise<void> {
     await this.room()?.alarm();
+  }
+}
+
+// ---------- match records (PLAN-132, PLAN-133) ----------
+
+/** Records are kept this many months, then their month's store deletes itself. */
+const KEEP_MONTHS = 12;
+const monthKey = (t: number): string => new Date(t).toISOString().slice(0, 7);
+function monthsBefore(t: number, k: number): number {
+  const d = new Date(t);
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - k, 15);
+}
+const recordsOf = (env: Env, t: number) => env.RECORDS.get(env.RECORDS.idFromName(`m:${monthKey(t)}`));
+
+/**
+ * One object per calendar month: the match records and session lines received in it, in SQLite. A record is stored
+ * under its own random number, so a game sent again (at the end of each day, then at its end) replaces itself. No
+ * name, account, device ID, room code or IP address is stored: the worker rebuilds each record before it gets here.
+ * The object deletes everything it holds KEEP_MONTHS after its first record.
+ */
+export class RecordsDO extends DurableObject<Env> {
+  constructor(ctx: DurableObjectState, env: Env) {
+    super(ctx, env);
+    ctx.storage.sql.exec('CREATE TABLE IF NOT EXISTS rec (n INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT UNIQUE, at INTEGER, pid TEXT, body TEXT)');
+    ctx.storage.sql.exec('CREATE TABLE IF NOT EXISTS ses (n INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT UNIQUE, at INTEGER, pid TEXT, body TEXT)');
+    ctx.storage.sql.exec('CREATE INDEX IF NOT EXISTS rec_pid ON rec (pid)');
+    ctx.storage.sql.exec('CREATE INDEX IF NOT EXISTS ses_pid ON ses (pid)');
+  }
+
+  async fetch(req: Request): Promise<Response> {
+    const url = new URL(req.url);
+    const sql = this.ctx.storage.sql;
+    const put = url.pathname.match(/^\/put\/(rec|ses)$/);
+    if (put) {
+      const body = (await req.json()) as { id?: string; sid?: string; pid?: string; who?: { pid?: string } };
+      const id = put[1] === 'rec' ? body.id : body.sid;
+      const pid = put[1] === 'rec' ? body.who?.pid ?? '' : body.pid ?? '';
+      if (!id) return new Response(null, { status: 400 });
+      // the same game again: a newer copy of the record replaces the older one, in place
+      sql.exec(`INSERT INTO ${put[1]} (id, at, pid, body) VALUES (?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET at = excluded.at, pid = excluded.pid, body = excluded.body`, id, Date.now(), pid, JSON.stringify(body));
+      if ((await this.ctx.storage.getAlarm()) === null) await this.ctx.storage.setAlarm(monthsBefore(Date.now(), -(KEEP_MONTHS + 1)));
+      return new Response(null, { status: 204 });
+    }
+    if (url.pathname === '/forget') {
+      const pid = url.searchParams.get('pid') ?? '';
+      if (!pid) return json({ deleted: 0 });
+      const a = sql.exec('DELETE FROM rec WHERE pid = ?', pid).rowsWritten;
+      const b = sql.exec('DELETE FROM ses WHERE pid = ?', pid).rowsWritten;
+      return json({ deleted: a + b });
+    }
+    const list = url.pathname.match(/^\/list\/(rec|ses)$/);
+    if (list) {
+      const after = Number(url.searchParams.get('after')) || 0;
+      const rows = [...sql.exec<{ n: number; at: number; body: string }>(`SELECT n, at, body FROM ${list[1]} WHERE n > ? ORDER BY n LIMIT 200`, after)];
+      return json({ rows: rows.map((r) => ({ n: r.n, at: r.at, ...(JSON.parse(r.body) as object) })), next: rows.length === 200 ? rows[rows.length - 1].n : null });
+    }
+    return new Response(null, { status: 404 });
+  }
+
+  /** Twelve months on: everything this month holds is deleted. */
+  async alarm(): Promise<void> {
+    await this.ctx.storage.deleteAll();
   }
 }
 

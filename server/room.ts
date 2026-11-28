@@ -34,6 +34,7 @@
 //   still in it: Normal computers then take the empty seats and free shopkeepers. The quick-match queue asks the room
 //   for a seat first (claimSeat), so it never sends more people than there are seats. There is never a host lobby.
 
+import { daySheet, endOf, newRecord, type DaySheet, type MatchRecord } from '../src/net/matchRecord';
 import { aiActFor, aiStep, computersEvening, planOrderBid } from '../src/engine/ai';
 import { safeName } from './names';
 import { cleanLook } from '../src/net/looks';
@@ -69,6 +70,8 @@ export interface SeatData {
   confirmed?: boolean;
   /** ON-09 (PLAN-110): this person left on purpose (their phone forgot the seat), so a computer plays it for good. */
   left?: boolean;
+  /** PLAN-132: "Share game data" is on for this person (their hello said so; an older app says nothing: not shared). */
+  share?: boolean;
 }
 
 export interface RoomData {
@@ -113,6 +116,9 @@ export interface RoomData {
   listed?: string;
   /** PLAN-112: when each seat last sent a reaction that was passed on. */
   reactAt?: number[];
+  /** PLAN-132: the match record being kept for the game in play (never sent to anyone in the room): its random
+   *  number, the game's seed, a sheet for each day played, and whether it has gone to the store. */
+  rec?: { id: string; seed: number; days: DaySheet[]; sent?: boolean };
 }
 
 export interface Conn {
@@ -128,6 +134,8 @@ export interface RoomIO {
   persist(d: RoomData): void | Promise<void>;
   now(): number;
   randomHex(bytes: number): string;
+  /** PLAN-132: hands a finished match's record to the store (absent in tests that do not look at records). */
+  record?(rec: MatchRecord): void;
   randomInt(n: number): number;
   setAlarm(at: number): void;
   destroy(): void | Promise<void>;
@@ -417,6 +425,8 @@ export class Room {
       }
     }
     this.io.setSeat(conn, seat);
+    // PLAN-132: the person's own "Share game data" switch, as their app says it now.
+    d.seats[seat].share = m.share === true;
     // Back in time (or later): the seat is theirs again. Back while shopkeepers are still being chosen after the
     // computer chose for them: they may change it and confirm again.
     if (d.seats[seat].offlineSince !== undefined || d.seats[seat].bot) {
@@ -724,6 +734,29 @@ export class Room {
   private moved() {
     this.d.version++;
     this.d.gameFrom = this.d.version;
+    this.noteRecord();
+  }
+
+  /**
+   * PLAN-132: the match record. A sheet is added for each day as its rush is worked out, and when the game is over the
+   * record goes to the store, but only if every person in the match shares game data. It holds no name, look, token or
+   * room code (matchRecord.ts), and nothing of it is ever sent to a player.
+   */
+  private noteRecord() {
+    const d = this.d;
+    const g = d.game;
+    if (!g) return;
+    if (!d.rec || d.rec.seed !== g.config.seed) d.rec = { id: this.io.randomHex(8), seed: g.config.seed, days: [] };
+    const rec = d.rec;
+    if (g.phase === 'reveal' && !rec.days.some((x) => x.d === g.day)) {
+      const sheet = daySheet(g);
+      if (sheet) rec.days.push(sheet);
+    }
+    if (g.phase !== 'over' || rec.sent) return;
+    rec.sent = true;
+    const people = d.seats.filter((_, p) => g.players[p]?.kind === 'human');
+    if (!people.length || !people.every((x) => x.share === true)) return;
+    this.io.record?.({ ...newRecord(rec.id, 'online', g), days: rec.days, end: endOf(g) });
   }
 
   /** Remembers the state a person's buying turn began in (the first action of the turn), so they can take purchases back. */

@@ -1,4 +1,4 @@
-// Settings: the switches (sound, vibration, Fast play, Reduced motion, music, reactions, anonymous stats), full
+// Settings: the switches (sound, vibration, Fast play, Reduced motion, music, reactions, game data), full
 // screen, Replay the tutorial, your stats and About. Moved out of App.tsx (REP-140 A-02); the screen is unchanged.
 import { useState } from 'preact/hooks';
 import { fx, setMusic } from './fx';
@@ -9,11 +9,15 @@ import { resetTutorial } from './tutorial';
 import { BackArrow } from './stampCard';
 import { Toggle } from './Toggle';
 import { loadSettings, loadStats, saveSettings, type Settings } from './store';
+import { answerLink, forgetMe, linked, sessionHello } from '../net/player';
 
 export function SettingsScreen({ onBack }: { onBack: () => void }) {
   const [st, setSt] = useState<Settings>(loadSettings());
   // S19 (PLAN-110): "Replay the tutorial next game" says that it worked.
   const [replay, setReplay] = useState(false);
+  // PLAN-133: the player number (asked for once on Home), and what "Forget my data" answered.
+  const [link, setLink] = useState(linked());
+  const [forgot, setForgot] = useState<'' | 'busy' | 'done' | 'later'>('');
   const stats = loadStats();
   // The phone's own reduced-motion setting: then the game's switch shows on (the phone's setting wins).
   const phone = phoneStill();
@@ -37,7 +41,12 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
           <Toggle on={st.still || phone} set={(v) => { upd({ still: v }); setStill(v); }} title={REDUCED_MOTION.title} text={REDUCED_MOTION.text(phone)} />
           <Toggle on={st.music} set={(v) => { upd({ music: v }); setMusic(v); }} title="Music" text="A gentle market tune." />
           <Toggle on={st.reactions} set={(v) => upd({ reactions: v })} title="Show reactions" text="Emoji and short lines other players send in online games." />
-          <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share anonymous stats" text="Helps fix crashes and balance the game. No names or IDs are sent." />
+          {/* PLAN-132: the switch covers the match records too. PLAN-133: linking is its own switch, off until a yes. */}
+          <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share game data" text="Counts and finished games, to fix crashes and balance the game. No names are sent." />
+          <Toggle on={link && st.analytics} set={(v) => { answerLink(v); setLink(v); setForgot(''); if (v) sessionHello(); }} title="Link my games" text="A random player number, so your games can be counted together. Not your name, account or phone." />
+          <button class="btn wide" disabled={forgot === 'busy'} onClick={() => { fx.tap(); setForgot('busy'); void forgetMe().then((ok) => { setLink(false); setForgot(ok ? 'done' : 'later'); }); }}>Forget my data</button>
+          {forgot === 'done' && <p class="tk-done" role="status">Done. Your player number and the games kept under it are deleted.</p>}
+          {forgot === 'later' && <p class="tk-done" role="status">Your player number is gone from this phone. The server could not be reached: try again when online to delete the games kept under it.</p>}
           <FullScreenButton />
           <button class="btn wide" disabled={replay} onClick={() => { resetTutorial(); fx.tap(); setReplay(true); }}>Replay the tutorial next game</button>
           {replay && <p class="tk-done" role="status">Done. The tips will show in your next game.</p>}
@@ -54,7 +63,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
         <section class="panel small">
           <h3>About</h3>
           <p>Fruit Market: a game designed by Murshidi bin Md Hashim.</p>
-          <p class="muted">No ads. An account is optional and only keeps your trophies, looks and records. Your games stay on your phone. If you allow it, anonymous counts (like "a game was finished") are sent to help improve the game.</p>
+          <p class="muted">No ads. An account is optional and only keeps your trophies, looks and records. Your games stay on your phone. If you allow it, counts (like "a game was finished") and your finished games, without your name, are sent to help improve the game.</p>
           <p><a href="/privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>
           <p class="muted">Version {__APP_VERSION__}</p>
         </section>
