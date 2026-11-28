@@ -99,6 +99,11 @@ export function prefWords(pref: Pref): string {
 function Dots({ n, label }: { n: number; label: string }) {
   return <span class="cd-dots" role="img" aria-label={label}>{Array.from({ length: n }, () => <i />)}</span>;
 }
+/** PLAN-133: the pieces a customer wants, one picture of the fruit each (three apples wanted is three apples drawn).
+ *  It keeps the dots' class, so How to play still points at it for "how many". A standing order keeps its dots. */
+function Pieces({ fruit, n, label }: { fruit: FruitId; n: number; label: string }) {
+  return <span class="cd-dots cd-pcs" role="img" aria-label={label}>{Array.from({ length: n }, () => <FruitSvg id={fruit} size={22} alt="" />)}</span>;
+}
 const piecesOf = (n: number, f: FruitId) => `${n} ${n === 1 ? FRUIT[f].name : FRUIT[f].plural}`;
 
 /** One fruit a card asks for. `done`: already bought (a customer in the row whose order for it is filled). */
@@ -149,8 +154,7 @@ export function TradingCard({ who, wants, n, guest, eager, bigTable, class: cls 
       <ul class="cd-rows">
         {byLane(wants).map((x) => (
           <li class={cx(laneClass(x.fruit), x.done && 'done')}>
-            <FruitSvg id={x.fruit} size={22} alt={FRUIT[x.fruit].name} />
-            <Dots n={x.qty} label={piecesOf(x.qty, x.fruit)} />
+            <Pieces fruit={x.fruit} n={x.qty} label={piecesOf(x.qty, x.fruit)} />
             {bigTable?.fruit === x.fruit && <i class="cd-plus">{`+1 at ${bigTable.stalls} stalls`}</i>}
             <b class="cd-tag">{`$${x.max}`}</b>
           </li>

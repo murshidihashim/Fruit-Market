@@ -29,6 +29,11 @@ function Dots({ n, label, got = 0 }: { n: number; label: string; got?: number })
   return <span class="wc-dots" role="img" aria-label={label}>{Array.from({ length: n }, (_, i) => <i class={i < got ? 'got' : undefined} />)}</span>;
 }
 
+/** PLAN-133: a customer's pieces, one picture of the fruit each; `got` marks those handed over. */
+function Pieces({ fruit, n, label, got = 0 }: { fruit: FruitId; n: number; label: string; got?: number }) {
+  return <span class="wc-dots wc-pcs" role="img" aria-label={label}>{Array.from({ length: n }, (_, i) => <FruitSvg id={fruit} size={20} alt="" class={i < got ? 'got' : undefined} />)}</span>;
+}
+
 // ---------- the morning: today's event ----------
 
 /** What the morning's news prints: an event card, or the "Calm Day" of a day without one. `extra`: the guest an event
@@ -152,8 +157,7 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
           <b class="wc-ttl wc-ttl-c">{look.title}</b>
           {byLane(lines).map((x) => (
             <div class={cx('wc-rw', laneClass(x.fruit), now !== undefined && x.fruit !== now && 'later', x.done && 'done')}>
-              <FruitSvg id={x.fruit} size={20} alt={FRUIT[x.fruit].name} />
-              <Dots n={x.qty} label={piecesOf(x.qty, x.fruit)} got={x.got} />
+              <Pieces fruit={x.fruit} n={x.qty} label={piecesOf(x.qty, x.fruit)} got={x.got} />
               <b class="wc-tag">{`$${x.max}`}</b>
             </div>
           ))}

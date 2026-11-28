@@ -1,0 +1,65 @@
+{
+  "id": "PLAN-133",
+  "title": "Customer cards: one picture of the fruit for each piece",
+  "problem": "A customer's wants were drawn as one picture of the fruit followed by a dot for each piece. The picture reads as a piece, so two pieces looked like three (one picture and two dots). Found on the way: on the new Home, a first customer's card opened whole stayed inside the mode card's box after a tab change or swipe, and the host's shoes showed over it.",
+  "scope": [
+    "The table's customer tickets, the customer card opened whole and the larger customer card on the table: a picture of the fruit for each piece, no dots and no lone picture in front",
+    "A ticket too narrow for its pictures shows one picture and \"×3\", as it showed a number before",
+    "Home: a card opened whole covers the screen after a tab change or swipe, and covers the host"
+  ],
+  "exclusions": [
+    "Standing orders keep their dots (they ask for more pieces)",
+    "No change to what any customer wants or pays: rules, balance and saves untouched",
+    "Not published: the preview and the live game change only on the owner's word",
+    "The printed deck draws the same customer card, so a new print would show the pictures too; nothing is reprinted by this plan"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "PASS",
+      "evidence": "records OK, palette, lint, types, 1440 passed in 139 files, build OK"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": "Not run locally for this change; CI on the release pull request runs it"
+    },
+    {
+      "id": "T3",
+      "text": "In the browser at 390x844: a ticket and a whole card show one picture per piece; the whole card fills the screen after a tab change",
+      "result": "PASS",
+      "evidence": "docs/workflow/reports/img/REP-149-tickets.png (live above, new below) and REP-149-card.png (three apples; pop-up 390x844)"
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-28: \"can we redesign the customer cards so that it shows 3 icons of the fruit for a customer wanting 3 pieces of the fruit, currently it is designed as 1 icon and 2 circle\"",
+    "date": "2026-11-28"
+  },
+  "delivery": "implemented",
+  "build": "branch claude/dazzling-johnson-8wytx6",
+  "reports": [
+    "REP-149"
+  ],
+  "decisions": [
+    "DEC-140"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Customer cards and tickets show a picture of the fruit for each piece wanted"
+    ],
+    "fixed": [
+      "On Home, a first customer's card opened after changing tab was cut to the card's box, with Rosa's shoes over it"
+    ],
+    "removed": [
+      "The dots on customer cards"
+    ]
+  },
+  "playerNotes": [
+    "Customer cards now show one fruit for each piece they want: three apples wanted is three apples drawn",
+    "A customer's card opened from Home fills the screen again"
+  ]
+}

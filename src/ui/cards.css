@@ -53,6 +53,8 @@
 .cd-lamp.off { background: none; color: var(--x-lamp-off); box-shadow: inset 0 0 0 calc(var(--u) * 1.5) var(--x-lamp-off); }
 /* the pieces a card asks for: one dot each */
 .cd-dots { display: flex; flex-wrap: wrap; gap: calc(var(--u) * 6); }
+/* PLAN-133: a customer's pieces are pictures of the fruit, one each */
+.cd-pcs { flex-wrap: nowrap; gap: calc(var(--u) * 3); }
 .cd-dots i { flex: none; width: calc(var(--u) * 14); height: calc(var(--u) * 14); border-radius: 50%; border: calc(var(--u) * 2) solid var(--x-ink); background: var(--lane); }
 
 /* ---------- the customer card (Main board): a heading bar in the type's colour, the picture, fruit rows, one legend bar ---------- */
@@ -272,6 +274,7 @@
 .wc-foot { flex: none; padding: 6px 9px; background: var(--x-kraft); text-align: center; font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
 .wc-dots { display: flex; flex-wrap: wrap; gap: 5px; }
 .wc-dots i { flex: none; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--x-ink); background: var(--lane); }
+.wc-pcs { flex-wrap: nowrap; gap: 3px; }
 .wc-rw { display: flex; align-items: center; gap: 5px; }
 
 /* today's event: the picture beside the title, what it changes on mustard chips, then the card's words */
@@ -354,17 +357,17 @@
 .tkc-rw { flex: none; display: flex; align-items: center; gap: 3px; padding: 3px 4px; }
 .tkc-rw .x-fruit { flex: none; width: 14px; height: 14px; }
 .tkc-q { display: flex; align-items: center; min-width: 0; }
-/* A dot for each piece when the rows have room, a number ("×3") when they do not. ticket.tsx works out the narrowest
+/* A picture of the fruit for each piece when the rows have room (PLAN-133), one picture and a number ("×3") when they do not. ticket.tsx works out the narrowest
    ticket that holds this ticket's dots (--nr px inside the border, with this spacing); the ticket's real width is
    100cqw. The one that does not apply is given no width: a negative length counts as none. */
-.tkc-dots { display: flex; gap: 3px; overflow: hidden; max-width: calc((100cqw - var(--nr, 0) * 1px + 0.5px) * 999); }
+.tkc-dots { display: flex; gap: 2px; overflow: hidden; max-width: calc((100cqw - var(--nr, 0) * 1px + 0.5px) * 999); }
 .tkc-dots i { flex: none; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--x-ink); background: var(--lane); }
-.tkc-n { display: block; overflow: hidden; white-space: nowrap; max-width: calc((var(--nr, 0) * 1px - 0.5px - 100cqw) * 999); font: 800 11px/1 var(--f-label); }
+.tkc-n { display: flex; align-items: center; gap: 2px; overflow: hidden; white-space: nowrap; max-width: calc((var(--nr, 0) * 1px - 0.5px - 100cqw) * 999); font: 800 11px/1 var(--f-label); }
 .tkc-rw > b { flex: none; margin-left: auto; font: 400 12px/1 var(--f-display); }
 .tkc-rw.up > b { color: var(--c-0a7443); }
 .tkc-rw.down > b { color: var(--x-slate); }
 /* B-11 (PLAN-130): a done line's fruit and dots fade; its numbers turn slate, which still reads (they were faded to 1.4:1) */
-.tkc-rw.done > .x-fruit, .tkc-rw.done .tkc-dots { opacity: 0.35; }
+.tkc-rw.done .x-fruit { opacity: 0.35; }
 .tkc-rw.done :is(.tkc-n, b) { color: var(--x-slate); }
 .tkc-rw.done::after { content: '✓'; flex: none; margin-left: 2px; font: 800 11px/1 var(--f-label); color: var(--x-green); }
 .tkc-bd { flex: none; margin-top: auto; display: flex; gap: 3px; padding: 3px 4px; background: var(--bar, var(--x-ink)); box-shadow: inset 0 1.5px 0 var(--bar-edge, transparent); }
