@@ -60,7 +60,7 @@
     "date": "2026-11-28"
   },
   "delivery": "implemented",
-  "release": "1.33.0",
+  "release": "1.34.0",
   "build": "branch ccr-608a8c5d-g7t4ma",
   "reports": [
     "REP-153",
