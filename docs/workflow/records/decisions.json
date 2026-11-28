@@ -3445,7 +3445,7 @@
         "evidence": "Owner, 2026-11-28, after six rounds on the mockup (REP-142 to REP-147): \"remove the next goal thingy, the push it live,\"",
         "date": "2026-11-28"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-132",
       "reviewTrigger": "When the owner has used it on a phone; Rosa's body below the shoulders is a sketch that may be redrawn.",
       "reports": [
@@ -5067,6 +5067,10 @@
     {
       "at": "2026-11-28 09:28",
       "text": "PLAN-132 implemented: npm run verify PASS (1440). Browser run: every step passed with 0 leaks except the performance budget (longest task in play 245 and 230 ms against 200 ms on this machine; the table is not changed by this plan, and unchanged builds have failed here before). Owner, 2026-11-28, twice: \"push it live\". Release 1.33.0 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy if CI is green."
+    },
+    {
+      "at": "2026-11-28 10:02",
+      "text": "1.33.0 published: CI on pull request 42 green (verify:full), squash-merged to main cdd6d76, Deploy LIVE run 56 success, tag v1.33.0 on cdd6d76. The live game's Settings shows \"Version 1.33.0\" and Home shows the tabs Match, League, Daily, Sprint, Rosa and \"Play · Computer\". Merged and deployed in this session on the owner's \"push it live\". Not yet seen on a real phone."
     }
   ]
 }

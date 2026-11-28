@@ -829,7 +829,7 @@
     },
     {
       "version": "1.33.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-132"
       ],
@@ -838,7 +838,10 @@
         "Pick how to play a Match right on Home (Quick Match, Private Room, Computer or Pass & Play), then press Play",
         "Swipe the card or tap a tab to change game",
         "\"Custom match\" is now called \"Match\""
-      ]
+      ],
+      "date": "2026-11-28",
+      "commit": "cdd6d76",
+      "tagged": true
     }
   ]
 }
