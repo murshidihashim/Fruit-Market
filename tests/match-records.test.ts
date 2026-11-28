@@ -7,7 +7,7 @@ import { answerLink, forgetMe, linkAnswer, linked, playerTag } from '../src/net/
 import { noteLeft, noteOpen, noteShown, noteUndo } from '../src/net/recorder';
 import { playLocal } from '../src/ui/game/turn';
 
-// PLAN-132 and PLAN-133: match records. A record is a game's set-up, a sheet for each day and how it ended, with no
+// PLAN-133 and PLAN-134: match records. A record is a game's set-up, a sheet for each day and how it ended, with no
 // name or ID in it; the phone keeps one beside each local game and sends it only while "Share game data" is on; a
 // player number exists only after a yes.
 

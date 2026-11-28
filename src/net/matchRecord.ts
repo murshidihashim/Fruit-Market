@@ -1,11 +1,11 @@
-// Match records (PLAN-132, PLAN-133): one finished or abandoned game as plain data, for balancing. Shared by the app,
+// Match records (PLAN-133, PLAN-134): one finished or abandoned game as plain data, for balancing. Shared by the app,
 // the room server and the reader script. A record never holds a name, an account, a device ID, a room code or an IP:
 // `cleanRecord` rebuilds every record field by field, and every string in it must come from the game's own words
 // (fruit, events, customers, perks, upgrades) or be random hex. Stall names typed by players are never read.
 //
 // A record is a set-up, a "day sheet" for each day played (what every stall bought, put out and charged, and how each
 // sale went), and how the game ended. A game played on one phone also carries its trail: each person's moves with the
-// time each took. Part 2 (PLAN-133), only for a player who said yes: a random player number, the session and progress.
+// time each took. Part 2 (PLAN-134), only for a player who said yes: a random player number, the session and progress.
 import {
   CHARACTER_TRAIT, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FRUITS, ORDER_CARDS, TRAITS, UPGRADES, FAVOURS,
   type FruitId,
@@ -239,7 +239,7 @@ export function cleanRecord(raw: unknown): MatchRecord {
   };
 }
 
-/** Part 2: one app start by a player who said yes (PLAN-133). */
+/** Part 2: one app start by a player who said yes (PLAN-134). */
 export interface SessionHello { pid: string; sid: string; inst: string; ab: string; dev: Device; lvl?: number; stage?: number; looks?: number }
 export function cleanSession(raw: unknown): SessionHello {
   const r = need(raw as Record<string, unknown> | null);

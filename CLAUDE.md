@@ -50,7 +50,7 @@ Never run `npm run deploy:web` or `wrangler deploy` (without `--env staging`) wi
   clients; the e2e leak check must stay at 0. Reconnect, grace period and takeover are covered by tests.
 - Leaderboard and anti-abuse: `server/meta.ts`, `server/names.ts`, `server/limits.ts`.
 - Privacy (`docs/ANALYTICS.md`, `docs/privacy.html`): anonymous counters and nameless match records, both under
-  the "Share game data" switch; a random player number only after the player's yes (PLAN-132, PLAN-133). No name,
+  the "Share game data" switch; a random player number only after the player's yes (PLAN-133, PLAN-134). No name,
   account, device ID, room code or IP in either; every record passes `cleanRecord` (`src/net/matchRecord.ts`).
 - Strict TypeScript; no new type escapes, disabled tests or swallowed errors without explanation.
 - No new dependency unless its benefit outweighs the maintenance cost (say why in the plan).

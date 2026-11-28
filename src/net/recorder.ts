@@ -1,4 +1,4 @@
-// The match record of a game played on this phone (PLAN-132): kept beside the saved game while it is played, sent to
+// The match record of a game played on this phone (PLAN-133): kept beside the saved game while it is played, sent to
 // the server at the end of each day and when the game ends or is left. Nothing is kept or sent while "Share game data"
 // is off in Settings. An online match is recorded by the room server, not here.
 import type { Action, GameState } from '../engine/game';

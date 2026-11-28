@@ -10,9 +10,9 @@
 //   GET  /api/sprint?date=&me= -> the day's Market Sprint board and the week's ranking (PLAN-114; `me`: the device's
 //                                 owner hash, for its own place)        POST /api/sprint -> verified Sprint submission
 //   POST /api/account/{signup,login,sync,logout,password,delete} -> optional ID-and-password accounts (server/accounts.ts)
-//   POST /api/m            -> 204             a match record (PLAN-132): a finished or left game, with no name or ID
-//   POST /api/s            -> 204             a session begins, for a player who said yes to a player number (PLAN-133)
-//   POST /api/forget       -> { ok, deleted } deletes every record and session of a player number (PLAN-133)
+//   POST /api/m            -> 204             a match record (PLAN-133): a finished or left game, with no name or ID
+//   POST /api/s            -> 204             a session begins, for a player who said yes to a player number (PLAN-134)
+//   POST /api/forget       -> { ok, deleted } deletes every record and session of a player number (PLAN-134)
 //   GET  /api/matches?month=YYYY-MM&after=N&what=rec|ses -> a page of stored records (needs the STATS_KEY secret)
 //   GET  /api/version      -> { rules }
 //   anything else          -> the static game (dist/)
@@ -248,7 +248,7 @@ export class RoomDO extends DurableObject<Env> {
       },
       persist: (d) => this.ctx.storage.put('room', d),
       now: () => Date.now(),
-      // PLAN-132: a finished match's record goes to the month's store; a failure never touches the room
+      // PLAN-133: a finished match's record goes to the month's store; a failure never touches the room
       record: (rec) => { this.ctx.waitUntil(recordsOf(this.env, Date.now()).fetch('https://records/put/rec', { method: 'POST', body: JSON.stringify(cleanRecord(rec)) }).then(() => undefined, () => undefined)); },
       randomHex: (n) => Array.from(crypto.getRandomValues(new Uint8Array(n)), (b) => b.toString(16).padStart(2, '0')).join(''),
       randomInt: (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n,
@@ -313,7 +313,7 @@ export class RoomDO extends DurableObject<Env> {
   }
 }
 
-// ---------- match records (PLAN-132, PLAN-133) ----------
+// ---------- match records (PLAN-133, PLAN-134) ----------
 
 /** Records are kept this many months, then their month's store deletes itself. */
 const KEEP_MONTHS = 12;

@@ -1,6 +1,6 @@
 # Analytics: counts, match records and how to read them
 
-Two kinds of data, both under the Settings switch "Share game data" (on by default): anonymous daily **counts** (this page's first part) and nameless **match records** (below, PLAN-132). A third, the **player number**, exists only for a player who said yes when asked (PLAN-133). No name, account, device ID, advertising ID, room code or IP address is stored in any of them.
+Two kinds of data, both under the Settings switch "Share game data" (on by default): anonymous daily **counts** (this page's first part) and nameless **match records** (below, PLAN-133). A third, the **player number**, exists only for a player who said yes when asked (PLAN-134). No name, account, device ID, advertising ID, room code or IP address is stored in any of them.
 
 ## Counts
 
@@ -30,7 +30,7 @@ Read them with: `curl -H "x-stats-key: $STATS_KEY" https://<your-worker>/api/sta
 | `daily_share` | — | Sharing the daily result |
 | `sprint_retry` | — | Try again on the Market Sprint's results (PLAN-114). The day and end counters count a Sprint once per day, however often it is retried |
 | `sprint_from_league` | — | "Try today's Sprint" tapped on a cleared Market League stage's results (PLAN-119). A count only |
-| `first_buy`, `first_sale`, `day1_done` | — | Once per device: the first piece bought, the first sale made, Day 1 finished (PLAN-132) |
+| `first_buy`, `first_sale`, `day1_done` | — | Once per device: the first piece bought, the first sale made, Day 1 finished (PLAN-133) |
 | `mode_view` | `daily` / `sprint` / `league` / `computer` / `pass_and_play` / `quick` / `private` / `public` | A mode's page opened (compare with `game_start` to see which modes are looked at but not played) |
 | `quit_step` | the step (`buy`, `stall`, `bid`, `reveal`, `evening`…) | With `quit_day`, leaving a local game before it ends |
 
@@ -44,7 +44,7 @@ Error lines: the message and first stack frame, deduplicated, at most 5 per batc
 - **Game funnel** = `game_start` → `day_reached:1…10` → `game_end:*`; drop-offs show where games are abandoned (`quit_day:*`).
 
 
-## Match records (PLAN-132)
+## Match records (PLAN-133)
 
 One record per game, sent when the game ends or is left (and at the end of each day, so a closed app loses at most a day). Format and the server's gate: `src/net/matchRecord.ts`. The gate (`cleanRecord`) rebuilds every record field by field: numbers are range-checked and every string must be one of the game's own words (fruit, events, customers, perks, upgrades) or random hex, so a typed name cannot be stored.
 
@@ -61,7 +61,7 @@ One record per game, sent when the game ends or is left (and at the end of each 
 - **Where it is kept:** `RecordsDO`, one object per calendar month, deleted 12 months later. Live and preview are separate.
 - **Not in an online record yet:** move timings and opened cards (the room does not see them).
 
-## The player number (PLAN-133)
+## The player number (PLAN-134)
 
 Asked once on Home after a first game ("Help improve the game?"). Until a yes, no number exists. After a yes: 16 random hex digits kept on the phone, sent with each record as `who` (`pid`, the session's own random `sid`, games started this session, install day, test bucket `a` or `b`, stall level, league stage, looks unlocked) and as one line per app start (`POST /api/s`). Settings has "Link my games" (off deletes the number on the phone) and "Forget my data" (`POST /api/forget`: deletes every record and session line of that number on the server).
 

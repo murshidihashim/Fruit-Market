@@ -11,7 +11,7 @@ import { fx } from './fx';
 
 /** The whole card over the screen. `wide`: a shopkeeper's card, drawn larger than a customer's. */
 export function CardPop({ title, wide, onClose, children }: { title: string; wide?: boolean; onClose: () => void; children: ComponentChildren }) {
-  // PLAN-132: which card was opened, by its name (noted only while a game is on screen and data is shared)
+  // PLAN-133: which card was opened, by its name (noted only while a game is on screen and data is shared)
   useEffect(() => { noteOpen(`card_${title}`); }, [title]);
   return (
     <TrapBox class={`cd-pop zoom-pop ${wide ? 'wide' : ''}`} role="dialog" aria-modal="true" aria-label={title} onEscape={onClose}

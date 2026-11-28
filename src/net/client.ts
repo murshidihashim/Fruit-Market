@@ -235,7 +235,7 @@ export class OnlineClient {
   }
 }
 
-/** PLAN-132: is "Share game data" on? Said to the room, which keeps a match record only if every person's is. */
+/** PLAN-133: is "Share game data" on? Said to the room, which keeps a match record only if every person's is. */
 function sharesData(): boolean {
   try { return loadSettings().analytics !== false; } catch { return false; }
 }

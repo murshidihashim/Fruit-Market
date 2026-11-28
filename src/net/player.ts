@@ -1,4 +1,4 @@
-// Part 2 of the match records (PLAN-133): a random player number, only for a player who said yes when asked.
+// Part 2 of the match records (PLAN-134): a random player number, only for a player who said yes when asked.
 // It is not a name, an account or a phone's own ID: 16 random hex digits made here, kept in this phone's storage, and
 // thrown away by "Forget my data". With it the server can tell that two games were played on the same install, which
 // is what return, sessions and progression need. Without a yes nothing here is ever sent.

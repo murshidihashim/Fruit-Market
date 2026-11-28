@@ -153,8 +153,8 @@ Approval status and delivery status are separate. Only the owner's explicit word
 | DEC-136 | Table polish: market above stalls, drawn event card, night hand-over, stall sales recap, Market Day intro | Approved (owner, 2026-11-24) | Released |  |
 | DEC-137 | Fix every REP-140 finding that needs no rule change | Approved (owner, 2026-11-26) | Released | REP-140, REP-141 |
 | DEC-138 | Fix the price buttons' slow and missed taps on iPhone | Approved (owner, 2026-11-27) | Implemented |  |
-| DEC-139 | Keep full match records (nameless, replayable) | Approved (owner, 2026-11-28) | Implemented | REP-146, REP-147, REP-148 |
-| DEC-140 | A random player number, asked for once | Approved (owner, 2026-11-28) | Implemented | REP-147, REP-148 |
+| DEC-140 | Keep full match records (nameless, replayable) | Approved (owner, 2026-11-28) | Implemented | REP-153, REP-154, REP-155 |
+| DEC-141 | A random player number, asked for once | Approved (owner, 2026-11-28) | Implemented | REP-154, REP-155 |
 
 ## Work packages
 
@@ -291,8 +291,8 @@ Approval status and delivery status are separate. Only the owner's explicit word
 | PLAN-129 | Rules page redesign: seven one-screen illustrated pages | Approved (owner, 2026-11-24) | Released | 1.31.5 |
 | PLAN-130 | Audit fixes (REP-140): everything that needs no rule change | Approved (owner, 2026-11-26) | Released | 1.32.0 |
 | PLAN-131 | Taps on iPhone: the price buttons answer every tap | Approved (owner, 2026-11-27) | Implemented | 1.32.1 |
-| PLAN-132 | Match records and play telemetry, part 1: replayable nameless records with timing, funnel and quit context | Approved (owner, 2026-11-28) | Implemented | Unreleased |
-| PLAN-133 | Match records, part 2: a random player number after a yes, sessions, progress and a test bucket | Approved (owner, 2026-11-28) | Implemented | Unreleased |
+| PLAN-133 | Match records and play telemetry, part 1: replayable nameless records with timing, funnel and quit context | Approved (owner, 2026-11-28) | Implemented | Unreleased |
+| PLAN-134 | Match records, part 2: a random player number after a yes, sessions, progress and a test bucket | Approved (owner, 2026-11-28) | Implemented | Unreleased |
 
 ## Decision details
 
@@ -2372,35 +2372,35 @@ Approval status and delivery status are separate. Only the owner's explicit word
 - **Review trigger:** When the owner has tried it on an iPhone.
 - **Reports:** 
 
-### DEC-139 · Keep full match records (nameless, replayable)
+### DEC-140 · Keep full match records (nameless, replayable)
 
 - **Question:** Should the game keep a record of every finished match, beyond today's anonymous counts?
-- **Choice:** Proposed, in two parts. Part 1 (PLAN-132): each game kept as its set-up, seed, moves and step timings, with no name or ID, for 12 months, under the Settings switch. Part 2 (a later plan): a random player number, asked for on first start, to follow return, sessions and progression.
-- **Rationale:** Real match data is needed to make the game more skill based and competitive (REP-145); today every balance figure comes from computer games.
+- **Choice:** Proposed, in two parts. Part 1 (PLAN-133): each game kept as its set-up, seed, moves and step timings, with no name or ID, for 12 months, under the Settings switch. Part 2 (a later plan): a random player number, asked for on first start, to follow return, sessions and progression.
+- **Rationale:** Real match data is needed to make the game more skill based and competitive (REP-152); today every balance figure comes from computer games.
 - **Player impact:** Nothing changes in play. The privacy page and the Settings switch say that games are kept without names.
 - **Technical impact:** A record format, a new store on the game server, sending from the app and the room server, a reader script.
 - **Data and security:** Changes the rule "anonymous counters only": whole games are kept, still with no identifier, for 12 months.
 - **Cost:** RM0 expected; the Cloudflare plan's storage limit is to be confirmed first.
 - **Owner:** Murshidi
-- **Approval:** Approved: “Owner, 2026-11-28, after the two-part plan of REP-147: "buld plan 2 as well"” (2026-11-28)
-- **Delivery:** Implemented (PLAN-132)
+- **Approval:** Approved: “Owner, 2026-11-28, after the two-part plan of REP-154: "buld plan 2 as well"” (2026-11-28)
+- **Delivery:** Implemented (PLAN-133)
 - **Review trigger:** After two weeks of records on the live game.
-- **Reports:** REP-146, REP-147, REP-148
+- **Reports:** REP-153, REP-154, REP-155
 
-### DEC-140 · A random player number, asked for once
+### DEC-141 · A random player number, asked for once
 
 - **Question:** May one player's games be linked, and how is the player asked?
 - **Choice:** Yes, with a random number made on the phone only after the player says yes to a one-time question; it can be switched off, and "Forget my data" deletes it and its records. The owner's go-ahead did not answer how to ask, so the recommended first-start question was built rather than on by default.
-- **Rationale:** Return, sessions, progression and skill over time need games linked (REP-147). Asking first keeps the app's promise honest for players from 12 years old.
+- **Rationale:** Return, sessions, progression and skill over time need games linked (REP-154). Asking first keeps the app's promise honest for players from 12 years old.
 - **Player impact:** One question after a first game; two new lines in Settings.
 - **Technical impact:** src/net/player.ts, a session route, a forget route, the records store.
 - **Data and security:** Pseudonymous data for players who say yes: games can be tied to each other, not to a person. The privacy page says so.
 - **Cost:** RM0.
 - **Owner:** Murshidi
-- **Approval:** Approved: “Owner, 2026-11-28, after the two-part plan of REP-147: "buld plan 2 as well"” (2026-11-28)
-- **Delivery:** Implemented (PLAN-133)
+- **Approval:** Approved: “Owner, 2026-11-28, after the two-part plan of REP-154: "buld plan 2 as well"” (2026-11-28)
+- **Delivery:** Implemented (PLAN-134)
 - **Review trigger:** Before the Play release (privacy wording, Google Play data form), and after two weeks of data.
-- **Reports:** REP-147, REP-148
+- **Reports:** REP-154, REP-155
 
 ## History (oldest first)
 
@@ -2803,8 +2803,8 @@ Approval status and delivery status are separate. Only the owner's explicit word
 - 2026-11-27 08:17 · 1.32.0 published on the owner's word ("push to live"): pull request #40 passed CI (verify:full, E2E OK, performance budget OK at 60 ms) and merged as 8636dbd; Deploy LIVE game run 54 passed and tagged v1.32.0; the live game serves index-CKg8jn4W.js, the same as a local build of 8636dbd. PLAN-130 released.
 - 2026-11-27 18:39 · Owner reported the pricing button laggy and missing taps on iPhone Safari and asked for a fix (DEC-138, PLAN-131). Cause found without an iPhone: the page never said a double tap is not a zoom, and body's user-select lacked Safari's prefix; a tap's own work measured about 20 ms with the processor slowed 4x.
 - 2026-11-27 18:42 · PLAN-131 implemented (6c0dc61): npm run verify PASS (1434). Not tested on an iPhone or in Safari: none is available in this session. Owner: "push it live after the fix". Release 1.32.1 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy.
-- 2026-11-28 09:04 · Branch ccr-608a8c5d-g7t4ma merged with main (1.32.1). Its four design reports, written 2026-11-26 to 2026-11-28 as REP-140 to REP-143 while main used REP-140 and REP-141 for the audit, are renumbered REP-142 to REP-145: a design study of rules 20 measured over 1,200 computer games (REP-142), two rounds of further mechanics (REP-143, REP-144) and a direction for a more skill-based, competitive game (REP-145). The owner likes favour cards sold by secret bid; nothing is approved.
-- 2026-11-28 09:04 · Owner asked whether match data is stored (it is not: anonymous counts only) and then: "plan option 2, keep full match records". PLAN-132 and DEC-139 written, awaiting approval (REP-146): nameless, replayable records kept 12 months. Nothing built.
-- 2026-11-28 09:14 · Owner sent a wider tracking list (timing, undo and tooltip events, first-game and menu funnels, quit context, an anonymous player ID with sessions and device details, progression, notifications, A/B buckets, a third-party service). REP-147 sorts it: timing, funnels, quit context and coarse device notes join PLAN-132 with no ID (part 1); the player number, sessions and A/B tags are part 2 and need their own approval because the app says today that no IDs are sent; no third-party service recommended yet; notifications do not exist. Still awaiting approval.
-- 2026-11-28 09:36 · Owner: "buld plan 2 as well". Taken as approval of PLAN-132 (part 1) and the new PLAN-133 (the player number; DEC-140), with the recommended answers to REP-147's open questions: 12 months, a one-time question rather than on by default, the game's own server. Both built on the branch (REP-148): records store each day's facts for every mode; the room records online matches when everyone shares; the server's gate keeps names out. Not merged to main, not published.
-- 2026-11-28 10:50 · PLAN-132, PLAN-133: browser tests pass on the branch (E2E OK, 0 leaks) after one fix: the player-number question is asked only where the game has a server. Still not run: the preview-copy check, the Cloudflare storage limit, a look at the question on a phone.
+- 2026-11-28 09:04 · Branch ccr-608a8c5d-g7t4ma merged with main (1.32.1). Its four design reports, written 2026-11-26 to 2026-11-28 as REP-140 to REP-150 while main used REP-140 and REP-141 for the audit, are renumbered REP-149 to REP-152: a design study of rules 20 measured over 1,200 computer games (REP-149), two rounds of further mechanics (REP-150, REP-151) and a direction for a more skill-based, competitive game (REP-152). The owner likes favour cards sold by secret bid; nothing is approved.
+- 2026-11-28 09:04 · Owner asked whether match data is stored (it is not: anonymous counts only) and then: "plan option 2, keep full match records". PLAN-133 and DEC-140 written, awaiting approval (REP-153): nameless, replayable records kept 12 months. Nothing built.
+- 2026-11-28 09:14 · Owner sent a wider tracking list (timing, undo and tooltip events, first-game and menu funnels, quit context, an anonymous player ID with sessions and device details, progression, notifications, A/B buckets, a third-party service). REP-154 sorts it: timing, funnels, quit context and coarse device notes join PLAN-133 with no ID (part 1); the player number, sessions and A/B tags are part 2 and need their own approval because the app says today that no IDs are sent; no third-party service recommended yet; notifications do not exist. Still awaiting approval.
+- 2026-11-28 09:36 · Owner: "buld plan 2 as well". Taken as approval of PLAN-133 (part 1) and the new PLAN-134 (the player number; DEC-141), with the recommended answers to REP-154's open questions: 12 months, a one-time question rather than on by default, the game's own server. Both built on the branch (REP-155): records store each day's facts for every mode; the room records online matches when everyone shares; the server's gate keeps names out. Not merged to main, not published.
+- 2026-11-28 10:50 · PLAN-133, PLAN-134: browser tests pass on the branch (E2E OK, 0 leaks) after one fix: the player-number question is asked only where the game has a server. Still not run: the preview-copy check, the Cloudflare storage limit, a look at the question on a phone.

@@ -3,7 +3,7 @@ import type { FavourId, FruitId } from '../../engine/data';
 import { RuleError, activePlayer, applyAction, eveningOpen, type Action, type GameState } from '../../engine/game';
 import { noteMove } from '../../net/recorder';
 
-/** Applies one local move. In a daily challenge the move is also logged, so the leaderboard can replay it. PLAN-132:
+/** Applies one local move. In a daily challenge the move is also logged, so the leaderboard can replay it. PLAN-133:
  *  every move is noted for the game's match record (nothing is kept while "Share game data" is off). */
 export function playLocal(before: GameState, who: number, a: Action): GameState {
   const next = applyAction(before, who, a);

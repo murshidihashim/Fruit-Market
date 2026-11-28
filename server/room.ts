@@ -70,7 +70,7 @@ export interface SeatData {
   confirmed?: boolean;
   /** ON-09 (PLAN-110): this person left on purpose (their phone forgot the seat), so a computer plays it for good. */
   left?: boolean;
-  /** PLAN-132: "Share game data" is on for this person (their hello said so; an older app says nothing: not shared). */
+  /** PLAN-133: "Share game data" is on for this person (their hello said so; an older app says nothing: not shared). */
   share?: boolean;
 }
 
@@ -116,7 +116,7 @@ export interface RoomData {
   listed?: string;
   /** PLAN-112: when each seat last sent a reaction that was passed on. */
   reactAt?: number[];
-  /** PLAN-132: the match record being kept for the game in play (never sent to anyone in the room): its random
+  /** PLAN-133: the match record being kept for the game in play (never sent to anyone in the room): its random
    *  number, the game's seed, a sheet for each day played, and whether it has gone to the store. */
   rec?: { id: string; seed: number; days: DaySheet[]; sent?: boolean };
 }
@@ -134,7 +134,7 @@ export interface RoomIO {
   persist(d: RoomData): void | Promise<void>;
   now(): number;
   randomHex(bytes: number): string;
-  /** PLAN-132: hands a finished match's record to the store (absent in tests that do not look at records). */
+  /** PLAN-133: hands a finished match's record to the store (absent in tests that do not look at records). */
   record?(rec: MatchRecord): void;
   randomInt(n: number): number;
   setAlarm(at: number): void;
@@ -425,7 +425,7 @@ export class Room {
       }
     }
     this.io.setSeat(conn, seat);
-    // PLAN-132: the person's own "Share game data" switch, as their app says it now.
+    // PLAN-133: the person's own "Share game data" switch, as their app says it now.
     d.seats[seat].share = m.share === true;
     // Back in time (or later): the seat is theirs again. Back while shopkeepers are still being chosen after the
     // computer chose for them: they may change it and confirm again.
@@ -738,7 +738,7 @@ export class Room {
   }
 
   /**
-   * PLAN-132: the match record. A sheet is added for each day as its rush is worked out, and when the game is over the
+   * PLAN-133: the match record. A sheet is added for each day as its rush is worked out, and when the game is over the
    * record goes to the store, but only if every person in the match shares game data. It holds no name, look, token or
    * room code (matchRecord.ts), and nothing of it is ever sent to a player.
    */

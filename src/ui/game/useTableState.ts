@@ -156,10 +156,10 @@ export function useGameMoments(s: GameState, viewer: number, online: boolean): s
   useEffect(() => { if (s.phase !== 'over') trackOnce(`${gameKey}:day:${s.day}`, 'day_reached', s.day); }, [s.day]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- counted once, as the game opens
   useEffect(() => { if (online) trackOnce(`${gameKey}:start`, 'game_start', 'online'); }, []);
-  // PLAN-132: the game on screen, for its match record (an online match is recorded by the room, not here)
+  // PLAN-133: the game on screen, for its match record (an online match is recorded by the room, not here)
   // eslint-disable-next-line react-hooks/exhaustive-deps -- noted as the game opens and as each day begins
   useEffect(() => { noteShown(online ? null : s); }, [s.day, online]);
-  // PLAN-132: the first-game steps, each counted once per phone
+  // PLAN-133: the first-game steps, each counted once per phone
   const me = s.players[viewer];
   const bought = (me?.boughtToday ?? 0) > 0;
   const sale = (s.results?.income[viewer] ?? 0) > 0;

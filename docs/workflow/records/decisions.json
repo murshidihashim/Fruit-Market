@@ -3428,11 +3428,11 @@
       "reports": []
     },
     {
-      "id": "DEC-139",
+      "id": "DEC-140",
       "title": "Keep full match records (nameless, replayable)",
       "question": "Should the game keep a record of every finished match, beyond today's anonymous counts?",
-      "choice": "Proposed, in two parts. Part 1 (PLAN-132): each game kept as its set-up, seed, moves and step timings, with no name or ID, for 12 months, under the Settings switch. Part 2 (a later plan): a random player number, asked for on first start, to follow return, sessions and progression.",
-      "rationale": "Real match data is needed to make the game more skill based and competitive (REP-145); today every balance figure comes from computer games.",
+      "choice": "Proposed, in two parts. Part 1 (PLAN-133): each game kept as its set-up, seed, moves and step timings, with no name or ID, for 12 months, under the Settings switch. Part 2 (a later plan): a random player number, asked for on first start, to follow return, sessions and progression.",
+      "rationale": "Real match data is needed to make the game more skill based and competitive (REP-152); today every balance figure comes from computer games.",
       "impact": {
         "player": "Nothing changes in play. The privacy page and the Settings switch say that games are kept without names.",
         "technical": "A record format, a new store on the game server, sending from the app and the room server, a reader script.",
@@ -3442,24 +3442,24 @@
       "owner": "Murshidi",
       "approval": {
         "status": "approved",
-        "evidence": "Owner, 2026-11-28, after the two-part plan of REP-147: \"buld plan 2 as well\"",
+        "evidence": "Owner, 2026-11-28, after the two-part plan of REP-154: \"buld plan 2 as well\"",
         "date": "2026-11-28"
       },
       "delivery": "implemented",
-      "plan": "PLAN-132",
+      "plan": "PLAN-133",
       "reviewTrigger": "After two weeks of records on the live game.",
       "reports": [
-        "REP-146",
-        "REP-147",
-        "REP-148"
+        "REP-153",
+        "REP-154",
+        "REP-155"
       ]
     },
     {
-      "id": "DEC-140",
+      "id": "DEC-141",
       "title": "A random player number, asked for once",
       "question": "May one player's games be linked, and how is the player asked?",
       "choice": "Yes, with a random number made on the phone only after the player says yes to a one-time question; it can be switched off, and \"Forget my data\" deletes it and its records. The owner's go-ahead did not answer how to ask, so the recommended first-start question was built rather than on by default.",
-      "rationale": "Return, sessions, progression and skill over time need games linked (REP-147). Asking first keeps the app's promise honest for players from 12 years old.",
+      "rationale": "Return, sessions, progression and skill over time need games linked (REP-154). Asking first keeps the app's promise honest for players from 12 years old.",
       "impact": {
         "player": "One question after a first game; two new lines in Settings.",
         "technical": "src/net/player.ts, a session route, a forget route, the records store.",
@@ -3469,15 +3469,15 @@
       "owner": "Murshidi",
       "approval": {
         "status": "approved",
-        "evidence": "Owner, 2026-11-28, after the two-part plan of REP-147: \"buld plan 2 as well\"",
+        "evidence": "Owner, 2026-11-28, after the two-part plan of REP-154: \"buld plan 2 as well\"",
         "date": "2026-11-28"
       },
       "delivery": "implemented",
-      "plan": "PLAN-133",
+      "plan": "PLAN-134",
       "reviewTrigger": "Before the Play release (privacy wording, Google Play data form), and after two weeks of data.",
       "reports": [
-        "REP-147",
-        "REP-148"
+        "REP-154",
+        "REP-155"
       ]
     }
   ],
@@ -5080,23 +5080,23 @@
     },
     {
       "at": "2026-11-28 09:04",
-      "text": "Branch ccr-608a8c5d-g7t4ma merged with main (1.32.1). Its four design reports, written 2026-11-26 to 2026-11-28 as REP-140 to REP-143 while main used REP-140 and REP-141 for the audit, are renumbered REP-142 to REP-145: a design study of rules 20 measured over 1,200 computer games (REP-142), two rounds of further mechanics (REP-143, REP-144) and a direction for a more skill-based, competitive game (REP-145). The owner likes favour cards sold by secret bid; nothing is approved."
+      "text": "Branch ccr-608a8c5d-g7t4ma merged with main (1.32.1). Its four design reports, written 2026-11-26 to 2026-11-28 as REP-140 to REP-150 while main used REP-140 and REP-141 for the audit, are renumbered REP-149 to REP-152: a design study of rules 20 measured over 1,200 computer games (REP-149), two rounds of further mechanics (REP-150, REP-151) and a direction for a more skill-based, competitive game (REP-152). The owner likes favour cards sold by secret bid; nothing is approved."
     },
     {
       "at": "2026-11-28 09:04",
-      "text": "Owner asked whether match data is stored (it is not: anonymous counts only) and then: \"plan option 2, keep full match records\". PLAN-132 and DEC-139 written, awaiting approval (REP-146): nameless, replayable records kept 12 months. Nothing built."
+      "text": "Owner asked whether match data is stored (it is not: anonymous counts only) and then: \"plan option 2, keep full match records\". PLAN-133 and DEC-140 written, awaiting approval (REP-153): nameless, replayable records kept 12 months. Nothing built."
     },
     {
       "at": "2026-11-28 09:14",
-      "text": "Owner sent a wider tracking list (timing, undo and tooltip events, first-game and menu funnels, quit context, an anonymous player ID with sessions and device details, progression, notifications, A/B buckets, a third-party service). REP-147 sorts it: timing, funnels, quit context and coarse device notes join PLAN-132 with no ID (part 1); the player number, sessions and A/B tags are part 2 and need their own approval because the app says today that no IDs are sent; no third-party service recommended yet; notifications do not exist. Still awaiting approval."
+      "text": "Owner sent a wider tracking list (timing, undo and tooltip events, first-game and menu funnels, quit context, an anonymous player ID with sessions and device details, progression, notifications, A/B buckets, a third-party service). REP-154 sorts it: timing, funnels, quit context and coarse device notes join PLAN-133 with no ID (part 1); the player number, sessions and A/B tags are part 2 and need their own approval because the app says today that no IDs are sent; no third-party service recommended yet; notifications do not exist. Still awaiting approval."
     },
     {
       "at": "2026-11-28 09:36",
-      "text": "Owner: \"buld plan 2 as well\". Taken as approval of PLAN-132 (part 1) and the new PLAN-133 (the player number; DEC-140), with the recommended answers to REP-147's open questions: 12 months, a one-time question rather than on by default, the game's own server. Both built on the branch (REP-148): records store each day's facts for every mode; the room records online matches when everyone shares; the server's gate keeps names out. Not merged to main, not published."
+      "text": "Owner: \"buld plan 2 as well\". Taken as approval of PLAN-133 (part 1) and the new PLAN-134 (the player number; DEC-141), with the recommended answers to REP-154's open questions: 12 months, a one-time question rather than on by default, the game's own server. Both built on the branch (REP-155): records store each day's facts for every mode; the room records online matches when everyone shares; the server's gate keeps names out. Not merged to main, not published."
     },
     {
       "at": "2026-11-28 10:50",
-      "text": "PLAN-132, PLAN-133: browser tests pass on the branch (E2E OK, 0 leaks) after one fix: the player-number question is asked only where the game has a server. Still not run: the preview-copy check, the Cloudflare storage limit, a look at the question on a phone."
+      "text": "PLAN-133, PLAN-134: browser tests pass on the branch (E2E OK, 0 leaks) after one fix: the player-number question is asked only where the game has a server. Still not run: the preview-copy check, the Cloudflare storage limit, a look at the question on a phone."
     }
   ]
 }

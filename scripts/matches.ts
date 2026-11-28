@@ -1,4 +1,4 @@
-// Reads the match records (PLAN-132, PLAN-133) and prints what real games looked like.
+// Reads the match records (PLAN-133, PLAN-134) and prints what real games looked like.
 //   npm run matches -- <file.ndjson>                         records saved earlier, one per line
 //   STATS_KEY=... npm run matches -- https://<worker> [YYYY-MM]   download a month from the server (default: this month)
 //   add --save <file> to keep what was downloaded

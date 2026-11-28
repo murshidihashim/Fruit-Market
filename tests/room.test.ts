@@ -42,7 +42,7 @@ class Harness implements RoomIO {
   randomInt(n: number) { return (this.n++ * 7919) % n; }
   setAlarm(at: number) { this.alarmAt = at; }
   destroy() { this.destroyed = true; }
-  /** PLAN-132: the match records the room handed to the store. */
+  /** PLAN-133: the match records the room handed to the store. */
   records: MatchRecord[] = [];
   record(r: MatchRecord) { this.records.push(r); }
   connect(id: string) { const c = new Client(id, this); this.list.push(c); return c; }
@@ -1649,7 +1649,7 @@ describe('quick match tables of 2, 4 and 6 stalls', () => {
   });
 });
 
-// PLAN-132: a finished online match is kept as a nameless record, only when every person shares game data.
+// PLAN-133: a finished online match is kept as a nameless record, only when every person shares game data.
 describe('match records from a room', () => {
   const hello = (name: string, share: boolean | undefined) => ({ t: 'hello' as const, rv: RULES_VERSION, pv: PROTOCOL_VERSION, name, avatar: '', ...(share === undefined ? {} : { share }) });
   async function match(shareA: boolean | undefined, shareB: boolean | undefined) {

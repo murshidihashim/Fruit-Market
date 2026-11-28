@@ -15,7 +15,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
   const [st, setSt] = useState<Settings>(loadSettings());
   // S19 (PLAN-110): "Replay the tutorial next game" says that it worked.
   const [replay, setReplay] = useState(false);
-  // PLAN-133: the player number (asked for once on Home), and what "Forget my data" answered.
+  // PLAN-134: the player number (asked for once on Home), and what "Forget my data" answered.
   const [link, setLink] = useState(linked());
   const [forgot, setForgot] = useState<'' | 'busy' | 'done' | 'later'>('');
   const stats = loadStats();
@@ -41,7 +41,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
           <Toggle on={st.still || phone} set={(v) => { upd({ still: v }); setStill(v); }} title={REDUCED_MOTION.title} text={REDUCED_MOTION.text(phone)} />
           <Toggle on={st.music} set={(v) => { upd({ music: v }); setMusic(v); }} title="Music" text="A gentle market tune." />
           <Toggle on={st.reactions} set={(v) => upd({ reactions: v })} title="Show reactions" text="Emoji and short lines other players send in online games." />
-          {/* PLAN-132: the switch covers the match records too. PLAN-133: linking is its own switch, off until a yes. */}
+          {/* PLAN-133: the switch covers the match records too. PLAN-134: linking is its own switch, off until a yes. */}
           <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share game data" text="Counts and finished games, to fix crashes and balance the game. No names are sent." />
           <Toggle on={link && st.analytics} set={(v) => { answerLink(v); setLink(v); setForgot(''); if (v) sessionHello(); }} title="Link my games" text="A random player number, so your games can be counted together. Not your name, account or phone." />
           <button class="btn wide" disabled={forgot === 'busy'} onClick={() => { fx.tap(); setForgot('busy'); void forgetMe().then((ok) => { setLink(false); setForgot(ok ? 'done' : 'later'); }); }}>Forget my data</button>

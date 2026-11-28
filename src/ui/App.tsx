@@ -354,7 +354,7 @@ function OverHome({ nav, saves, run, askFullscreen, onAsked }: { nav: Nav; saves
       )}
       {nav.popup === 'account' && <Popup title="Account" onClose={close}><accountPanel.Screen onChange={() => refresh((n) => n + 1)} /></Popup>}
       {askFullscreen && nav.played && nav.screen === 'home' && !nav.popup && !swap && <fullscreenPrompt.Screen onClose={onAsked} />}
-      {/* PLAN-133: asked once, after a first game, never over another question, and only where the game has a server to send to. Until a yes no player number exists. */}
+      {/* PLAN-134: asked once, after a first game, never over another question, and only where the game has a server to send to. Until a yes no player number exists. */}
       {!askFullscreen && nav.played && nav.screen === 'home' && !nav.popup && !swap && serverBase() !== '' && linkAnswer() === null && (
         <Popup title="Help improve the game?" onClose={() => { answerLink(false); refresh((n) => n + 1); }}>
           <LinkAsk onAnswer={(yes) => { fx.tap(); answerLink(yes); if (yes) sessionHello(); refresh((n) => n + 1); }} />
@@ -443,7 +443,7 @@ function useBackButtons(nav: NavState, apply: (step: BackStep) => void) {
   }, [latest]);
 }
 
-/** PLAN-133: the one question about linking games. The words say what is sent and what is not; No is as easy as Yes. */
+/** PLAN-134: the one question about linking games. The words say what is sent and what is not; No is as easy as Yes. */
 function LinkAsk({ onAnswer }: { onAnswer: (yes: boolean) => void }) {
   return (
     <div class="link-ask">
