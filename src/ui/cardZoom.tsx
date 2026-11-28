@@ -4,12 +4,15 @@
 // in the game (cards.css .cd-pop); a tap anywhere, or Escape, closes it. The words beside each small card say what
 // matters on it in readable text.
 import type { ComponentChildren } from 'preact';
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
+import { noteOpen } from '../net/recorder';
 import { TrapBox } from './focusTrap';
 import { fx } from './fx';
 
 /** The whole card over the screen. `wide`: a shopkeeper's card, drawn larger than a customer's. */
 export function CardPop({ title, wide, onClose, children }: { title: string; wide?: boolean; onClose: () => void; children: ComponentChildren }) {
+  // PLAN-133: which card was opened, by its name (noted only while a game is on screen and data is shared)
+  useEffect(() => { noteOpen(`card_${title}`); }, [title]);
   return (
     <TrapBox class={`cd-pop zoom-pop ${wide ? 'wide' : ''}`} role="dialog" aria-modal="true" aria-label={title} onEscape={onClose}
       onClick={(e) => { e.stopPropagation(); fx.tap(); onClose(); }}>

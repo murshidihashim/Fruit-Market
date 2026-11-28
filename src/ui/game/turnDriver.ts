@@ -9,6 +9,7 @@ import { BEAT, isFast, pause, resetHurry } from '../motion';
 import type { OwnDay } from './dayWords';
 import { computerStep, eveningAside, nextFromRoom, ownDaysAfter, stepKind, type StepKind } from './stepKind';
 import { awaitsHandOver, keepTap, playLocal, undoPoint, waitsForPerson, type KeptTap, type UndoPoint } from './turn';
+import { noteUndo } from '../../net/recorder';
 
 /** The room server, as the table uses it (net/client.ts OnlineClient). */
 export interface Room {
@@ -224,7 +225,7 @@ export class TurnDriver {
     this.kept = [];
     this.endQueued = false;
     if (this.busy) { this.undoQueued = true; return; }
-    if (t && t !== this.s) void this.apply(t);
+    if (t && t !== this.s) { noteUndo(this.s); void this.apply(t); }
     this.hooks.dropPick(true);
   }
 

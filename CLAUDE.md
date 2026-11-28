@@ -26,6 +26,7 @@ Short progress notes use STATUS, FINDING, NEXT. Plain English; the owner reads o
 | `npm run dev` | Local game at http://localhost:5173 (offline modes) |
 | `npm run dev:online` | Local game plus room server (wrangler dev) at http://127.0.0.1:8787 |
 | `npm run simulate` / `npm run balance` | Balance reports (AI games) |
+| `STATS_KEY=… npm run matches -- https://<worker> [YYYY-MM]` | Download a month of match records and print what real games looked like (or `-- file.ndjson`) |
 | `npm run records` | Rebuild DECISIONS.md, CHANGELOG.md, the STATE pending block and all PDFs from `docs/workflow/records/` |
 | `npm run records:check` | Check records (part of `verify`): IDs, evidence, append-only history, views up to date |
 
@@ -48,7 +49,9 @@ Never run `npm run deploy:web` or `wrangler deploy` (without `--env staging`) wi
 - Online: server-authoritative rooms in `server/room.ts`. Secret prices must never reach other
   clients; the e2e leak check must stay at 0. Reconnect, grace period and takeover are covered by tests.
 - Leaderboard and anti-abuse: `server/meta.ts`, `server/names.ts`, `server/limits.ts`.
-- Privacy: anonymous counters only (`docs/ANALYTICS.md`, `docs/privacy.html`).
+- Privacy (`docs/ANALYTICS.md`, `docs/privacy.html`): anonymous counters and nameless match records, both under
+  the "Share game data" switch; a random player number only after the player's yes (PLAN-133, PLAN-134). No name,
+  account, device ID, room code or IP in either; every record passes `cleanRecord` (`src/net/matchRecord.ts`).
 - Strict TypeScript; no new type escapes, disabled tests or swallowed errors without explanation.
 - No new dependency unless its benefit outweighs the maintenance cost (say why in the plan).
 

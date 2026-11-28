@@ -3457,6 +3457,59 @@
         "REP-147",
         "REP-148"
       ]
+    },
+    {
+      "id": "DEC-140",
+      "title": "Keep full match records (nameless, replayable)",
+      "question": "Should the game keep a record of every finished match, beyond today's anonymous counts?",
+      "choice": "Proposed, in two parts. Part 1 (PLAN-133): each game kept as its set-up, seed, moves and step timings, with no name or ID, for 12 months, under the Settings switch. Part 2 (a later plan): a random player number, asked for on first start, to follow return, sessions and progression.",
+      "rationale": "Real match data is needed to make the game more skill based and competitive (REP-152); today every balance figure comes from computer games.",
+      "impact": {
+        "player": "Nothing changes in play. The privacy page and the Settings switch say that games are kept without names.",
+        "technical": "A record format, a new store on the game server, sending from the app and the room server, a reader script.",
+        "data": "Changes the rule \"anonymous counters only\": whole games are kept, still with no identifier, for 12 months."
+      },
+      "cost": "RM0 expected; the Cloudflare plan's storage limit is to be confirmed first.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-28, after the two-part plan of REP-154: \"buld plan 2 as well\"",
+        "date": "2026-11-28"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-133",
+      "reviewTrigger": "After two weeks of records on the live game.",
+      "reports": [
+        "REP-153",
+        "REP-154",
+        "REP-155"
+      ]
+    },
+    {
+      "id": "DEC-141",
+      "title": "A random player number, asked for once",
+      "question": "May one player's games be linked, and how is the player asked?",
+      "choice": "Yes, with a random number made on the phone only after the player says yes to a one-time question; it can be switched off, and \"Forget my data\" deletes it and its records. The owner's go-ahead did not answer how to ask, so the recommended first-start question was built rather than on by default.",
+      "rationale": "Return, sessions, progression and skill over time need games linked (REP-154). Asking first keeps the app's promise honest for players from 12 years old.",
+      "impact": {
+        "player": "One question after a first game; two new lines in Settings.",
+        "technical": "src/net/player.ts, a session route, a forget route, the records store.",
+        "data": "Pseudonymous data for players who say yes: games can be tied to each other, not to a person. The privacy page says so."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-28, after the two-part plan of REP-154: \"buld plan 2 as well\"",
+        "date": "2026-11-28"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-134",
+      "reviewTrigger": "Before the Play release (privacy wording, Google Play data form), and after two weeks of data.",
+      "reports": [
+        "REP-154",
+        "REP-155"
+      ]
     }
   ],
   "history": [
@@ -5067,6 +5120,22 @@
     {
       "at": "2026-11-28 09:28",
       "text": "PLAN-132 implemented: npm run verify PASS (1440). Browser run: every step passed with 0 leaks except the performance budget (longest task in play 245 and 230 ms against 200 ms on this machine; the table is not changed by this plan, and unchanged builds have failed here before). Owner, 2026-11-28, twice: \"push it live\". Release 1.33.0 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy if CI is green."
+    },
+    {
+      "at": "2026-11-28 09:36",
+      "text": "Owner: \"buld plan 2 as well\". Taken as approval of PLAN-133 (part 1) and the new PLAN-134 (the player number; DEC-141), with the recommended answers to REP-154's open questions: 12 months, a one-time question rather than on by default, the game's own server. Both built on the branch (REP-155): records store each day's facts for every mode; the room records online matches when everyone shares; the server's gate keeps names out. Not merged to main, not published."
+    },
+    {
+      "at": "2026-11-28 10:50",
+      "text": "PLAN-133, PLAN-134: browser tests pass on the branch (E2E OK, 0 leaks) after one fix: the player-number question is asked only where the game has a server. Still not run: the preview-copy check, the Cloudflare storage limit, a look at the question on a phone."
+    },
+    {
+      "at": "2026-11-28 11:11",
+      "text": "Branch ccr-608a8c5d-g7t4ma merged with main (1.33.0 candidate). Main had used PLAN-132, DEC-139 and REP-142 to REP-148 for the new Home, so the branch's records were renumbered: design reports REP-149, REP-150, REP-151 and REP-152 (2026-11-26 to 2026-11-28; nothing approved), match records plan REP-153 and the wider tracking plan REP-154 (owner: \"plan option 2, keep full match records\", then a wider tracking list), implementation report REP-155; PLAN-133 (match records, DEC-140) and PLAN-134 (player number, DEC-141). Owner: \"yes merge and publish live\": publication approved for PLAN-133 and PLAN-134; they join release 1.33.0 with the new Home (PLAN-132)."
+    },
+    {
+      "at": "2026-11-28 11:15",
+      "text": "Correction: 1.33.0 (the new Home, PLAN-132) was already published before this merge: Deploy LIVE game run 56 succeeded on main cdd6d76 on 2026-11-28 and tag v1.33.0 is on that commit. It is recorded as published, and PLAN-133 and PLAN-134 go out as release 1.34.0 instead of joining 1.33.0."
     }
   ]
 }

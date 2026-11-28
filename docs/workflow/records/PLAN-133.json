@@ -1,0 +1,86 @@
+{
+  "id": "PLAN-133",
+  "title": "Match records and play telemetry, part 1: replayable nameless records with timing, funnel and quit context",
+  "problem": "The game keeps only anonymous counts, so nothing is known about how real players buy, stock and price; every balance figure comes from computer games. The owner wants the game more skill based and competitive (REP-152) and asked: \"plan option 2, keep full match records\".",
+  "scope": [
+    "A match record: the set-up (mode, stalls, days, options, computer levels, perks), a sheet for each day (every stall's purchases, crate and prices, every sale line, cash, spoiled fruit, upgrades, standing-order bids) and how the game ended. As built it stores each day's facts, not a seed to replay (REP-155 says why). Games on one phone add each move with the time it took and the take-backs before it",
+    "No name, account ID, device ID, room code or IP address in a record; typed stall names become seat numbers; each record has a random number of its own; no link between two games by one player",
+    "Sent when a game ends or is left: solo, pass-and-play, League, Daily and Sprint from the app; online matches from the room server",
+    "Saved to the server at the end of each day of a game, not only at the end, so a force-close loses at most a day",
+    "In the record: which rule page, card or tip was opened mid-game (its name only); the step and rank when a game is left; a coarse device note (phone, tablet or desktop; operating system family; screen size bucket; app version) and one slow-frames bucket",
+    "New anonymous counts: first buy, first sale and Day 1 done in a first game; each mode viewed and each mode started",
+    "Kept in a new store on the game server (a SQLite Durable Object, one per month) for 12 months, then deleted; live and preview separate",
+    "The Settings switch \"Share anonymous stats\" becomes \"Share game data\" and covers records; online, a match is kept only if every person in it has the switch on",
+    "Limits against abuse: size cap, the existing per-IP rate limit, shape checks, unknown versions refused",
+    "A reader for the owner: a key-protected download and `npm run matches`, which replays records and prints tables",
+    "docs/privacy.html and docs/ANALYTICS.md updated; tests that no identifier can enter a record"
+  ],
+  "exclusions": [
+    "No player number linking games, no sessions, no A/B tags: these are part 2, a separate plan needing its own approval (REP-154)",
+    "No rule, balance or save change; no change to what other players see online",
+    "No paid service: if the Cloudflare plan's storage limit is too small, stop and ask",
+    "No backup of the records (PLAN-003 covers backups)",
+    "No third-party analytics service"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify, with new tests: a record replays to the same final cash for every seat; a record holds no name, ID or code; with sharing off nothing is sent",
+      "result": "PASS",
+      "evidence": "2026-11-28: npm run verify on the branch: 139 test files, 1445 tests passed, build OK. As built the record stores each day's facts instead of a replay: tests check its final cash equals the game's for every seat, that a name cannot pass the gate, and that nothing is sent with sharing off (tests/match-records.test.ts, tests/room.test.ts)"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "PASS",
+      "evidence": "2026-11-28 10:50: npm run test:e2e on commit 6d4efb86: E2E OK, every leak check 0. A first run failed in the League test because the new question covered Home in the offline copy; fixed (asked only where the game has a server) and re-run"
+    },
+    {
+      "id": "T3",
+      "text": "On the preview copy: a solo, a Daily and an online game each produce one record, and `npm run matches` replays them",
+      "result": "NOT RUN",
+      "evidence": "Not on the preview copy yet (not merged). On a local game server, 2026-11-28: two Sprint games and two online matches each produced one record (4.9 to 7.7 KB) and npm run matches printed them; a Daily was not tried"
+    },
+    {
+      "id": "T4",
+      "text": "The Cloudflare plan's storage limits written down; size per 1,000 games measured",
+      "result": "NOT RUN",
+      "evidence": "Size measured: about 5 to 8 KB a game at 2 stalls, so 5 to 8 MB per 1,000 games; estimated 10 to 15 KB at 4 stalls. The Cloudflare account's plan limit could not be read from here"
+    },
+    {
+      "id": "T5",
+      "text": "Older app versions and saved games still play and submit Daily scores",
+      "result": "PASS",
+      "evidence": "2026-11-28: npm run verify on the branch: 139 test files, 1445 tests passed, build OK (saved-game and room tests unchanged and passing; the new hello field is optional, an older app counts as not sharing)"
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-28, after the two-part plan of REP-154: \"buld plan 2 as well\"",
+    "date": "2026-11-28"
+  },
+  "delivery": "implemented",
+  "release": "1.34.0",
+  "build": "branch ccr-608a8c5d-g7t4ma",
+  "reports": [
+    "REP-153",
+    "REP-154",
+    "REP-155"
+  ],
+  "decisions": [
+    "DEC-140"
+  ],
+  "changes": {
+    "added": [
+      "Finished games are kept as nameless records for balancing (can be switched off in Settings)"
+    ],
+    "changed": [
+      "The Settings switch is called \"Share game data\""
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "To help balance the game, finished games are now kept as nameless records, with no name or ID. Switch it off in Settings under \"Share game data\""
+  ]
+}

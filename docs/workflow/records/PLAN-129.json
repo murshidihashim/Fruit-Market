@@ -30,8 +30,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": "To run on this build (E2E OK on 78a2eca, the round before)"
+      "result": "PASS",
+      "evidence": "CI on pull request #39 (head 6ac6139): checks job (verify:full, browser tests) passed; Deploy LIVE game run 53 ran verify and its smoke test"
     },
     {
       "id": "T3",

@@ -829,7 +829,7 @@
     },
     {
       "version": "1.33.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-132"
       ],
@@ -838,6 +838,21 @@
         "Pick how to play a Match right on Home (Quick Match, Private Room, Computer or Pass & Play), then press Play",
         "Swipe the card or tap a tab to change game",
         "\"Custom match\" is now called \"Match\""
+      ],
+      "date": "2026-11-28",
+      "commit": "cdd6d76",
+      "tagged": true
+    },
+    {
+      "version": "1.34.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-133",
+        "PLAN-134"
+      ],
+      "notes": [
+        "Settings: \"Share anonymous stats\" is now \"Share game data\". With it on, finished games are kept without your name, to balance the game",
+        "The game may ask once whether it can give your phone a random player number, to count your games together. Say no and nothing changes; Settings has \"Forget my data\""
       ]
     }
   ]

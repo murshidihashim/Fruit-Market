@@ -1,5 +1,6 @@
 // Pop-ups over the table: today's event, the coach tip, a favour card, the demand bar help,
 // a customer's order and the pause menu. (A rival's stall opens below their seat; see table.tsx.)
+import { noteOpen } from '../../../net/recorder';
 import { FAVOURS, ORDER_CARDS, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax, handLimit } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
@@ -195,7 +196,7 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
           <Toggle on={sound} set={(v) => { setting({ sound: v }); setSound(v); }} title="Sound" text="Coins, cards and cheers." />
           <Toggle on={fast} set={(v) => { setting({ fast: v }); setFast(v); setBaseSpeed(v); }} title={FAST_PLAY.title} text={FAST_PLAY.text} />
           <Toggle on={still || phone} set={(v) => { setting({ still: v }); setStillOn(v); setStill(v); }} title={REDUCED_MOTION.title} text={REDUCED_MOTION.text(phone)} />
-          <button class="btn wide" data-a="menu-howto" onClick={() => { setMenu(false); setHowto(true); }}>How to play</button>
+          <button class="btn wide" data-a="menu-howto" onClick={() => { setMenu(false); noteOpen('how_to_play'); setHowto(true); }}>How to play</button>
           <FullScreenButton />
           {onWear && <button class="btn wide" onClick={() => { setMenu(false); setWardrobe(true); }}>Wardrobe</button>}
           <button class="btn wide" onClick={room ? () => setLeaving(true) : onExit}>Home</button>
