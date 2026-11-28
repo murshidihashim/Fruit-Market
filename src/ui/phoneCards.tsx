@@ -24,9 +24,9 @@ const two = (n: number) => String(n).padStart(2, '0');
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ');
 const piecesOf = (n: number, f: FruitId) => `${n} ${n === 1 ? FRUIT[f].name : FRUIT[f].plural}`;
 
-/** `got`: how many of the pieces have been handed over (the rush: a dot is filled as its piece lands). */
-function Dots({ n, label, got = 0 }: { n: number; label: string; got?: number }) {
-  return <span class="wc-dots" role="img" aria-label={label}>{Array.from({ length: n }, (_, i) => <i class={i < got ? 'got' : undefined} />)}</span>;
+/** PLAN-135: the pieces a customer or a standing order wants, one picture of the fruit each; `got` marks those handed over. */
+function Pieces({ fruit, n, label, got = 0 }: { fruit: FruitId; n: number; label: string; got?: number }) {
+  return <span class="wc-dots wc-pcs" role="img" aria-label={label}>{Array.from({ length: n }, (_, i) => <FruitSvg id={fruit} size={20} alt="" class={i < got ? 'got' : undefined} />)}</span>;
 }
 
 // ---------- the morning: today's event ----------
@@ -111,7 +111,7 @@ export function OrderTicket({ card, qty, due, day, ceiling, stake, held }: {
         <CardArt class="wc-sqpic" src={customerArt(card.name)} alt="" w={ART_SIZE.customer[0]} h={ART_SIZE.customer[1]} eager focus={customerFocus(card.name)} />
         <div class="wc-main">
           <b class="wc-ttl wc-ttl-o">{card.title}</b>
-          <span class={`wc-rw ${laneClass(card.fruit)}`}><FruitSvg id={card.fruit} size={22} alt="" /><Dots n={qty} label={piecesOf(qty, card.fruit)} /></span>
+          <span class={`wc-rw ${laneClass(card.fruit)}`}><Pieces fruit={card.fruit} n={qty} label={piecesOf(qty, card.fruit)} /></span>
           <span class="wc-lab">{`${piecesOf(qty, card.fruit)} · Fresh or Okay`}</span>
         </div>
       </div>
@@ -152,8 +152,7 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
           <b class="wc-ttl wc-ttl-c">{look.title}</b>
           {byLane(lines).map((x) => (
             <div class={cx('wc-rw', laneClass(x.fruit), now !== undefined && x.fruit !== now && 'later', x.done && 'done')}>
-              <FruitSvg id={x.fruit} size={20} alt={FRUIT[x.fruit].name} />
-              <Dots n={x.qty} label={piecesOf(x.qty, x.fruit)} got={x.got} />
+              <Pieces fruit={x.fruit} n={x.qty} label={piecesOf(x.qty, x.fruit)} got={x.got} />
               <b class="wc-tag">{`$${x.max}`}</b>
             </div>
           ))}

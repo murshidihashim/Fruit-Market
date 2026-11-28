@@ -28,8 +28,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks), with the scripts moved to the new routes (a tile, then Play)",
-      "result": "FAIL",
-      "evidence": "Every step passed (solo game, League, Pass & Play, online match, Quick Match, public room, Sprint, four players, reconnect, Quick Match of 4; 0 leaks) except the performance budget: longest task during play 245 ms and 230 ms against 200 ms. The pause is on the game table, which this plan does not touch, and this machine has failed that limit on unchanged builds (238 to 315 ms on 2026-11-14 and 2026-11-16; 63 ms on CI). CI on the pull request decides it"
+      "result": "PASS",
+      "evidence": "CI on pull request 42 (verify:full, run 46093480863): success, performance budget included. Locally every step passed with 0 leaks except the performance budget (245 and 230 ms against 200 ms on this machine)"
     },
     {
       "id": "T3",
@@ -55,7 +55,7 @@
     "evidence": "Owner, 2026-11-28, after six rounds on the mockup (REP-142 to REP-147): \"remove the next goal thingy, the push it live,\"",
     "date": "2026-11-28"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.33.0",
   "build": "branch claude/dazzling-johnson-8wytx6",
   "reports": [

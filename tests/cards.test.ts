@@ -150,13 +150,18 @@ describe('customer cards (the Main board)', () => {
     });
   });
 
-  it('the fruit rows are in the board\'s lane order, with one dot for each piece', () => {
+  it('the fruit rows are in the board\'s lane order, with one picture of the fruit for each piece (PLAN-135)', () => {
     for (const c of CUSTOMER_CARDS) {
       const s = html(TradingCard, { who: c.name, wants: c.wants });
       const rows = [...s.matchAll(/<li class="ln-([a-z]+)">.*?<\/li>/g)];
       const order = [...c.wants].sort((a, b) => LANES.indexOf(a.fruit) - LANES.indexOf(b.fruit));
       expect(rows.map((m) => m[1]), c.name).toEqual(order.map((w) => w.fruit));
-      rows.forEach((m, k) => expect(m[0].match(/<i><\/i>/g) ?? [], c.name).toHaveLength(order[k].qty));
+      rows.forEach((m, k) => {
+        // three apples wanted is three apples drawn, and nothing else stands for a piece: no dots, no lone picture in front
+        expect(m[0].match(/class="x-fruit"/g) ?? [], c.name).toHaveLength(order[k].qty);
+        expect(m[0], c.name).not.toContain('<i></i>');
+        expect(m[0], c.name).toMatch(/^<li class="ln-[a-z]+"><span class="cd-dots cd-pcs" role="img" aria-label="\d+ [^"]+">/);
+      });
     }
     // Cowboy Jack's card lists the apple first; the card draws the watermelon first.
     expect(CUSTOMER_CARDS[0].wants.map((w) => w.fruit)).toEqual(['apple', 'watermelon']);
@@ -458,7 +463,9 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
       expect(s).toContain(`>${o.title}</strong>`);
       expect(s).toContain(esc(o.quirk));
       expect(s).toContain(`cd-want ln-${o.fruit}`);
-      expect(s.match(/<span class="cd-dots"[^>]*>(.*?)<\/span>/)![1].match(/<i><\/i>/g)).toHaveLength(orderQty(4));
+      // PLAN-135: a picture of the fruit for each piece, each on its paper disc; no dots
+      expect(s.match(/<span class="cd-ic"><img class="x-fruit"/g)).toHaveLength(orderQty(4));
+      expect(s).not.toContain('<i></i>');
       expect(s).toContain(`<b>$${o.ceiling}</b><small>Highest bid, each</small>`);
       expect(s).toContain(`<b>$${o.stake}</b><small>Stake</small>`);
       expect(s).toContain('Deliver all 4 and the stake comes back');
@@ -542,7 +549,15 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
       for (const w of c.wants) expect(s).toContain(`<b>$${w.max}</b>`);
       expect(s.match(/class="tkc-lamp( off)?"/g)).toHaveLength(3);
       // Both ways of showing the amount are there; the stylesheet shows the dots when the ticket is wide enough.
-      for (const w of order) expect(s).toContain(`${'<i></i>'.repeat(w.qty)}</span><em class="tkc-n">×${w.qty}</em>`);
+      // PLAN-135: a picture of the fruit for each piece (no dots, no lone picture in front), and one picture with "×N" for a narrow ticket
+      for (const row of s.match(/<div class="tkc-rw [^"]*">.*?<\/div>/g) ?? []) {
+        const n = Number(row.match(/×(\d+)<\/em>/)![1]);
+        expect(row.match(/<span class="tkc-dots">(.*?)<\/span>/)![1].match(/class="x-fruit"/g), c.name).toHaveLength(n);
+        expect(row.match(/<em class="tkc-n">(.*?)<\/em>/)![1].match(/class="x-fruit"/g), c.name).toHaveLength(1);
+        expect(row, c.name).not.toContain('<i></i>');
+        expect(row, c.name).toMatch(/^<div class="tkc-rw [^"]*"><span class="tkc-q"/);
+      }
+      expect((s.match(/×(\d+)<\/em>/g) ?? []).map((m) => Number(m.match(/\d+/)![0])), c.name).toEqual(order.map((w) => w.qty));
     });
     for (const g of GUESTS) expect(html(Ticket, { who: g.name, lines: g.wants })).toContain(`<header class="tkc-hd">${lookOf(g.name).title}</header>`);
     // A standing order collected today stands in the row too: its client's picture, and a legend that is not a price key.
@@ -558,13 +573,15 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
     const one = dotsNeed([{ qty: 1, max: 5 }]);
     const three = dotsNeed([{ qty: 3, max: 5 }]);
     const dear = dotsNeed([{ qty: 3, max: 13 }]);
+    const most = dotsNeed([{ qty: 4, max: 13 }]);
     expect(one.roomy).toBeLessThan(three.roomy);
     expect(three.roomy).toBeLessThan(dear.roomy);
     expect(one.tight).toBeLessThan(one.roomy);
-    // The approved screen: four tickets across a 390 px phone are 83.75 px inside their borders. Three dots and a
-    // one-figure price fit; three dots and "$13" do not.
+    // Four tickets across a 390 px phone are 83.75 px inside their borders. PLAN-135: three pictures fit beside a
+    // one-figure price and beside "$13"; four pictures and "$13" do not, so that ticket says "×4".
     expect(three.roomy).toBeLessThanOrEqual(83.75);
-    expect(dear.roomy).toBeGreaterThan(83.75);
+    expect(dear.roomy).toBeLessThanOrEqual(83.75);
+    expect(most.roomy).toBeGreaterThan(83.75);
     expect(html(Ticket, { who: 'John', lines: CUSTOMER_CARDS[0].wants })).toMatch(/style="--nr:\d+;--nt:\d+"/);
   });
 

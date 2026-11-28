@@ -4,6 +4,7 @@
 import { FRUIT, lookOf, prefOf, type FruitId, type Stage } from '../engine/data';
 import { partsOf, type LookSet } from '../net/looks';
 import { Face, Fruit } from './art';
+import { FruitSvg } from './fruitIcons';
 import { LANES } from './boardModel';
 import { byLane, customerNumber, laneClass, prefClass, prefWords } from './cards';
 import { GUEST_EVENT, customerArt, customerFocus, focusCss, guestArt, guestFocus } from './deckArt';
@@ -36,8 +37,8 @@ const two = (n: number) => String(n).padStart(2, '0');
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ');
 
 /**
- * A ticket shows a dot for each piece when its rows have room for them, and a number ("×3") when they do not: a row
- * of five tickets on a phone is too narrow for three dots and a price. These are the narrowest tickets, measured inside
+ * A ticket shows a picture of the fruit for each piece (PLAN-135; a dot each before) when its rows have room for them,
+ * and one picture with a number ("×3") when they do not: a row of five tickets on a phone can be too narrow. These are the narrowest tickets, measured inside
  * the border in px, whose rows hold the dots: `roomy` with the spacing of the approved ticket, `tight` with the closer
  * spacing of a narrow one. The stylesheet compares them with the ticket's real width (cards.css, --nr and --nt).
  */
@@ -45,15 +46,16 @@ export function dotsNeed(lines: { qty: number; max: number; done?: boolean }[]):
   // A price is a dollar sign and its figures, each two thirds of an em wide; a bought row ends with a tick.
   const chars = (x: { max: number }) => String(x.max).length + 1;
   const tick = (x: { done?: boolean }) => (x.done ? 11 : 0);
-  const roomy = Math.max(0, ...lines.map((x) => 4 + 14 + 3 + x.qty * 9 + (x.qty - 1) * 3 + 3 + chars(x) * 8 + tick(x) + 4));
-  const tight = Math.max(0, ...lines.map((x) => 3 + 13 + 2 + x.qty * 8 + (x.qty - 1) * 2 + 2 + chars(x) * 7.34 + tick(x) + 3));
+  // PLAN-135: a piece is a picture of the fruit (14 px, 13 on a narrow ticket), 2 px apart.
+  const roomy = Math.max(0, ...lines.map((x) => 4 + x.qty * 14 + (x.qty - 1) * 2 + 3 + chars(x) * 8 + tick(x) + 4));
+  const tight = Math.max(0, ...lines.map((x) => 3 + x.qty * 13 + (x.qty - 1) * 2 + 2 + chars(x) * 7.34 + tick(x) + 3));
   return { roomy: Math.ceil(roomy), tight: Math.ceil(tight) };
 }
 
 /**
  * A customer as a ticket in the row (the approved phone screens): the number and name on a heading in the customer
  * type's colour (black for a standing order), the picture,
- * one row per fruit in the board's lane order (a dot for each piece, and the most they pay for a fresh piece today),
+ * one row per fruit in the board's lane order (a picture of the fruit for each piece, and the most they pay for a fresh piece today),
  * and the legend: which freshness they buy. `order`: a standing order collected today, which stands in the row like a
  * customer; it takes Fresh or Okay pieces at its own price, so its legend is not a price key.
  */
@@ -73,10 +75,10 @@ export function Ticket({ who, lines, class: cls, order }: { who: string; lines: 
       </div>
       {rows.map((x) => (
         <div class={cx('tkc-rw', laneClass(x.fruit), x.done && 'done', x.move)}>
-          <Fruit id={x.fruit} size={14} />
           <span class="tkc-q" role="img" aria-label={`${x.qty} ${x.qty === 1 ? FRUIT[x.fruit].name : FRUIT[x.fruit].plural}`}>
-            <span class="tkc-dots">{Array.from({ length: x.qty }, () => <i />)}</span>
-            <em class="tkc-n">×{x.qty}</em>
+            {/* PLAN-135: one picture of the fruit for each piece; on a ticket too narrow for them, one picture and "×3" */}
+            <span class="tkc-dots">{Array.from({ length: x.qty }, () => <FruitSvg id={x.fruit} size={14} alt="" />)}</span>
+            <em class="tkc-n"><FruitSvg id={x.fruit} size={14} alt="" />×{x.qty}</em>
           </span>
           <b>${x.max}</b>
         </div>

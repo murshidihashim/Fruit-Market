@@ -3510,6 +3510,32 @@
         "REP-154",
         "REP-155"
       ]
+    },
+    {
+      "id": "DEC-142",
+      "title": "Customer cards show a picture of the fruit for each piece",
+      "question": "Should a customer's wants be drawn as one picture of the fruit per piece, in place of one picture and dots?",
+      "choice": "Yes, as PLAN-135, on the table's tickets, the whole card and, by the owner's second word, standing orders.",
+      "rationale": "One picture and two dots reads as three pieces when it means two. A picture per piece cannot be miscounted.",
+      "impact": {
+        "player": "Wants are read at a glance. Nothing a customer wants or pays changes.",
+        "technical": "cards.tsx, phoneCards.tsx, ticket.tsx (its width sum), cards.css; home-cards.css for the pop-up fix.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-28: \"can we redesign the customer cards so that it shows 3 icons of the fruit for a customer wanting 3 pieces of the fruit, currently it is designed as 1 icon and 2 circle\"; then, with publication: \"apply it to standing orders as well and push live\"",
+        "date": "2026-11-28"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-135",
+      "reviewTrigger": "When the owner has seen it on a phone.",
+      "reports": [
+        "REP-156",
+        "REP-157"
+      ]
     }
   ],
   "history": [
@@ -5140,6 +5166,18 @@
     {
       "at": "2026-11-28 11:44",
       "text": "1.34.0 published (PLAN-133, PLAN-134): PR 43 merged to main 5285845 after CI passed (verify:full); Deploy LIVE game run 57 succeeded 2026-11-28 11:44 and tagged v1.34.0. Owner: \"yes merge and publish live\". Still not checked: the Cloudflare storage limit, a legal read of the privacy wording, the player-number question on a phone, a first download with npm run matches."
+    },
+    {
+      "at": "2026-11-28 19:49",
+      "text": "(Recorded on the working branch at 2026-11-28 11:47, before the merge with main.) Owner asked for customer cards to show a picture of the fruit for each piece (DEC-142, PLAN-135). Built on the table's tickets and the whole card; standing orders keep their dots. Found while checking: in live 1.33.0 a first customer's card opened from Home after a tab change or swipe is cut to the mode card's box, with the host's shoes over it (the card's slide kept a transform; PLAN-132's checks opened no card after a tab change). Fixed in the same package. verify PASS (1440). Not published."
+    },
+    {
+      "at": "2026-11-28 19:49",
+      "text": "(Recorded on the working branch at 2026-11-28 19:16, before the merge with main.) Owner: \"apply it to standing orders as well and push live\". Standing orders now show a picture of the fruit for each piece (order card, the order on the table, its ticket); this replaces the earlier choice in DEC-142 to leave them with dots. verify PASS (1440). Release 1.34.1 prepared; it goes to main by pull request, CI runs verify:full, then the live deploy if green."
+    },
+    {
+      "at": "2026-11-28 19:49",
+      "text": "Branch claude/dazzling-johnson-8wytx6 merged with main 8c0c166 (1.34.0, match records). Main had used PLAN-133, PLAN-134, DEC-140, DEC-141 and REP-149 to REP-155, so this branch's customer-card work was renumbered: PLAN-135, DEC-142, REP-156 and REP-157 (they were PLAN-133, DEC-140, REP-149 and REP-150 here; the code's notes follow). Its release is 1.34.1, not 1.33.1. Pull request 45 had a conflict and no CI run until this merge."
     }
   ]
 }
